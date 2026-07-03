@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { getWeeks } from "@/modules/registry";
+import { WeekTabs } from "@/components/WeekTabs";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -16,18 +17,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <header className="border-b border-black/10 dark:border-white/15">
-          <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-6 py-4 text-sm">
-            <Link href="/" className="font-semibold">FreshLens</Link>
-            {getWeeks().map((w) => (
-              <Link
-                key={w}
-                href={`/week/${w}`}
-                className="text-gray-500 transition hover:text-gray-900 dark:hover:text-white"
-              >
-                Week {w}
-              </Link>
-            ))}
+        <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
+          <nav className="mx-auto flex min-h-12 max-w-5xl flex-wrap items-stretch gap-x-5 px-6">
+            <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+              <span aria-hidden className="size-2 rounded-full bg-brand" />
+              FreshLens
+            </Link>
+            <WeekTabs weeks={getWeeks()} />
           </nav>
         </header>
         <main className="flex-1">{children}</main>

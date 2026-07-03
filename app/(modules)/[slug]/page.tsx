@@ -19,12 +19,12 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
   const { View } = mod;
   return (
     <article className="mx-auto max-w-4xl px-6 py-10">
-      <header className="mb-6 border-b border-black/10 pb-4 dark:border-white/15">
-        <h1 className="text-2xl font-semibold tracking-tight">{mod.title}</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Owner: {formatOwners(mod.owner)}
-          {mod.issue ? ` · Issue #${mod.issue}` : ""}
+      <header className="mb-8 border-b border-border pb-6">
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          Week {mod.week} · {formatOwners(mod.owner)}
+          {mod.issue ? ` · #${mod.issue}` : ""}
         </p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">{mod.title}</h1>
       </header>
       <View />
     </article>
