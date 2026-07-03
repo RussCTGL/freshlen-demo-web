@@ -13,9 +13,11 @@ export type ModuleMeta = {
   owner: string | string[];
   /** GitHub issue this module demos, if any. e.g. 33 */
   issue?: number;
-  /** Sort order in nav + landing (lower = earlier). */
+  /** Program week this work belongs to. Drives the week tabs in the nav. e.g. 3 */
+  week: number;
+  /** Sort order within its week/owner group (lower = earlier). */
   order: number;
-  /** One-line summary shown on the landing card. */
+  /** One-line summary shown on the module card. */
   summary: string;
 };
 
@@ -32,4 +34,9 @@ export function defineModule(mod: ModuleDefinition): ModuleDefinition {
 /** Render one or more owners as a byline, e.g. "Lisa & Lezhi". */
 export function formatOwners(owner: string | string[]): string {
   return Array.isArray(owner) ? owner.join(" & ") : owner;
+}
+
+/** Normalize owner(s) to an array, e.g. for grouping a co-owned module under each owner. */
+export function ownerList(owner: string | string[]): string[] {
+  return Array.isArray(owner) ? owner : [owner];
 }

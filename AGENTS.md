@@ -9,7 +9,8 @@ non-negotiable rule:
 > that break this.
 
 To add a module: copy `modules/_template/` → `modules/<slug>/`, fill `module.ts` (via
-`defineModule`) and `View.tsx`, keep all files inside that folder. Import shared UI from
+`defineModule` — including `week: N`, which places it under the right week tab) and
+`View.tsx`, keep all files inside that folder. Import shared UI from
 `@/components`, shared logic from `@/lib`, your own files with `./`. Never import another
 module. The nav/routes auto-discover your module — do not edit any registry or nav file.
 

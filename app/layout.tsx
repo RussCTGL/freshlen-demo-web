@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { modules } from "@/modules/registry";
+import { getWeeks } from "@/modules/registry";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -19,13 +19,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <header className="border-b border-black/10 dark:border-white/15">
           <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-6 py-4 text-sm">
             <Link href="/" className="font-semibold">FreshLens</Link>
-            {modules.map((m) => (
+            {getWeeks().map((w) => (
               <Link
-                key={m.slug}
-                href={`/${m.slug}`}
+                key={w}
+                href={`/week/${w}`}
                 className="text-gray-500 transition hover:text-gray-900 dark:hover:text-white"
               >
-                {m.title}
+                Week {w}
               </Link>
             ))}
           </nav>

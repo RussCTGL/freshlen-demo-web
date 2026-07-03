@@ -6,6 +6,7 @@ export default defineModule({
   title: "ES Model Run",
   owner: "Yizhou",
   issue: 32,
+  week: 3,
   order: 20,
   summary:
     "Every dataset photo scored through the ES freshness proxy, with the raw→canonical scale inversion applied.",

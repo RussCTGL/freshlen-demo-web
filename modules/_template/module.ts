@@ -9,7 +9,8 @@ export default defineModule({
   title: "Template Module",
   owner: "Your Name", // or ["Name A", "Name B"] for a co-owned workstream
   issue: undefined, // e.g. 33
-  order: 999, // lower sorts earlier in nav + landing
+  week: 3, // program week this work belongs to — drives which week tab you appear under
+  order: 999, // lower sorts earlier within your week/owner group
   summary: "One line describing what this workstream demos.",
   View,
 });

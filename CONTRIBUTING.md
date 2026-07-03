@@ -47,6 +47,11 @@ stable when people rotate on and off a workstream.
   CODEOWNERS line (`/modules/<slug>/ @a @b`). The two of you share the one folder, so coordinate
   *inside* it (the CI guard isolates modules from each other, not co-owners within a module).
 
+**How the site organizes itself** (all derived from `module.ts` metadata — you never edit nav):
+the landing page is a welcome page; the nav has one tab per **week**; a week page has sub-tabs
+per **owner** (a co-owned module appears under each owner); each card links to your module page
+at `/<slug>`.
+
 ## 3. How to add your module (once per week)
 
 1. Copy the template to a workstream-named folder:
@@ -54,7 +59,7 @@ stable when people rotate on and off a workstream.
    cp -r modules/_template modules/<your-workstream>
    ```
 2. Edit `modules/<your-workstream>/module.ts` — set `slug` (= folder name), `title`, `owner`,
-   `issue`, `order`, `summary`.
+   `issue`, `week` (which "Week N" tab you appear under), `order`, `summary`.
 3. Build your page in `View.tsx` (+ any `data.ts`, `components/`, etc. — **all inside your
    folder**).
 4. Open a PR. That's it. **You do not edit any nav, route, or registry file** — the shell
@@ -74,6 +79,7 @@ export default defineModule({
   title: "Calibration Gate",
   owner: "Yunke",
   issue: 33,
+  week: 3, // which "Week N" tab you appear under
   order: 30,
   summary: "GO/NO-GO gate report from the calibration run.",
   View,
