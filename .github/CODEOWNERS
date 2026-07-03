@@ -1,0 +1,23 @@
+# CODEOWNERS — who must review changes to each path.
+# Requires branch protection: "Require review from Code Owners".
+#
+# The shell owner reviews everything shared/structural. Each module folder is owned
+# by its author. Replace the per-module owners with real GitHub handles as modules land.
+
+# --- Protected shell (shell owner only) ---
+/app/                 @RussCTGL
+/components/          @RussCTGL
+/lib/                 @RussCTGL
+/scripts/             @RussCTGL
+/modules/registry.ts  @RussCTGL
+/.github/             @RussCTGL
+/package.json         @RussCTGL
+/eslint.config.mjs    @RussCTGL
+/next.config.ts       @RussCTGL
+/tsconfig.json        @RussCTGL
+
+# --- Per-module ownership (one line per workstream) ---
+/modules/calibration-dataset/  @RussCTGL
+/modules/calibration-run/      @RussCTGL
+# /modules/calibration-gate/   @<yunke-handle>
+# /modules/fraud-probe/        @<lisa-handle>

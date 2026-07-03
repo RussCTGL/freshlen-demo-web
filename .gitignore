@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# auto-generated module registry (produced by scripts/gen-registry.mjs on predev/prebuild)
+modules/registry.generated.ts

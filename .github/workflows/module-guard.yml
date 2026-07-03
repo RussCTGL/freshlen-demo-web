@@ -1,0 +1,72 @@
+# CI isolation guard. Fails a PR that reaches outside a single module folder.
+# Rule:
+#   - All changed files must live under exactly ONE modules/<slug>/ folder, OR
+#   - The PR carries the "shell-change" label (shell-owner-approved structural work).
+# This is what lets 8 people work in parallel without merge collisions.
+
+name: module-guard
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check module isolation
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+
+          # Shell-owner structural changes bypass the guard via an explicit label.
+          if echo "$LABELS" | grep -q '"shell-change"'; then
+            echo "PR labeled 'shell-change' — skipping module isolation check."
+            exit 0
+          fi
+
+          FILES="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          echo "Changed files:"
+          echo "$FILES"
+
+          MODULES=""
+          VIOLATIONS=""
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              modules/_template/*)
+                VIOLATIONS="$VIOLATIONS\n  $f  (do not edit the template in place; copy it)"
+                ;;
+              modules/*/*)
+                slug="$(echo "$f" | cut -d/ -f2)"
+                MODULES="$(printf '%s\n%s' "$MODULES" "$slug")"
+                ;;
+              *)
+                VIOLATIONS="$VIOLATIONS\n  $f  (outside modules/ — needs the 'shell-change' label + shell-owner review)"
+                ;;
+            esac
+          done <<< "$FILES"
+
+          UNIQUE="$(echo "$MODULES" | sed '/^$/d' | sort -u)"
+          COUNT="$(echo "$UNIQUE" | sed '/^$/d' | wc -l | tr -d ' ')"
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo -e "\n❌ This PR touches files outside a module folder:$VIOLATIONS"
+            echo -e "\nKeep your work inside modules/<your-slug>/, or ask the shell owner to add the 'shell-change' label."
+            exit 1
+          fi
+
+          if [ "$COUNT" -gt 1 ]; then
+            echo -e "\n❌ This PR spans multiple modules:\n$UNIQUE"
+            echo "One PR = one module. Split it."
+            exit 1
+          fi
+
+          echo -e "\n✅ Isolation OK — PR is confined to a single module."
