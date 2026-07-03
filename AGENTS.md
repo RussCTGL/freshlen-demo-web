@@ -16,6 +16,9 @@ module. The nav/routes auto-discover your module — do not edit any registry or
 
 Worked examples to copy: `modules/calibration-dataset/` and `modules/calibration-run/`.
 
+Workflow is **issue → branch → PR → merge, always**: work from the owner's issue, commit on a
+`<name>/<workstream>` branch, open one PR per module. Never commit or push to `main` directly.
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 

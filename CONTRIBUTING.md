@@ -95,12 +95,20 @@ Everything else in the folder is private. See `modules/calibration-dataset/` and
 - Import your own files with relative `./` paths.
 - **Never import another module** (`@/modules/*` or `../other-module/*`) — ESLint blocks it.
 
-## 6. Branch + PR rules
+## 6. Workflow: issue → branch → PR → merge (required, no exceptions)
 
-- **Branch:** `<name>/<workstream>` — e.g. `lisa/fraud-probe`.
-- **One PR per module.** Each PR gets a **Vercel preview URL** = your weekly demo link.
-- A PR must stay within **one** `modules/<slug>/` folder; `module-guard` fails it otherwise.
-- Shared/structural changes are shell-owner-only (CODEOWNERS review + a `shell-change` label).
+Every change lands through this lifecycle. **Never commit or push to `main` directly.**
+
+1. **Issue** — your work starts from your issue in `es-intern-freshlens` (the demo page
+   consolidates that issue). Reference it in your `module.ts` (`issue: NN`) and PR description.
+2. **Branch** — `<name>/<workstream>`, e.g. `lisa/fraud-probe`. One branch per module.
+3. **PR** — one PR per module, targeting `main`. Each PR gets a **Vercel preview URL** = your
+   weekly demo link. A PR must stay within **one** `modules/<slug>/` folder; `module-guard`
+   fails it otherwise.
+4. **Merge** — only after `module-guard` (and all checks) are green. Merging to `main` is what
+   publishes your page to the production site.
+
+Shared/structural changes are shell-owner-only (CODEOWNERS review + a `shell-change` label).
 
 ## 7. Using an AI agent (Claude Code / Cursor)
 
