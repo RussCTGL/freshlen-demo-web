@@ -31,8 +31,11 @@ export default async function WeekPage({ params }: { params: Promise<{ week: str
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Week {week}</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="font-mono text-xs uppercase tracking-widest text-faint">
+        Weekly demo · {groups.length} owner{groups.length === 1 ? "" : "s"}
+      </p>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight">Week {week}</h1>
+      <p className="mt-2 text-sm text-muted">
         Workstreams delivered this week, grouped by owner.
       </p>
       <div className="mt-8">

@@ -4,7 +4,7 @@ import { total, produceTypes, trueState, source } from "./data";
 export default function View() {
   return (
     <section className="space-y-8">
-      <p className="text-gray-600 dark:text-gray-300">
+      <p className="text-muted">
         The calibration experiment needs real consumer-phone photos with a human label assigned{" "}
         <em>before</em> the model ever scores them. This is that dataset:{" "}
         <strong>{total} images</strong> across 9 produce types, each labeled{" "}
@@ -18,7 +18,7 @@ export default function View() {
 
       <StatBars title="Source" rows={source} />
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-faint">
         Labels are assigned before scoring to avoid anchoring bias. The 20{" "}
         <code>ai_fake</code> images feed the AI-fake detection probe (issue #34).
       </p>
