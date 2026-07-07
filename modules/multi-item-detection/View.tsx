@@ -119,6 +119,12 @@ export default function View() {
             it never masks a working detector. Without <code>ultralytics</code> installed the
             whole pipeline still runs on the single whole-image fallback.
           </p>
+          <p className="mt-2 text-xs text-warning">
+            Open question for the team: see the single-orange row — when YOLO finds exactly{" "}
+            <em>one</em> real item, the current &quot;&lt; 2 items&quot; rule still swaps that real
+            box for the fake grid. Spec-compliant today, but arguably a lone real detection should
+            win. Left unchanged in #52; worth a deliberate decision.
+          </p>
         </div>
       </div>
 
