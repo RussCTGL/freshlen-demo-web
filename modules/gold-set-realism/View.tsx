@@ -57,7 +57,7 @@ export default function View() {
           />
           <p className="mt-2 text-sm text-faint">
             Wilson 95% lower bound: even a perfect run needs{" "}
-            <code>n &ge; {certifyBar}</code> spoiled phone items per bucket to certify
+            <code>n &ge; {certifyBar}</code>{" "}spoiled phone items per bucket to certify
             precision &ge; 0.80. Seven of nine types have zero.
           </p>
         </div>
