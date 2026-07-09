@@ -37,11 +37,11 @@ const items: SceneItem[] = [
   },
   {
     label: "apple",
-    state: "fresh",
+    state: "Eat this week",
     freshness: 29,
     tone: "success",
     box: [77, 74, 241, 233],
-    decision: "Can wait",
+    decision: "Eat this week",
   },
   {
     label: "apple",
