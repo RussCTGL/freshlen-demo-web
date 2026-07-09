@@ -122,7 +122,9 @@ export default function View() {
           live in one shared folder, every file pinned by hash — anyone can
           re-verify that a calibration run used the exact set that was labeled.
           Re-runs for the calibration refresh and the fake-photo probe are
-          unblocked.
+          unblocked. The GPS figure comes from the one-time preprocessing run
+          of <code>strip_gps.py</code> (now committed to the main repo), which
+          found location EXIF on 66 photos and removed it before upload.
         </p>
       </div>
 
