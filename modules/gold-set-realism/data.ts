@@ -53,3 +53,43 @@ export const hygiene = [
     note: "keep for smoke tests; exclude from threshold certification",
   },
 ];
+
+// Phone-only photos on hand per type (fresh, borderline, spoiled) — from
+// scripts/evaluation_realism.py section [3], phone column.
+export const phoneOnHand: {
+  type: string;
+  fresh: number;
+  borderline: number;
+  spoiled: number;
+}[] = [
+  { type: "apple", fresh: 3, borderline: 5, spoiled: 0 },
+  { type: "banana", fresh: 3, borderline: 0, spoiled: 0 },
+  { type: "bellpepper", fresh: 4, borderline: 0, spoiled: 0 },
+  { type: "broccoli", fresh: 3, borderline: 11, spoiled: 0 },
+  { type: "cilantro", fresh: 0, borderline: 0, spoiled: 1 },
+  { type: "cucumber", fresh: 5, borderline: 4, spoiled: 0 },
+  { type: "orange", fresh: 4, borderline: 1, spoiled: 0 },
+  { type: "strawberry", fresh: 6, borderline: 5, spoiled: 0 },
+  { type: "tomato", fresh: 9, borderline: 0, spoiled: 3 },
+];
+
+// Coverage floor for non-certification buckets (fresh/borderline): enough to
+// exercise threshold behavior near the boundary, not a statistical guarantee.
+export const coverageFloor = 10;
+
+// Gold-set verification status (from gold_set_manifest.py runs, Jul 8).
+export const verification = [
+  { label: "photos matched to index.csv", value: "154 / 154", ok: true },
+  { label: "SHA-256 pinned per file", value: "154 files", ok: true },
+  { label: "verified: local working copy", value: "154 / 154", ok: true },
+  { label: "verified: shared-drive copy", value: "154 / 154", ok: true },
+  { label: "GPS EXIF stripped (privacy)", value: "66 photos", ok: true },
+  { label: "resolutions recorded", value: "all files", ok: true },
+];
+
+// Resolution by source — the confound is mechanical (from the manifest).
+export const resolutionBySource = [
+  { source: "phone", headline: "87% are \u2265 10 MP", share: "87%" },
+  { source: "web (scraped)", headline: "63% are < 1 MP", share: "63%" },
+  { source: "ai_fake", headline: "100% are 1\u20134 MP", share: "100%" },
+];
