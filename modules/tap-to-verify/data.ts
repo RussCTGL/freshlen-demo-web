@@ -1,13 +1,14 @@
 // Module-private data.
 //
 // Everything here is REAL recorded output from es-intern-freshlens (issue #61, PR #73),
-// captured 2026-07-09 on sample_images/multi_fruit.jpg — nothing is invented:
-//   * `scored`  = POST /api/scan/detect (mode=after) — the fast worst-first triage.
-//   * each item's `deep` = POST /api/produce/analyze on THAT item's crop (cut from the
-//     clean original at its box, JPEG q90 — exactly what the app's cropCanvasToBlob sends).
-// The recording machine had NO ES key, so every deep response is the honest degraded
-// state (backend "placeholder", confidence null) — which is precisely the #61-③ story
-// this module demos. Re-record with a key and the same rows replay the real verdict.
+// captured on sample_images/multi_fruit.jpg — nothing is invented:
+//   * `items` (boxes, fast scores) = POST /api/scan/detect (mode=after), recorded 2026-07-09.
+//   * each item's deep results     = POST /api/produce/analyze on THAT item's crop (cut from
+//     the clean original at its box, JPEG q90 — exactly what the app's cropCanvasToBlob sends):
+//       - `deepOffline` recorded 2026-07-09 with NO ES key  (backend "placeholder")
+//       - `deepReal`    recorded 2026-07-10 with a real intern key via the read-only proxy
+//         (backend "es-api" — including one genuine misclassification, kept as-is).
+// The replay toggle switches between those two recorded sessions.
 
 export const image = { width: 1099, height: 400 };
 
@@ -26,43 +27,50 @@ export type DeepResult = {
   color: Color;
   backend: "es-api" | "placeholder" | "es-api-fallback";
   confidence: number | null;
-  note: string;
+  /** What the model called the crop ("produce" = placeholder can't identify). */
+  produceType: string;
+  /** True when the response routed to human review (e.g. confidence under the 0.80 floor). */
+  humanReview: boolean;
 };
 
 export type ScannedItem = {
-  rank: number; // 1 = worst, tap this one first
+  rank: number; // 1 = worst by the fast triage, tap this one first
   label: string;
   fast: number; // the quick placeholder estimate from the scan (0 = fresh … 100 = urgent)
   color: Color;
   verdict: string;
   box: [number, number, number, number]; // [x, y, w, h] on the original photo
-  deep: DeepResult; // recorded /api/produce/analyze response for this item's crop
+  deepOffline: DeepResult; // recorded response, server WITHOUT a key
+  deepReal: DeepResult; // recorded response, server WITH a real intern key
 };
 
-const OFFLINE_NOTE =
-  "heuristic color score — not the real ES model (set FRESHNESS_BACKEND=es_api)";
-
-/** Real scan output + the real deep-check response recorded for each crop. */
+/** Real scan output + the real deep-check response recorded for each crop, both sessions. */
 export const items: ScannedItem[] = [
   {
     rank: 1, label: "banana", fast: 45, color: "amber", verdict: "Eat this week",
     box: [685, 141, 328, 175],
-    deep: { score: 45, color: "amber", backend: "placeholder", confidence: null, note: OFFLINE_NOTE },
+    deepOffline: { score: 45, color: "amber", backend: "placeholder", confidence: null, produceType: "produce", humanReview: true },
+    deepReal: { score: 26, color: "amber", backend: "es-api", confidence: 0.7433, produceType: "banana", humanReview: true },
   },
   {
     rank: 2, label: "apple", fast: 37, color: "amber", verdict: "Eat this week",
     box: [314, 64, 234, 235],
-    deep: { score: 37, color: "amber", backend: "placeholder", confidence: null, note: OFFLINE_NOTE },
+    deepOffline: { score: 37, color: "amber", backend: "placeholder", confidence: null, produceType: "produce", humanReview: true },
+    deepReal: { score: 8, color: "green", backend: "es-api", confidence: 0.9981, produceType: "apple", humanReview: false },
   },
   {
     rank: 3, label: "apple", fast: 36, color: "amber", verdict: "Eat this week",
     box: [77, 74, 241, 233],
-    deep: { score: 36, color: "amber", backend: "placeholder", confidence: null, note: OFFLINE_NOTE },
+    deepOffline: { score: 36, color: "amber", backend: "placeholder", confidence: null, produceType: "produce", humanReview: true },
+    deepReal: { score: 26, color: "amber", backend: "es-api", confidence: 0.8538, produceType: "apple", humanReview: false },
   },
   {
     rank: 4, label: "apple", fast: 29, color: "amber", verdict: "Eat this week",
     box: [0, 221, 233, 153],
-    deep: { score: 29, color: "amber", backend: "placeholder", confidence: null, note: OFFLINE_NOTE },
+    deepOffline: { score: 29, color: "amber", backend: "placeholder", confidence: null, produceType: "produce", humanReview: true },
+    // The real model genuinely called this apple crop "dill" — kept honestly: the model
+    // ADVISES, it does not decide. This is why the loop keeps a human in it.
+    deepReal: { score: 39, color: "amber", backend: "es-api", confidence: 0.8073, produceType: "dill", humanReview: false },
   },
 ];
 
@@ -77,9 +85,9 @@ export const gateRows: {
 }[] = [
   {
     backend: "es-api",
-    confidence: "0.91",
+    confidence: "0.74",
     meaning: "the real ES model answered",
-    shows: "deep score + “confidence: 91%”",
+    shows: "deep score + “confidence: 74%”",
     real: true,
   },
   {
