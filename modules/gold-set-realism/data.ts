@@ -78,12 +78,19 @@ export const phoneOnHand: {
 export const coverageFloor = 10;
 
 // Gold-set verification status (from gold_set_manifest.py runs, Jul 8).
+// The GPS row is NOT produced by the manifest: it comes from the one-time
+// preprocessing run of data/calibration/strip_gps.py (main repo, PR #72),
+// which found and removed location EXIF from 66 of the 154 photos.
 export const verification = [
   { label: "photos matched to index.csv", value: "154 / 154", ok: true },
   { label: "SHA-256 pinned per file", value: "154 files", ok: true },
   { label: "verified: local working copy", value: "154 / 154", ok: true },
   { label: "verified: shared-drive copy", value: "154 / 154", ok: true },
-  { label: "GPS EXIF stripped (privacy)", value: "66 photos", ok: true },
+  {
+    label: "GPS EXIF removed via strip_gps.py",
+    value: "66 / 154 photos",
+    ok: true,
+  },
   { label: "resolutions recorded", value: "all files", ok: true },
 ];
 
