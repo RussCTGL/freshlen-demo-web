@@ -21,27 +21,27 @@ const image = { width: 1099, height: 400 };
 const items: SceneItem[] = [
   {
     label: "banana",
-    state: "eat soon",
+    state: "Eat this week",
     freshness: 45,
     tone: "warning",
     box: [685, 141, 328, 175],
-    decision: "Use first today",
-  },
-  {
-    label: "apple",
-    state: "watch",
-    freshness: 37,
-    tone: "warning",
-    box: [314, 64, 234, 235],
-    decision: "Fine for lunchbox",
+    decision: "Use within a few days",
   },
   {
     label: "apple",
     state: "Eat this week",
-    freshness: 29,
+    freshness: 37,
+    tone: "warning",
+    box: [314, 64, 234, 235],
+    decision: "Use within a few days",
+  },
+  {
+    label: "apple",
+    state: "Eat this week",
+    freshness: 36,
     tone: "success",
     box: [77, 74, 241, 233],
-    decision: "Eat this week",
+    decision: "Use within a few days",
   },
   {
     label: "apple",
@@ -49,7 +49,7 @@ const items: SceneItem[] = [
     freshness: 29,
     tone: "success",
     box: [0, 221, 233, 153],
-    decision: "Eat this week",
+    decision: "Use within a few days",
   },
 ];
 
