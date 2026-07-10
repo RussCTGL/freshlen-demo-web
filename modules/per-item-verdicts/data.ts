@@ -4,7 +4,6 @@
 // (12 apples, one rotten) from es-intern-freshlens (issue #53) — nothing is mocked.
 // `bands` and `testRows` mirror src/freshness.py (quality_for) and the assertions in
 // tests/test_scan_verdicts.py exactly. Regenerate by re-running the endpoint / the test.
-// Scene: ./green-apples.jpg — a shopper-style tray of green apples with one rotten (the red item).
 
 export const image = { width: 1920, height: 1080 };
 
