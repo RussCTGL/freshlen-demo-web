@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -21,7 +21,7 @@ const toneText: Record<Tone, string> = {
   danger: "text-danger",
 };
 
-/** Pixel box → percentage offsets so the overlay scales with the photo. */
+/** Pixel box â†’ percentage offsets so the overlay scales with the photo. */
 function pct(box: [number, number, number, number]) {
   const [x, y, w, h] = box;
   return {
@@ -33,7 +33,7 @@ function pct(box: [number, number, number, number]) {
 }
 
 /** Mirror of static/app.js deepIsReal(): only the es-api backend WITH a confidence
- *  counts as a real verdict — placeholder / fallback shows the honest unavailable note. */
+ *  counts as a real verdict â€” placeholder / fallback shows the honest unavailable note. */
 function deepIsReal(deep: DeepResult): boolean {
   return deep.backend === "es-api" && deep.confidence != null;
 }
@@ -45,7 +45,7 @@ export default function View() {
   const [session, setSession] = useState<Session>("real");
   const [status, setStatus] = useState<Status[]>(items.map(() => "idle"));
   const [hint, setHint] = useState(
-    "Roughly scored worst-first — tap the worst item (rank 1) for a deep check.",
+    "Roughly scored worst-first â€” tap the worst item (rank 1) for a deep check.",
   );
 
   const deepOf = (i: number) => (session === "real" ? items[i].deepReal : items[i].deepOffline);
@@ -56,8 +56,8 @@ export default function View() {
     setStatus(items.map(() => "idle"));
     setHint(
       s === "real"
-        ? "Replaying the recorded session with a real intern key — tap an item."
-        : "Replaying the recorded session with no key — tap an item to see the honest fallback.",
+        ? "Replaying the recorded session with a real intern key â€” tap an item."
+        : "Replaying the recorded session with no key â€” tap an item to see the honest fallback.",
     );
   }
 
@@ -67,24 +67,24 @@ export default function View() {
     if (status[i] === "checking") return;
     if (status[i] === "done") {
       // Mirrors the app's quota guard: `if (item._verifying || item.deep) return;`
-      setHint(`${it.label} is already deep-checked — the app never re-fires the ES call (quota-safe).`);
+      setHint(`${it.label} is already deep-checked â€” the app never re-fires the ES call (quota-safe).`);
       return;
     }
     setStatus((s) => s.map((v, j) => (j === i ? "checking" : v)));
-    setHint(`Running a deep check on ${it.label} with the real model…`);
+    setHint(`Running a deep check on ${it.label} with the real modelâ€¦`);
     window.setTimeout(() => {
       setStatus((s) => s.map((v, j) => (j === i ? "done" : v)));
       if (!deepIsReal(deep)) {
         setHint(
-          `${it.label}: deep check unavailable (the real model couldn't be reached) — showing the offline estimate ${deep.score}. Tap another item to try it.`,
+          `${it.label}: deep check unavailable (the real model couldn't be reached) â€” showing the offline estimate ${deep.score}. Tap another item to try it.`,
         );
       } else if (deep.humanReview) {
         setHint(
-          `${deep.produceType}: the model scored this ${deep.score} at ${Math.round((deep.confidence ?? 0) * 100)}% confidence — under the 0.80 floor, so a human will verify this. Tap another item.`,
+          `${deep.produceType}: the model scored this ${deep.score} at ${Math.floor((deep.confidence ?? 0) * 100)}% confidence â€” under the 0.80 floor, so a human will verify this. Tap another item.`,
         );
       } else {
         setHint(
-          `${deep.produceType}: the model scored this ${deep.score} (${Math.round((deep.confidence ?? 0) * 100)}% confident). Tap another item to deep-check it.`,
+          `${deep.produceType}: the model scored this ${deep.score} (${Math.floor((deep.confidence ?? 0) * 100)}% confident). Tap another item to deep-check it.`,
         );
       }
     }, 900);
@@ -93,12 +93,12 @@ export default function View() {
   return (
     <section className="space-y-8">
       <p className="text-muted">
-        The whole-scene scan is <em>fast</em> — every item gets a rough placeholder score
+        The whole-scene scan is <em>fast</em> â€” every item gets a rough placeholder score
         (Yizhou&apos;s <code>#52</code> boxes, Tony&apos;s <code>#53</code> verdicts). The{" "}
         <strong>trustworthy</strong> moment is deliberate: tap the worst-ranked item and the app
         crops <em>that box</em> from the clean original photo and runs{" "}
         <strong>one</strong> real ES call (<code>POST /api/produce/analyze</code>) on just that
-        crop. Detection → fast triage → deep check on the item that matters. No call ever fires
+        crop. Detection â†’ fast triage â†’ deep check on the item that matters. No call ever fires
         for an un-tapped item.
       </p>
 
@@ -127,7 +127,7 @@ export default function View() {
               : "border-border text-muted hover:bg-surface-raised"
           }`}
         >
-          no key — honest fallback (2026-07-09)
+          no key â€” honest fallback (2026-07-09)
         </button>
       </div>
 
@@ -151,7 +151,7 @@ export default function View() {
                 <span
                   className={`absolute -top-0.5 left-0 -translate-y-full rounded-t px-1.5 py-0.5 font-mono text-[10px] font-semibold text-white ${toneChip[tone]}`}
                 >
-                  {it.label} · {it.fast}
+                  {it.label} Â· {it.fast}
                 </span>
               </button>
             );
@@ -159,8 +159,8 @@ export default function View() {
         </div>
         <figcaption className="text-xs text-faint">
           A <strong>replay, not a mock</strong>: the boxes, fast scores, and every deep-check
-          result are the exact recorded responses of the real endpoints on this photo — one
-          session with no ES key (the honest degraded state, subtask ③) and one with a real
+          result are the exact recorded responses of the real endpoints on this photo â€” one
+          session with no ES key (the honest degraded state, subtask â‘¢) and one with a real
           intern key through the read-only proxy. Toggle above to switch sessions.
         </figcaption>
       </figure>
@@ -168,7 +168,7 @@ export default function View() {
       {/* --- The worst-first list with the tappable Verify affordance --- */}
       <div>
         <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          Eat me first — tap a row to deep-check it
+          Eat me first â€” tap a row to deep-check it
         </h3>
         <ul className="mt-3 space-y-2">
           {items.map((it, i) => {
@@ -187,7 +187,7 @@ export default function View() {
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold">
                       {st === "done" && real && deep.produceType !== "produce" ? deep.produceType : it.label}{" "}
-                      <span className={`font-normal ${toneText[rowTone]}`}>· {it.verdict}</span>
+                      <span className={`font-normal ${toneText[rowTone]}`}>Â· {it.verdict}</span>
                     </div>
                     <div className="text-xs text-muted">fast estimate {it.fast}</div>
                   </div>
@@ -198,14 +198,14 @@ export default function View() {
                   )}
                   {st === "checking" && (
                     <span className={`animate-pulse rounded px-2.5 py-1.5 font-mono text-xs font-semibold text-white ${toneChip[rowTone]}`}>
-                      checking…
+                      checkingâ€¦
                     </span>
                   )}
                   {st === "done" && (
                     <span className={`flex flex-col items-center rounded px-2.5 py-1 text-white ${toneChip[rowTone]}`}>
                       <span className="font-mono text-base font-bold tabular-nums">{deep.score}</span>
                       <span className="font-mono text-[9px] font-bold uppercase tracking-wide">
-                        {real ? `confidence: ${Math.round((deep.confidence ?? 0) * 100)}%` : "deep check unavailable"}
+                        {real ? `confidence: ${Math.floor((deep.confidence ?? 0) * 100)}%` : "deep check unavailable"}
                       </span>
                     </span>
                   )}
@@ -220,18 +220,18 @@ export default function View() {
         <p className="mt-1 text-xs text-faint">
           Worth noticing in the real session: the deep check <em>re-ranks</em> the scene (the
           fast-worst banana deep-checks at 26; its 74% confidence routes it to a human), one
-          apple comes back <span className="font-mono">8 / fresh</span> at 99.8% confidence — and
-          the model genuinely called the rank-4 apple <em>“dill”</em>. We kept that
+          apple comes back <span className="font-mono">8 / fresh</span> at 99.8% confidence â€” and
+          the model genuinely called the rank-4 apple <em>â€œdillâ€</em>. We kept that
           misclassification on purpose: the model <strong>advises</strong>, it doesn&apos;t
           decide.
         </p>
       </div>
 
       <div className="grid gap-8 sm:grid-cols-2">
-        {/* --- The honesty gate (Yizhou, ③) --- */}
+        {/* --- The honesty gate (Yizhou, â‘¢) --- */}
         <div>
           <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-            The verdict is gated — it never pretends
+            The verdict is gated â€” it never pretends
           </h3>
           <table className="mt-3 w-full text-sm">
             <thead>
@@ -253,9 +253,9 @@ export default function View() {
           </table>
           <p className="mt-2 text-xs text-faint">
             Only a real <code>es-api</code> answer with a confidence is presented as a deep
-            verdict; no key and proxy-down both degrade to an <em>honest</em> note — never a fake
-            percentage. And the copy is advisory by rule: <em>“the model scored this 26 (74%
-            confident)”</em> — the model never “confirms” or “guarantees” freshness.
+            verdict; no key and proxy-down both degrade to an <em>honest</em> note â€” never a fake
+            percentage. And the copy is advisory by rule: <em>â€œthe model scored this 26 (74%
+            confident)â€</em> â€” the model never â€œconfirmsâ€ or â€œguaranteesâ€ freshness.
           </p>
         </div>
 
@@ -265,17 +265,17 @@ export default function View() {
             The bug the pairing caught
           </h3>
           <p className="mt-3 text-sm text-muted">
-            The first version cropped the tapped item from the <em>annotated canvas</em> — so the
+            The first version cropped the tapped item from the <em>annotated canvas</em> â€” so the
             coloured box + label pixels went to the model, and a rotten apple (fast{" "}
-            <span className="font-mono">74</span>) “deep-checked” as fresh
+            <span className="font-mono">74</span>) â€œdeep-checkedâ€ as fresh
             (<span className="font-mono">25</span>). The fix: always crop from a clean re-decode
-            of the original photo. Re-verified live: fast <span className="font-mono">74</span> →
+            of the original photo. Re-verified live: fast <span className="font-mono">74</span> â†’
             deep <span className="font-mono">74</span>, and the rule is pinned by an offline test
             so it can&apos;t regress.
           </p>
           <p className="mt-3 text-xs text-faint">
             Quota-safe by construction: one <code>POST /api/produce/analyze</code> per item,
-            only on tap, never re-fired (watch the network tab — un-tapped items cost nothing).
+            only on tap, never re-fired (watch the network tab â€” un-tapped items cost nothing).
           </p>
         </div>
       </div>
@@ -291,15 +291,15 @@ export default function View() {
               <tr key={i} className="border-b border-border last:border-0">
                 <td className="py-1.5 pr-3 font-mono text-xs">{t.name}</td>
                 <td className="py-1.5 text-xs text-muted">{t.pins}</td>
-                <td className="py-1.5 text-success">✓</td>
+                <td className="py-1.5 text-success">âœ“</td>
               </tr>
             ))}
           </tbody>
         </table>
         <p className="mt-2 text-xs text-faint">
-          <code>tests/test_deep_verify.py</code> — endpoint-level, no network, no key, no skips
-          (repo suite: 577 green). Built as a pair on one branch: Tony ①② (tap → crop → verdict
-          UI), Yizhou ③④ (honest degraded path + these tests). PR&nbsp;#73 on{" "}
+          <code>tests/test_deep_verify.py</code> â€” endpoint-level, no network, no key, no skips
+          (repo suite: 577 green). Built as a pair on one branch: Tony â‘ â‘¡ (tap â†’ crop â†’ verdict
+          UI), Yizhou â‘¢â‘£ (honest degraded path + these tests). PR&nbsp;#73 on{" "}
           <code>es-intern-freshlens</code>.
         </p>
       </div>
