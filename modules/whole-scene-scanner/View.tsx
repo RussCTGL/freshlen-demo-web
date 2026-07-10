@@ -39,7 +39,7 @@ const items: SceneItem[] = [
     label: "apple",
     state: "Eat this week",
     freshness: 36,
-    tone: "success",
+    tone: "warning",
     box: [77, 74, 241, 233],
     decision: "Use within a few days",
   },
@@ -47,7 +47,7 @@ const items: SceneItem[] = [
     label: "apple",
     state: "Eat this week",
     freshness: 29,
-    tone: "success",
+    tone: "warning",
     box: [0, 221, 233, 153],
     decision: "Use within a few days",
   },
@@ -270,6 +270,28 @@ export default function View() {
               </p>
             </div>
           )}
+
+          <div className="rounded-lg border border-border bg-surface-raised p-4">
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
+              Color legend
+            </p>
+            <div className="mt-3 grid gap-2 text-sm">
+              {[
+                ["bg-success", "Fresh", "green"],
+                ["bg-warning", "Eat this week", "amber"],
+                ["bg-danger", "Use today", "red"],
+                ["bg-info", "Human review", "needs verification"],
+              ].map(([swatch, label, meaning]) => (
+                <div key={label} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2.5 w-2.5 rounded-full ${swatch}`} />
+                    <span className="font-medium">{label}</span>
+                  </div>
+                  <span className="text-xs text-muted">{meaning}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <div className="rounded-lg border border-border bg-surface-raised p-4">
             <p className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
