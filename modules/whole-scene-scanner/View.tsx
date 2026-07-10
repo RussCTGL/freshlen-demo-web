@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import greenApplesPhoto from "./green-apples.jpg";
 import photo from "./multi-fruit.jpg";
 
 type DemoMode = "before" | "scanning" | "after" | "review";
+type SampleId = "fixture" | "green-apples";
 type Tone = "success" | "warning" | "danger" | "info";
 
 type SceneItem = {
@@ -16,40 +18,107 @@ type SceneItem = {
   decision: string;
 };
 
-const image = { width: 1099, height: 400 };
+type SceneSample = {
+  id: SampleId;
+  title: string;
+  badge: string;
+  alt: string;
+  image: { width: number; height: number };
+  photo: typeof photo;
+  items: SceneItem[];
+  note: string;
+};
 
-const items: SceneItem[] = [
+const fixtureItems: SceneItem[] = [
   {
     label: "banana",
-    state: "eat soon",
+    state: "Eat this week",
     freshness: 45,
     tone: "warning",
     box: [685, 141, 328, 175],
-    decision: "Use first today",
+    decision: "Use within a few days",
   },
   {
     label: "apple",
-    state: "watch",
+    state: "Eat this week",
     freshness: 37,
     tone: "warning",
     box: [314, 64, 234, 235],
-    decision: "Fine for lunchbox",
+    decision: "Use within a few days",
   },
   {
     label: "apple",
     state: "Eat this week",
-    freshness: 29,
-    tone: "success",
+    freshness: 36,
+    tone: "warning",
     box: [77, 74, 241, 233],
-    decision: "Eat this week",
+    decision: "Use within a few days",
   },
   {
     label: "apple",
     state: "Eat this week",
     freshness: 29,
-    tone: "success",
+    tone: "warning",
     box: [0, 221, 233, 153],
-    decision: "Eat this week",
+    decision: "Use within a few days",
+  },
+];
+
+const greenAppleItems: SceneItem[] = [
+  {
+    label: "apple",
+    state: "Use today",
+    freshness: 71,
+    tone: "danger",
+    box: [500, 315, 395, 470],
+    decision: "Eat today, or cook / freeze it",
+  },
+  {
+    label: "apple",
+    state: "Eat this week",
+    freshness: 45,
+    tone: "warning",
+    box: [970, 278, 490, 515],
+    decision: "Use within a few days",
+  },
+  {
+    label: "apple",
+    state: "Eat this week",
+    freshness: 38,
+    tone: "warning",
+    box: [1450, 335, 420, 405],
+    decision: "Use within a few days",
+  },
+  {
+    label: "apple",
+    state: "Eat this week",
+    freshness: 33,
+    tone: "warning",
+    box: [0, 0, 330, 315],
+    decision: "Use within a few days",
+  },
+];
+
+const samples: SceneSample[] = [
+  {
+    id: "fixture",
+    title: "Repo fixture",
+    badge: "Fixture output",
+    alt: "A basket scene with apples and bananas",
+    image: { width: 1099, height: 400 },
+    photo,
+    items: fixtureItems,
+    note: "Fixture sample aligned with the per-item verdicts page.",
+  },
+  {
+    id: "green-apples",
+    title: "Green apple shelf",
+    badge: "Curated fallback boxes",
+    alt: "A shelf of green apples with one visibly spoiled apple",
+    image: { width: 1920, height: 1080 },
+    photo: greenApplesPhoto,
+    items: greenAppleItems,
+    note: "Curated fallback boxes over a shopper-style apple photo; scores come from the FreshLens crop scorer.",
   },
 ];
 
@@ -73,7 +142,7 @@ const toneText: Record<Tone, string> = {
   info: "text-info",
 };
 
-function pct(box: [number, number, number, number]) {
+function pct(box: [number, number, number, number], image: SceneSample["image"]) {
   const [x, y, w, h] = box;
   return {
     left: `${(x / image.width) * 100}%`,
@@ -110,13 +179,15 @@ function ModeButton({
 
 export default function View() {
   const [mode, setMode] = useState<DemoMode>("after");
+  const [sampleId, setSampleId] = useState<SampleId>("fixture");
+  const activeSample = samples.find((sample) => sample.id === sampleId) ?? samples[0];
 
   const sortedItems = useMemo(
-    () => [...items].sort((a, b) => b.freshness - a.freshness),
-    [],
+    () => [...activeSample.items].sort((a, b) => b.freshness - a.freshness),
+    [activeSample],
   );
 
-  const visibleItems = mode === "before" ? [] : items;
+  const visibleItems = mode === "before" ? [] : activeSample.items;
   const isScanning = mode === "scanning";
   const isReview = mode === "review";
 
@@ -163,7 +234,7 @@ export default function View() {
             </div>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand">
-                Bundled sample
+                {activeSample.badge}
               </span>
               <span className="rounded-full bg-surface-raised px-3 py-1 text-xs text-muted">
                 Mobile-ready layout
@@ -171,11 +242,30 @@ export default function View() {
             </div>
           </div>
 
+          <div className="mb-4 flex flex-wrap gap-2">
+            {samples.map((sample) => (
+              <button
+                key={sample.id}
+                type="button"
+                aria-pressed={sample.id === sampleId}
+                onClick={() => setSampleId(sample.id)}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  sample.id === sampleId
+                    ? "border-brand bg-brand text-white"
+                    : "border-border bg-surface-raised text-muted hover:border-brand hover:text-foreground"
+                }`}
+              >
+                {sample.title}
+              </button>
+            ))}
+          </div>
+
           <figure className="space-y-3">
             <div className="relative overflow-hidden rounded-lg border border-border bg-surface-raised">
               <Image
-                src={photo}
-                alt="A basket scene with apples and bananas"
+                key={activeSample.id}
+                src={activeSample.photo}
+                alt={activeSample.alt}
                 className={`h-auto w-full ${isScanning ? "opacity-50" : ""}`}
                 priority
               />
@@ -192,7 +282,7 @@ export default function View() {
                 <div
                   key={`${item.label}-${item.box.join("-")}`}
                   className={`absolute rounded border-2 ${toneBorder[item.tone]}`}
-                  style={pct(item.box)}
+                  style={pct(item.box, activeSample.image)}
                 >
                   <span
                     className={`absolute left-0 top-0 rounded-br px-2 py-1 font-mono text-[11px] font-semibold text-white ${toneBg[item.tone]}`}
@@ -211,7 +301,7 @@ export default function View() {
             </div>
             <figcaption className="text-xs text-faint">
               Before shows the old single-item style. After shows the whole-scene overlay with
-              one box per detected item.
+              one box per detected item. {activeSample.note}
             </figcaption>
           </figure>
         </div>
@@ -270,6 +360,28 @@ export default function View() {
               </p>
             </div>
           )}
+
+          <div className="rounded-lg border border-border bg-surface-raised p-4">
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
+              Color legend
+            </p>
+            <div className="mt-3 grid gap-2 text-sm">
+              {[
+                ["bg-success", "Fresh", "green"],
+                ["bg-warning", "Eat this week", "amber"],
+                ["bg-danger", "Use today", "red"],
+                ["bg-info", "Human review", "needs verification"],
+              ].map(([swatch, label, meaning]) => (
+                <div key={label} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2.5 w-2.5 rounded-full ${swatch}`} />
+                    <span className="font-medium">{label}</span>
+                  </div>
+                  <span className="text-xs text-muted">{meaning}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <div className="rounded-lg border border-border bg-surface-raised p-4">
             <p className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
