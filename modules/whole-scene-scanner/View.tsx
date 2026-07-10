@@ -37,19 +37,19 @@ const items: SceneItem[] = [
   },
   {
     label: "apple",
-    state: "fresh",
+    state: "Eat this week",
     freshness: 29,
     tone: "success",
     box: [77, 74, 241, 233],
-    decision: "Can wait",
+    decision: "Eat this week",
   },
   {
     label: "apple",
-    state: "human review",
-    freshness: 62,
-    tone: "danger",
+    state: "Eat this week",
+    freshness: 29,
+    tone: "success",
     box: [0, 221, 233, 153],
-    decision: "A human will verify this",
+    decision: "Eat this week",
   },
 ];
 
@@ -264,8 +264,9 @@ export default function View() {
                 Human-in-the-loop slot
               </p>
               <p className="mt-2 text-sm text-muted">
-                If the model is uncertain, the UI shows a clear review message instead of a blank
-                or overconfident verdict.
+                This sample uses the real per-item verdicts. If a future response includes an
+                uncertain item, this is the reserved place for the UI to say a human will verify it
+                instead of showing a blank or overconfident verdict.
               </p>
             </div>
           )}
