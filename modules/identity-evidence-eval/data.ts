@@ -102,3 +102,27 @@ export const liveRuns: LiveRun[] = [
     tone: "gate",
   },
 ];
+
+/** Re-run with the Claude tier live (2026-07-17, post-#103 + working key) —
+ *  scripts/evidence_eval.py over the same 154 + 82 rows. These are REAL outcomes
+ *  at the shipped 0.50 floor, not sub-floor hypotheticals: the tier answers at
+ *  0.85–1.0 confidence, so the matcher committed on nearly every row. */
+export const rerun = {
+  date: "Jul 17",
+  answered: { total: 236, answered: 232, withheld: 4 },
+  pass1: { rows: 154, matchTrue: 119, matchFalse: 35, matchNone: 0, bandNote: "153/154 rows in the 0.85–1.0 band (1 in 0.7–0.85)" },
+  precision: { tp: 23, fm: 0 }, // real now, not hypothetical
+  recall: { tp: 23, genuine: 48 },
+  floorPreview: "25/25 match=True rows clear the 0.80 auto-approve confidence floor",
+};
+
+export type RerunOutcome = { key: string; meaning: string; count: number; tone: "good" | "fraud" | "miss" | "watch" };
+export const rerunOutcomes: RerunOutcome[] = [
+  { key: "true_positive", meaning: "genuine claim, matcher agreed", count: 23, tone: "good" },
+  { key: "true_negative", meaning: "mismatched claim, matcher caught it", count: 20, tone: "good" },
+  { key: "false_match", meaning: "mismatch that passed — fraud exposure", count: 0, tone: "fraud" },
+  { key: "classifier_error", meaning: "genuine claim, wrong produce predicted", count: 12, tone: "miss" },
+  { key: "normalization_gap", meaning: "produce RIGHT, receipt phrasing failed to normalize (#76) — now the largest fixable miss class", count: 13, tone: "miss" },
+  { key: "committed_on_uncertain", meaning: "ground truth says uncertain, matcher committed anyway — NEW, review before Week 6", count: 10, tone: "watch" },
+  { key: "unmeasured", meaning: "match=None — low confidence, never counted correct", count: 4, tone: "miss" },
+];
