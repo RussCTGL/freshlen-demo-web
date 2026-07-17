@@ -9,6 +9,8 @@ import {
   hypoRecall,
   hypoMisses,
   liveRuns,
+  rerun,
+  rerunOutcomes,
 } from "./data";
 
 const pct = (part: number, whole: number) =>
@@ -158,6 +160,87 @@ function LiveVerification() {
   );
 }
 
+/** The Claude-tier re-run (Jul 17) — real outcomes at the shipped floor. Counts and
+ *  meanings are printed on every row; tone never carries identity alone. */
+function RerunSection() {
+  const max = Math.max(...rerunOutcomes.map((o) => o.count), 1);
+  const toneBg = {
+    good: "bg-brand",
+    miss: "bg-warning",
+    fraud: "bg-danger",
+    watch: "bg-info",
+  } as const;
+  const p1agreePct = Math.round((100 * rerun.pass1.matchTrue) / rerun.pass1.rows);
+  return (
+    <div>
+      <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
+        Re-run · {rerun.date} — the same eval, Claude tier live (real outcomes)
+      </h3>
+      <p className="mt-2 text-sm text-muted">
+        Same script, same {rerun.answered.total} rows, working Claude tier. These are no longer
+        sub-floor hypotheticals: the tier answers at 0.85–1.0 confidence, so the matcher
+        committed on {rerun.answered.answered} of {rerun.answered.total} calls at the shipped
+        0.50 floor ({rerun.answered.withheld} withheld). Pass 1 agreement with the human label:{" "}
+        {rerun.pass1.matchTrue}/{rerun.pass1.rows} ({p1agreePct}%), {rerun.pass1.bandNote}.
+      </p>
+
+      <div className="mt-3 grid gap-4 sm:grid-cols-3">
+        {[
+          {
+            label: "Answered (was 0/236)",
+            value: `${rerun.answered.answered}/${rerun.answered.total}`,
+            note: "the CLIP-only snapshot above withheld everything; the Claude tier commits",
+          },
+          {
+            label: "Precision — now real",
+            value: pct(rerun.precision.tp, rerun.precision.tp + rerun.precision.fm),
+            note: `${rerun.precision.tp}/${rerun.precision.tp + rerun.precision.fm} matches genuine · 0 fraud fixtures passed, again`,
+          },
+          {
+            label: "Recall on genuine claims",
+            value: pct(rerun.recall.tp, rerun.recall.genuine),
+            note: rerun.floorPreview,
+          },
+        ].map((s) => (
+          <div key={s.label} className="rounded-lg border border-border bg-surface p-4">
+            <div className="font-mono text-xs uppercase tracking-widest text-faint">{s.label}</div>
+            <div className="mt-1.5 font-mono text-2xl font-semibold tabular-nums">{s.value}</div>
+            <p className="mt-1 text-xs text-faint">{s.note}</p>
+          </div>
+        ))}
+      </div>
+
+      <ul className="mt-4 space-y-2.5">
+        {rerunOutcomes.map((o) => (
+          <li key={o.key} className="text-sm">
+            <div className="flex items-center gap-3">
+              <span className="w-44 shrink-0 font-mono text-xs text-muted">{o.key}</span>
+              <span className="h-2 flex-1 overflow-hidden rounded-full bg-border">
+                <span
+                  className={`block h-2 rounded-full ${toneBg[o.tone]}`}
+                  style={{ width: `${(o.count / max) * 100}%` }}
+                />
+              </span>
+              <span className="w-8 shrink-0 text-right font-mono text-xs font-semibold tabular-nums">
+                {o.count}
+              </span>
+            </div>
+            <p className="ml-[11.75rem] mt-0.5 text-xs text-faint">{o.meaning}</p>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-3 text-sm text-muted">
+        What changed vs. the snapshot: precision and the zero-fraud result held up for real; the
+        #76 normalization gap grew into the single largest fixable miss class (13 of 25 genuine
+        misses); and a new behavior surfaced — {rerunOutcomes[5].count} rows where ground truth
+        says <em>uncertain</em> but the matcher committed anyway, worth a look before Week 6.
+        Advisory as ever: the matcher only routes; humans decide.
+      </p>
+    </div>
+  );
+}
+
 export default function View() {
   const totalCalls = pass1.rows + pass2.rows;
   return (
@@ -236,6 +319,8 @@ export default function View() {
       </div>
 
       <LiveVerification />
+
+      <RerunSection />
 
       <div className="rounded-lg border border-warning/30 border-l-4 border-l-warning bg-warning/5 p-4 text-sm">
         <p className="font-mono text-xs font-semibold uppercase tracking-widest text-warning">
