@@ -6,6 +6,10 @@
  * box-shadows. Light/dark follows the OS via prefers-color-scheme (no toggle).
  */
 :root {
+  /* Native form controls (select/input/date) must follow the active theme —
+   * without this they keep UA light styling while inheriting near-white text
+   * in dark mode (unreadable). */
+  color-scheme: light dark;
   --background: #fafafa;
   --foreground: #171717;
   --surface: #ffffff;
