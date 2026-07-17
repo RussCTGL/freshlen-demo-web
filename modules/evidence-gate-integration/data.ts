@@ -45,7 +45,7 @@ export const bugs = [
 export const notDone = {
   criterion: "Route claims to auto_approve when the evidence gate passes and the calibration gate is open.",
   status:
-    "Not reachable yet - docs/CALIBRATION.md doesn't exist, so every claim currently routes to human_review regardless of the evidence gate's outcome.",
+    "Not reachable yet - docs/CALIBRATION.md exists (from #55/PR #68) but its Gate Decision is RE-SCOPE (human-review-only), so DEFAULT_POLICY keeps min_confidence_for_auto pinned to a disabled sentinel and every claim currently routes to human_review regardless of the evidence gate's outcome.",
   reasoning:
-    "Expected per AGENTS.md non-negotiable #3, not a bug in this PR - the gate wiring and the routing logic are both done and tested against the real #76/#77/#80 code; only the calibration doc that flips the gate open is still pending.",
+    "Expected per AGENTS.md non-negotiable #3, not a bug in this PR - the gate wiring and the routing logic are both done and tested against the real #76/#77/#80 code; auto_approve stays closed until a future calibration re-run flips the Gate Decision, not because any doc is missing.",
 };
