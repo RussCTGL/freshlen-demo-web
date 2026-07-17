@@ -54,3 +54,51 @@ export const hypothetical: HypoOutcome[] = [
 export const hypoPrecision = { tp: 23, fm: 0 }; // 23/23 = 100%
 export const hypoRecall = { tp: 23, genuineMeasured: 48 }; // 23 + 14 + 11
 export const hypoMisses = { total: 25, normalization: 11 };
+
+/** Live claim-flow verification (2026-07-17) — real claims through
+ *  POST /api/claims/{id}/evaluate on the seeded demo server, after main-repo #103
+ *  fixed the Claude tier (its JSON replies arrived fenced in markdown and were
+ *  discarded as unparseable, so the whole tier failed closed to 0.0). With the
+ *  fence stripped, the tier answers confidently and the identity gate goes live. */
+export type LiveRun = {
+  scenario: string;
+  identity: string; // predicted vs expected, with the tier's confidence
+  outcome: string;
+  reasonCode: string;
+  note: string;
+  tone: "good" | "gap" | "gate";
+};
+export const liveRuns: LiveRun[] = [
+  {
+    scenario: "banana photo · receipt says \"strawberry\"",
+    identity: "banana @ 0.99 vs strawberry → match=False",
+    outcome: "human_review",
+    reasonCode: "gray_zone_escalate",
+    note: "The documented WEEK-05 script, working: a confident mismatch trips the identity gate and routes straight to a human.",
+    tone: "good",
+  },
+  {
+    scenario: "banana photo · receipt says \"banana\"",
+    identity: "banana @ 0.99 vs banana → match=True",
+    outcome: "human_review",
+    reasonCode: "calibration_disabled",
+    note: "A fully verified claim still never auto-pays: the auto-approve tier stays off until the docs/CALIBRATION.md floor is enabled.",
+    tone: "good",
+  },
+  {
+    scenario: "apple photo · receipt says \"apple\"",
+    identity: "\"green apple\" @ 0.95 vs apple → match=False",
+    outcome: "human_review",
+    reasonCode: "gray_zone_escalate",
+    note: "The #76 normalization gap this eval predicted (11/25 misses), observed live: right produce, phrasing not in NORMALIZE_MAP.",
+    tone: "gap",
+  },
+  {
+    scenario: "reused photo / same store + purchase date",
+    identity: "— (model never called; assessment=null)",
+    outcome: "decline",
+    reasonCode: "duplicate_receipt / duplicate_purchase",
+    note: "Dup + cap gates run before the model (non-negotiable #4) — a replayed image or purchase key is declined pre-assessment.",
+    tone: "gate",
+  },
+];

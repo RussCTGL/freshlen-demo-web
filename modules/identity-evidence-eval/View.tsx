@@ -8,6 +8,7 @@ import {
   hypoPrecision,
   hypoRecall,
   hypoMisses,
+  liveRuns,
 } from "./data";
 
 const pct = (part: number, whole: number) =>
@@ -119,6 +120,44 @@ function HypotheticalChart() {
   );
 }
 
+/** Live claim-flow runs (Jul 17) — one row per scenario, tone-coded with the reason
+ *  code always printed, so outcome identity never rides on color alone. */
+function LiveVerification() {
+  const toneDot = { good: "bg-brand", gap: "bg-warning", gate: "bg-danger" } as const;
+  return (
+    <div>
+      <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
+        Live verification · Jul 17 — Claude tier active after #103
+      </h3>
+      <p className="mt-2 text-sm text-muted">
+        The snapshot above is CLIP-only: Claude&apos;s replies arrived wrapped in a markdown fence
+        and were discarded as unparseable, so the tier failed closed to 0.0 — a gap this eval
+        surfaced and main-repo #103 fixed. With the fix in, real claims were run through{" "}
+        <code>evaluate_claim</code> on the demo server:
+      </p>
+      <ul className="mt-3 space-y-2.5">
+        {liveRuns.map((r) => (
+          <li key={r.scenario} className="rounded-lg border border-border bg-surface p-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${toneDot[r.tone]}`} />
+              <span className="font-medium">{r.scenario}</span>
+              <span className="ml-auto font-mono text-xs text-faint">
+                {r.outcome} · {r.reasonCode}
+              </span>
+            </div>
+            <p className="mt-1 pl-5 font-mono text-xs text-muted">{r.identity}</p>
+            <p className="mt-1 pl-5 text-xs text-faint">{r.note}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-xs text-faint">
+        Advisory as ever: the tier predicts and the policy routes — every one of these outcomes
+        is a routing decision, and humans make every final call.
+      </p>
+    </div>
+  );
+}
+
 export default function View() {
   const totalCalls = pass1.rows + pass2.rows;
   return (
@@ -195,6 +234,8 @@ export default function View() {
           </div>
         ))}
       </div>
+
+      <LiveVerification />
 
       <div className="rounded-lg border border-warning/30 border-l-4 border-l-warning bg-warning/5 p-4 text-sm">
         <p className="font-mono text-xs font-semibold uppercase tracking-widest text-warning">
