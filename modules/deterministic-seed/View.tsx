@@ -4,15 +4,15 @@ import { useState } from "react";
 import { StatBars } from "@/components/StatBars";
 import {
   manifest,
+  seedDivergence,
   fraudByType,
   scenarioForSeed,
   seedChain,
-  boundaryFixtures,
   testCounts,
+  checkMode,
   deviceFinding,
   WASTE_BAND_MIN,
   PER_CLAIM_CEILING_CENTS,
-  MONTHLY_CEILING_CENTS,
 } from "./data";
 
 const CARD = "rounded border border-border p-4";
@@ -27,17 +27,8 @@ function freshlensBand(score: number) {
 export default function View() {
   const [seed, setSeed] = useState(85);
   const [score, setScore] = useState(71);
-  const [requested, setRequested] = useState(900);
-  const [approved, setApproved] = useState(900);
 
   const scenario = scenarioForSeed(seed);
-  const clamped = Math.min(approved, requested, PER_CLAIM_CEILING_CENTS);
-  const clampReason =
-    approved > requested
-      ? "denied — a reviewer may lower but never inflate the shopper's request"
-      : approved > PER_CLAIM_CEILING_CENTS
-        ? "denied — above the immutable 1000c per-claim ceiling"
-        : "accepted";
 
   return (
     <section className="space-y-10">
@@ -52,55 +43,15 @@ export default function View() {
       </p>
 
       <div className={CARD}>
-        <h3 className={LABEL}>Why an external seeder cannot work</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="rounded border border-danger/40 bg-danger/5 p-3">
-            <p className="font-mono text-xs text-danger">✕ separate process</p>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="rounded bg-surface-raised p-2">
-                <span className="font-mono text-xs">seed_script.py</span>
-                <div className="mt-1 text-xs text-muted">
-                  writes → its own memory
-                </div>
-              </div>
-              <div className="text-center text-xs text-faint">no shared state</div>
-              <div className="rounded bg-surface-raised p-2">
-                <span className="font-mono text-xs">uvicorn app:app</span>
-                <div className="mt-1 text-xs text-muted">
-                  reads → an empty store
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="rounded border border-brand/40 bg-brand-tint p-3">
-            <p className="font-mono text-xs text-brand">✓ one interpreter</p>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="rounded bg-surface-raised p-2">
-                <span className="font-mono text-xs">
-                  import demo_seed → seed_demo_state()
-                </span>
-                <div className="mt-1 text-xs text-muted">
-                  writes → module-level memory
-                </div>
-              </div>
-              <div className="text-center text-xs text-faint">same process</div>
-              <div className="rounded bg-surface-raised p-2">
-                <span className="font-mono text-xs">TestClient(app)</span>
-                <div className="mt-1 text-xs text-muted">
-                  reads → the claim it just wrote
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p className="mt-4 text-sm text-muted">
+        <h3 className={LABEL}>Why the helper is imported, not run</h3>
+        <p className="mt-3 text-sm text-muted">
           <code className="font-mono text-xs">src/claims_store.py</code> keeps
-          state in module-level memory. A seeder run as a subprocess populates its
-          own copy and the serving process still sees nothing. So the helper is{" "}
-          <em>imported</em> by whoever holds the app — never executed as a
-          subprocess. One of the {testCounts.demoSeed} tests drives the real API
-          through <code className="font-mono text-xs">TestClient</code> and reads
-          back the seeded claim, which is what proves this rather than asserts it.
+          state in module-level memory, so a seeder run as a subprocess writes to
+          its own copy and the serving app sees an empty store. The helper is{" "}
+          <em>imported</em> by whoever holds the app instead. One of the{" "}
+          {testCounts.demoSeed} tests drives the real API through{" "}
+          <code className="font-mono text-xs">TestClient</code> and reads the
+          seeded claim back — proof, not assertion.
         </p>
       </div>
 
@@ -156,6 +107,26 @@ diff -ru /tmp/ev1 /tmp/ev2`}
           , exit 1 — rather than quietly emitting a short manifest. The photos are
           deliberately not committed; that boundary is the point, not a defect.
         </p>
+
+        <div className="mt-4 rounded bg-surface-raised p-3">
+          <p className="text-xs text-muted">
+            Determinism has to cut both ways, or it&rsquo;s just a constant. Same
+            seed → identical bytes; a <em>different</em> seed → different bytes at
+            the same floors:
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3 font-mono text-xs">
+            <span className="text-brand">
+              --seed 42 → {seedDivergence.seed42Sha}…
+            </span>
+            <span className="text-faint">vs</span>
+            <span className="text-warning">
+              --seed 43 → {seedDivergence.seed43Sha}…
+            </span>
+          </div>
+          <p className="mt-1 text-[10px] text-faint">
+            both: {seedDivergence.sharedFloors}
+          </p>
+        </div>
       </div>
 
       {/* ─── 3. The seeded scenario ─────────────────────────────────── */}
@@ -250,12 +221,8 @@ diff -ru /tmp/ev1 /tmp/ev2`}
           Pinning the edges — my #129 boundary contribution
         </h3>
         <p className="mt-3 text-sm text-muted">
-          The contract suite denied everything <em>above</em> each ceiling using{" "}
-          <code className="font-mono text-xs">&gt;</code>, and every fixture used
-          score 82 — comfortably inside the waste band. Nothing sat on an edge, so
-          an off-by-one tightening <code className="font-mono text-xs">&gt;</code>{" "}
-          to <code className="font-mono text-xs">&gt;=</code> would have passed the
-          whole suite. Drag the score across 71 and watch the category flip:
+          The contract had no test sitting on an edge — so drag the score across
+          71 and watch the category flip:
         </p>
 
         <div className="mt-4">
@@ -290,155 +257,104 @@ diff -ru /tmp/ev1 /tmp/ev2`}
           </div>
         </div>
 
-        <div className="mt-6">
-          <h4 className={LABEL}>Cap clamp</h4>
-          <div className="mt-3 flex flex-wrap items-end gap-4 text-sm">
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted">shopper requested (¢)</span>
-              <input
-                type="number"
-                value={requested}
-                onChange={(e) => setRequested(Number(e.target.value))}
-                className="w-28 rounded border border-border bg-transparent px-2 py-1 font-mono text-xs"
-              />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs text-muted">reviewer approved (¢)</span>
-              <input
-                type="number"
-                value={approved}
-                onChange={(e) => setApproved(Number(e.target.value))}
-                className="w-28 rounded border border-border bg-transparent px-2 py-1 font-mono text-xs"
-              />
-            </label>
-            <div
-              className={`rounded px-3 py-2 font-mono text-xs ${
-                clampReason === "accepted"
-                  ? "border border-brand/40 bg-brand-tint text-brand"
-                  : "border border-danger/40 bg-danger/5 text-danger"
-              }`}
-            >
-              {clampReason === "accepted" ? `→ ${clamped}¢` : clampReason}
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-faint">
-            Immutable ceilings: {PER_CLAIM_CEILING_CENTS}¢ per claim,{" "}
-            {MONTHLY_CEILING_CENTS}¢ per rolling month. Effective policy may lower
-            them, never raise them.
-          </p>
-        </div>
-
-        <ul className="mt-6 space-y-2">
-          {boundaryFixtures.map((f) => (
-            <li key={f.name} className="rounded bg-surface-raised p-3 text-sm">
-              <div className="font-mono text-xs text-brand">{f.name}</div>
-              <div className="mt-1">{f.what}</div>
-              <div className="mt-1 text-xs text-muted">{f.why}</div>
-            </li>
-          ))}
-        </ul>
-
         <p className="mt-4 text-sm text-muted">
-          Fixtures alone would have asserted nothing here — the rule engine returns{" "}
-          <code className="font-mono text-xs">human_review</code> unconditionally
-          and the sequence test skips{" "}
-          <code className="font-mono text-xs">evidence_summary</code> as
-          illustrative-only. So the contribution is three invariants as well:
-          category must agree with the score band, both sides of 71 must stay
-          covered, and each ceiling must be reachable rather than merely deniable.
-          Contract suite {testCounts.contractBefore} →{" "}
-          {testCounts.contractAfterBoundary} →{" "}
-          <strong>{testCounts.contractNow}</strong> passing, run twice, identical.
-          Mutation-checked: relabelling score 71 as{" "}
-          <code className="font-mono text-xs">conversion</code> fails the new test.
+          The suite denied everything <em>above</em> each ceiling with{" "}
+          <code className="font-mono text-xs">&gt;</code> and every fixture used
+          score 82 — so an off-by-one tightening to{" "}
+          <code className="font-mono text-xs">&gt;=</code> would have passed
+          unnoticed. My fixtures pin both sides of 71 (waste vs conversion) and the
+          exact 1000c / 1500c ceilings, plus three invariants — the rule engine
+          returns <code className="font-mono text-xs">human_review</code>{" "}
+          unconditionally, so fixtures alone assert nothing. Contract suite{" "}
+          <strong>{testCounts.contractNow}</strong> passing, run twice, identical;
+          relabelling 71 as <code className="font-mono text-xs">conversion</code>{" "}
+          fails the new test.
         </p>
       </div>
 
-      {/* ─── 5. Device finding ──────────────────────────────────────── */}
+      {/* ─── 5. Check mode (shipped stretch) ────────────────────────── */}
+      <div className={CARD}>
+        <h3 className={LABEL}>
+          Read-only validator — the #110 stretch, shipped
+        </h3>
+        <p className="mt-3 text-sm text-muted">
+          Generation needs the calibration photos; grading an{" "}
+          <em>already-built</em> tree shouldn&rsquo;t. So{" "}
+          <code className="font-mono text-xs">check</code> re-verifies an existing
+          manifest against the same schema, vocabularies, count floors, and retail
+          coverage that generation enforces — writing nothing, needing no photos,
+          and exiting non-zero on any failure. That gives Yizhou&rsquo;s #113
+          evaluator a CI hook that runs anywhere.
+        </p>
+        <pre className="mt-3 overflow-x-auto rounded bg-surface-raised p-3 font-mono text-xs leading-relaxed">
+          {checkMode.command}
+        </pre>
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+          <span className="rounded-full border border-brand/40 bg-brand-tint px-3 py-1 font-mono text-xs text-brand">
+            {checkMode.passOn42}
+          </span>
+          <span className="font-mono text-xs text-faint">
+            {checkMode.checks.length} checks · {checkMode.failClosed}
+          </span>
+          <span className="font-mono text-xs text-faint">
+            {checkMode.tests} tests · writes nothing
+          </span>
+        </div>
+      </div>
+
+      {/* ─── 6. Device finding ──────────────────────────────────────── */}
       <div className="rounded border border-danger/40 bg-danger/5 p-4">
         <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-danger">
-          Device finding — #119 · result {deviceFinding.result} ·{" "}
-          {deviceFinding.severity}
+          Device finding — #119 · scenario {deviceFinding.scenarioResult} ·
+          blocking {deviceFinding.blocking.result}
         </h3>
+        <p className="mt-1 font-mono text-[10px] text-faint">
+          {deviceFinding.device}
+        </p>
         <p className="mt-3 text-sm">
-          {deviceFinding.subject} was accepted without any quality check. The app
-          returned:
+          My scenario was blurry/partial capture and retake guidance — there is no
+          retake path, so the scenario is <strong>{deviceFinding.scenarioResult}</strong>.
+          Proving it, one sealed can scanned three ways gave three confident,
+          inconsistent verdicts:
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          {[
-            ["classified as", deviceFinding.classified],
-            ["days until expiry", String(deviceFinding.daysUntilExpiry)],
-            ["XFS score", `${deviceFinding.xfsScore}%`],
-          ].map(([k, v]) => (
-            <div key={k} className="rounded bg-surface-raised p-3">
+          {deviceFinding.frames.map((f) => (
+            <div
+              key={f.frame}
+              className={`rounded p-3 ${
+                f.classified === "Mango"
+                  ? "border border-danger/40 bg-danger/10"
+                  : "bg-surface-raised"
+              }`}
+            >
               <div className="font-mono text-[10px] uppercase tracking-wider text-faint">
-                {k}
+                {f.frame}
               </div>
-              <div className="mt-1 font-mono text-sm">{v}</div>
+              <div className="mt-1 font-mono text-sm">
+                {f.classified} · {f.xfsScore}%
+              </div>
+              <div className="mt-1 text-xs text-muted">{f.note}</div>
             </div>
           ))}
         </div>
-        <ul className="mt-3 space-y-1 text-sm text-muted">
-          {deviceFinding.observations.map((o) => (
+
+        <p className="mt-4 text-sm font-medium text-danger">
+          {deviceFinding.blocking.what}
+        </p>
+        <ul className="mt-2 space-y-1 text-sm text-muted">
+          {deviceFinding.blocking.evidence.map((o) => (
             <li key={o}>· {o}</li>
           ))}
         </ul>
-        <p className="mt-3 text-sm">
-          Reported as <strong>{deviceFinding.result}</strong> rather than
-          NOT_PRESENT: the failure is that an unusable image was accepted and given
-          a confident verdict, not merely that a feature is missing. No
-          image-quality gate or retake path was observed anywhere in the capture
-          flow.
+        <p className="mt-3 text-xs text-muted">
+          <span className="font-mono uppercase tracking-wider text-faint">
+            correction gap ·{" "}
+          </span>
+          {deviceFinding.correctionGap}
         </p>
       </div>
 
-      {/* ─── 6. Score inversion ─────────────────────────────────────── */}
-      <div className="rounded border border-warning/40 bg-warning/5 p-4">
-        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-warning">
-          Contract risk — the two score scales run opposite
-        </h3>
-        <div className="mt-4 space-y-4">
-          <div>
-            <div className="font-mono text-xs text-muted">
-              FreshLens canonical
-            </div>
-            <div className="mt-1 h-3 w-full rounded-full bg-gradient-to-r from-brand to-danger" />
-            <div className="mt-1 flex justify-between font-mono text-[10px] text-faint">
-              <span>0 · fresh</span>
-              <span>{WASTE_BAND_MIN}–100 · waste</span>
-            </div>
-          </div>
-          <div>
-            <div className="font-mono text-xs text-muted">
-              Xpired XFS, observed on device
-            </div>
-            <div className="mt-1 h-3 w-full rounded-full bg-gradient-to-r from-danger to-brand" />
-            <div className="mt-1 flex justify-between font-mono text-[10px] text-faint">
-              <span>0 · spoiled</span>
-              <span>100 · fresh</span>
-            </div>
-          </div>
-        </div>
-        <p className="mt-4 text-sm">
-          The device said{" "}
-          <em>
-            &ldquo;your minimum freshness is {deviceFinding.xfsMinimumPreference}%,
-            this scan is {deviceFinding.xfsScore}%&rdquo;
-          </em>{" "}
-          and recommended <strong>{deviceFinding.recommendation}</strong>. So XFS{" "}
-          {deviceFinding.xfsScore} means <em>spoiled</em>, while a FreshLens score
-          of {deviceFinding.xfsScore} means <em>fresh</em>. Wire the two together
-          without an explicit adapter and fresh and waste swap places.
-        </p>
-        <p className="mt-2 text-sm text-muted">
-          #129 §3 already requires one declared score direction and forbids any
-          consumer silently inverting it — a host running the other way must use
-          and test a named adapter. This is device evidence that the host does run
-          the other way. Logged for the contract, not fixed here.
-        </p>
-      </div>
-
-      {/* ─── 7. Honest status ───────────────────────────────────────── */}
+      {/* ─── 7. Status ──────────────────────────────────────────────── */}
       <div className={CARD}>
         <h3 className={LABEL}>Status</h3>
         <table className="mt-3 w-full text-sm">
@@ -446,16 +362,22 @@ diff -ru /tmp/ev1 /tmp/ev2`}
             {[
               ["#110 fixture CLI + `--output` (PR #141)", "VERIFIED", "brand"],
               ["#110 item 8 in-process seed helper (PR #151)", "VERIFIED", "brand"],
+              ["#110 three-role principals (PR #153)", "VERIFIED", "brand"],
               ["#129 boundary fixtures + invariants (PR #148)", "VERIFIED", "brand"],
-              ["#119 blurry/partial device scenario", "FAIL — reported", "danger"],
               [
-                "#129 three-role golden-path integration",
-                "PENDING — after #148/#150 land",
-                "warning",
+                "Offline golden path — seeds → human_review → resolve",
+                "VERIFIED — 16/16, FAILED 0",
+                "brand",
+              ],
+              ["#110 `check` mode for #113 evaluator (stretch)", "SHIPPED — in review", "brand"],
+              [
+                "#119 blurry/partial scenario",
+                "NOT_PRESENT · blocking FAIL reported",
+                "danger",
               ],
               [
-                "#114 seed-dependent canonical label",
-                "OPEN — awaiting owner confirmation",
+                "#85 clean-checkout fixture generation",
+                "BLOCKED — authorized photo sync",
                 "warning",
               ],
             ].map(([what, status, tone]) => (
