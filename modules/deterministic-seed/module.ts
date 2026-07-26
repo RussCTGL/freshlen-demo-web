@@ -9,6 +9,6 @@ export default defineModule({
   week: 6,
   order: 10,
   summary:
-    "One seed, twice, byte-identical \u2014 the in-process helper that puts a real claim in human_review, and the boundary fixtures that pin the contract's edges.",
+    "One seed, twice, byte-identical \u2014 the in-process helper that puts a real claim in human_review, the boundary fixtures that pin the contract's edges, and a read-only manifest validator for the evaluator.",
   View,
 });
