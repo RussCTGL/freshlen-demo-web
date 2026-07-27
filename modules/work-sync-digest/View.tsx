@@ -4,23 +4,14 @@
 // references. No PII, tokens, or private URLs. Missing sources are reported BLOCKED,
 // never silently counted as zero work.
 
+import { StatBars } from "@/components/StatBars";
+
 type DigestEvent = {
   category: string;
   title: string;
   reference: string;
   date: string;
 };
-
-type SourceRow = {
-  source: string;
-  state: "OK" | "BLOCKED";
-  events: number;
-  reason: string;
-};
-
-const WEEK = "2026-W30";
-const WINDOW = "2026-07-20 → 2026-07-27 (UTC−04:00)";
-const GENERATED_AS_OF = "2026-07-27T04:00:00Z";
 
 const SHIPPED: DigestEvent[] = [
   {
@@ -79,30 +70,52 @@ const REVIEWS: DigestEvent[] = [
   },
 ];
 
-const COVERAGE: SourceRow[] = [
-  { source: "git_local", state: "OK", events: 1, reason: "" },
-  { source: "github", state: "BLOCKED", events: 0, reason: "not_configured (live adapter is roadmap M2)" },
+const ALL_EVENTS = [...SHIPPED, ...REVIEWS];
+
+const BY_CATEGORY = ["code", "coordination", "docs", "device", "review"].map((name) => ({
+  name,
+  count: ALL_EVENTS.filter((e) => e.category === name).length,
+}));
+
+const BY_DAY = [
+  ["Mon 07-20", "2026-07-20"],
+  ["Tue 07-21", "2026-07-21"],
+  ["Wed 07-22", "2026-07-22"],
+  ["Thu 07-23", "2026-07-23"],
+  ["Fri 07-24", "2026-07-24"],
+  ["Sat 07-25", "2026-07-25"],
+  ["Sun 07-26", "2026-07-26"],
+].map(([name, date]) => ({
+  name,
+  count: ALL_EVENTS.filter((e) => e.date === date).length,
+}));
+
+const COVERAGE = [
+  { source: "git_local", state: "OK", events: 1, reason: "commit metadata only" },
   { source: "meeting_notes", state: "OK", events: 7, reason: "sanitized export" },
+  { source: "github", state: "BLOCKED", events: 0, reason: "not_configured — live adapter is roadmap M2" },
 ];
 
 function EventList({ events }: { events: DigestEvent[] }) {
   return (
     <ul className="space-y-2">
       {events.map((event) => (
-        <li key={event.reference + event.title} className="text-sm leading-6">
-          <span className="mr-2 rounded bg-gray-200 px-1.5 py-0.5 font-mono text-xs dark:bg-gray-700">
+        <li key={event.reference + event.title} className="flex items-baseline gap-2 text-sm leading-6">
+          <span className="shrink-0 rounded border border-border bg-surface px-1.5 font-mono text-xs text-muted">
             {event.category}
           </span>
-          {event.title}{" "}
-          <a
-            href={event.reference}
-            className="underline decoration-dotted underline-offset-2"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {event.reference.split("/").slice(-2).join("/")}
-          </a>{" "}
-          <span className="text-xs text-gray-500">{event.date}</span>
+          <span>
+            {event.title}{" "}
+            <a
+              href={event.reference}
+              className="underline decoration-dotted underline-offset-2"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {event.reference.split("/").slice(-2).join("/")}
+            </a>{" "}
+            <span className="font-mono text-xs text-faint">{event.date}</span>
+          </span>
         </li>
       ))}
     </ul>
@@ -111,64 +124,87 @@ function EventList({ events }: { events: DigestEvent[] }) {
 
 export default function View() {
   return (
-    <section className="space-y-6">
-      <div className="rounded border-l-4 border-gray-400 bg-gray-50 p-3 text-sm dark:bg-gray-800">
-        <strong>Provenance:</strong> generated deterministically by{" "}
+    <section className="space-y-8">
+      <p className="text-muted">
+        The one-page weekly evidence digest, generated deterministically by{" "}
         <code>scripts/work_sync.py</code> (schema v1, two-run byte-identical) from git commit
-        metadata plus a sanitized activity export of public GitHub references. Window: {WINDOW};
-        generated as of {GENERATED_AS_OF}. Missing sources are reported BLOCKED below — never
-        counted as zero work.
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-base font-semibold">Shipped (with evidence) — {WEEK}</h3>
-        <EventList events={SHIPPED} />
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-base font-semibold">Reviews given</h3>
-        <EventList events={REVIEWS} />
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-base font-semibold">Source coverage</h3>
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr>
-              {["source", "state", "events", "reason"].map((header) => (
-                <th key={header} className="border border-gray-300 px-2 py-1 text-left dark:border-gray-600">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {COVERAGE.map((row) => (
-              <tr key={row.source}>
-                <td className="border border-gray-300 px-2 py-1 font-mono text-xs dark:border-gray-600">
-                  {row.source}
-                </td>
-                <td
-                  className={`border border-gray-300 px-2 py-1 font-semibold dark:border-gray-600 ${
-                    row.state === "OK" ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
-                  }`}
-                >
-                  {row.state}
-                </td>
-                <td className="border border-gray-300 px-2 py-1 dark:border-gray-600">{row.events}</td>
-                <td className="border border-gray-300 px-2 py-1 text-gray-500 dark:border-gray-600">
-                  {row.reason}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <p className="text-xs text-gray-500">
-        Excluded honestly: PR #173 (Windows work-sync fix) and the #164 Windows triage landed
-        minutes after the window closed — they belong to W31.
+        metadata plus a sanitized activity export of public GitHub references. Window:{" "}
+        <strong>2026-07-20 → 2026-07-27</strong> (UTC−04:00).
       </p>
+
+      <div className="grid gap-4 sm:grid-cols-4">
+        {[
+          { label: "Events", value: ALL_EVENTS.length },
+          { label: "Shipped", value: SHIPPED.length },
+          { label: "Reviews given", value: REVIEWS.length },
+          { label: "Sources OK", value: "2/3" },
+        ].map((s) => (
+          <div key={s.label} className="rounded-lg border border-border bg-surface p-4">
+            <div className="font-mono text-xs uppercase tracking-widest text-faint">{s.label}</div>
+            <div className="mt-1.5 font-mono text-2xl font-semibold tabular-nums">{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-8 sm:grid-cols-2">
+        <StatBars title="Focus by category" rows={BY_CATEGORY} />
+        <StatBars title="Events by day" rows={BY_DAY} />
+      </div>
+
+      <div>
+        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
+          Shipped (with evidence)
+        </h3>
+        <div className="mt-3">
+          <EventList events={SHIPPED} />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
+          Reviews given
+        </h3>
+        <div className="mt-3">
+          <EventList events={REVIEWS} />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
+          Source coverage
+        </h3>
+        <ul className="mt-3 space-y-2">
+          {COVERAGE.map((row) => (
+            <li key={row.source} className="flex items-center gap-3 text-sm">
+              <span className="w-36 shrink-0 font-mono text-xs text-muted">{row.source}</span>
+              <span
+                className={`shrink-0 rounded px-1.5 font-mono text-xs font-semibold ${
+                  row.state === "OK" ? "text-success" : "text-warning"
+                }`}
+              >
+                {row.state}
+              </span>
+              <span className="w-8 shrink-0 text-right font-mono text-xs tabular-nums text-faint">
+                {row.events}
+              </span>
+              <span className="text-xs text-muted">{row.reason}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-lg border border-warning/30 border-l-4 border-l-warning bg-warning/5 p-4 text-sm">
+        <p className="font-mono text-xs font-semibold uppercase tracking-widest text-warning">
+          Honesty boundary
+        </p>
+        <p className="mt-2">
+          The <code>github</code> source is BLOCKED (<code>not_configured</code>) — the live
+          adapter is roadmap milestone M2, so GitHub-side work appears here only through the
+          sanitized export, and missing sources are never counted as zero work. PR #173 (the
+          Windows work-sync fix) and the #164 Windows triage landed minutes after this window
+          closed — they belong to W31, not this page.
+        </p>
+      </div>
     </section>
   );
 }
