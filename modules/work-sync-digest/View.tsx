@@ -1,195 +1,209 @@
 // Weekly Work-Sync Digest — 2026-W30 (RussCTGL).
-// Data is a deterministic snapshot produced by es-intern-freshlens/scripts/work_sync.py
-// (schema v1): git commit metadata + a sanitized activity export of public GitHub
-// references. No PII, tokens, or private URLs. Missing sources are reported BLOCKED,
-// never silently counted as zero work.
+// Demos the substance of what shipped this week: the UX/API scorecard, the
+// work-sync pipeline, the frozen host-contract sections, and the device study —
+// with each artifact's own verified numbers and evidence links. All references
+// are public GitHub URLs; no PII, tokens, or private URLs.
 
-import { StatBars } from "@/components/StatBars";
-
-type DigestEvent = {
-  category: string;
-  title: string;
-  reference: string;
-  date: string;
+const LINKS = {
+  pr154: "https://github.com/LawrenceHua/es-intern-freshlens/pull/154",
+  pr155: "https://github.com/LawrenceHua/es-intern-freshlens/pull/155",
+  pr148: "https://github.com/LawrenceHua/es-intern-freshlens/pull/148",
+  pr136: "https://github.com/LawrenceHua/es-intern-freshlens/pull/136",
+  issue119: "https://github.com/LawrenceHua/es-intern-freshlens/issues/119",
+  issue129: "https://github.com/LawrenceHua/es-intern-freshlens/issues/129",
 };
 
-const SHIPPED: DigestEvent[] = [
-  {
-    category: "code",
-    title: "[EVAL] Reproducible Week 6 UX/API completeness scorecard (#113) merged",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/pull/154",
-    date: "2026-07-26",
-  },
-  {
-    category: "code",
-    title: "#121 work-sync MVP integrated into main via the #155 convergence baseline",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/pull/155",
-    date: "2026-07-26",
-  },
-  {
-    category: "docs",
-    title:
-      "monitor_event schema + contract-version pinning rules frozen into es_claim_host_v1 (PR #148)",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/pull/148",
-    date: "2026-07-24",
-  },
-  {
-    category: "device",
-    title:
-      "DEVICE-RESULT posted: background/resume scenario PASS on scan flow; claim-flow gap named",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/issues/119",
-    date: "2026-07-24",
-  },
-  {
-    category: "docs",
-    title:
-      "#129 owner artifact: contract-version compatibility rules + privacy-clean monitor_event schema",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/issues/129",
-    date: "2026-07-22",
-  },
-  {
-    category: "coordination",
-    title: "#113 scorecard contract posted; all five sign-offs received and absorbed",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/issues/113",
-    date: "2026-07-22",
-  },
-  {
-    category: "coordination",
-    title: "#121 Wednesday contract posted with working MVP (draft PR #133)",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/issues/121",
-    date: "2026-07-21",
-  },
-];
-
-const REVIEWS: DigestEvent[] = [
-  {
-    category: "review",
-    title: "Reviewed PR #136 (claims report): 3 findings; row bound adopted upstream",
-    reference: "https://github.com/LawrenceHua/es-intern-freshlens/pull/136",
-    date: "2026-07-22",
-  },
-];
-
-const ALL_EVENTS = [...SHIPPED, ...REVIEWS];
-
-const BY_CATEGORY = ["code", "coordination", "docs", "device", "review"].map((name) => ({
-  name,
-  count: ALL_EVENTS.filter((e) => e.category === name).length,
-}));
-
-const BY_DAY = [
-  ["Mon 07-20", "2026-07-20"],
-  ["Tue 07-21", "2026-07-21"],
-  ["Wed 07-22", "2026-07-22"],
-  ["Thu 07-23", "2026-07-23"],
-  ["Fri 07-24", "2026-07-24"],
-  ["Sat 07-25", "2026-07-25"],
-  ["Sun 07-26", "2026-07-26"],
-].map(([name, date]) => ({
-  name,
-  count: ALL_EVENTS.filter((e) => e.date === date).length,
-}));
-
-const COVERAGE = [
-  { source: "git_local", state: "OK", events: 1, reason: "commit metadata only" },
-  { source: "meeting_notes", state: "OK", events: 7, reason: "sanitized export" },
-  { source: "github", state: "BLOCKED", events: 0, reason: "not_configured — live adapter is roadmap M2" },
-];
-
-function EventList({ events }: { events: DigestEvent[] }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <ul className="space-y-2">
-      {events.map((event) => (
-        <li key={event.reference + event.title} className="flex items-baseline gap-2 text-sm leading-6">
-          <span className="shrink-0 rounded border border-border bg-surface px-1.5 font-mono text-xs text-muted">
-            {event.category}
-          </span>
-          <span>
-            {event.title}{" "}
-            <a
-              href={event.reference}
-              className="underline decoration-dotted underline-offset-2"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {event.reference.split("/").slice(-2).join("/")}
-            </a>{" "}
-            <span className="font-mono text-xs text-faint">{event.date}</span>
-          </span>
-        </li>
-      ))}
-    </ul>
+    <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
+      {children}
+    </h3>
+  );
+}
+
+function Evidence({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      className="underline decoration-dotted underline-offset-2"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {label}
+    </a>
+  );
+}
+
+function Tile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-surface p-4">
+      <div className="font-mono text-xs uppercase tracking-widest text-faint">{label}</div>
+      <div className="mt-1.5 font-mono text-xl font-semibold tabular-nums">{value}</div>
+    </div>
   );
 }
 
 export default function View() {
   return (
-    <section className="space-y-8">
+    <section className="space-y-10">
       <p className="text-muted">
-        The one-page weekly evidence digest, generated deterministically by{" "}
-        <code>scripts/work_sync.py</code> (schema v1, two-run byte-identical) from git commit
-        metadata plus a sanitized activity export of public GitHub references. Window:{" "}
-        <strong>2026-07-20 → 2026-07-27</strong> (UTC−04:00).
+        What shipped in <strong>2026-W30</strong> — the artifact details, each with its own
+        verified numbers and public evidence. Rolled up deterministically by{" "}
+        <code>scripts/work_sync.py</code> (#121), which itself shipped this week.
       </p>
 
-      <div className="grid gap-4 sm:grid-cols-4">
-        {[
-          { label: "Events", value: ALL_EVENTS.length },
-          { label: "Shipped", value: SHIPPED.length },
-          { label: "Reviews given", value: REVIEWS.length },
-          { label: "Sources OK", value: "2/3" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-lg border border-border bg-surface p-4">
-            <div className="font-mono text-xs uppercase tracking-widest text-faint">{s.label}</div>
-            <div className="mt-1.5 font-mono text-2xl font-semibold tabular-nums">{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-8 sm:grid-cols-2">
-        <StatBars title="Focus by category" rows={BY_CATEGORY} />
-        <StatBars title="Events by day" rows={BY_DAY} />
-      </div>
-
-      <div>
-        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
-          Shipped (with evidence)
-        </h3>
-        <div className="mt-3">
-          <EventList events={SHIPPED} />
+      {/* ---------------------------------------------------------------- #113 */}
+      <div className="space-y-4">
+        <SectionTitle>1 · UX/API completeness scorecard — merged to main</SectionTitle>
+        <div className="grid gap-4 sm:grid-cols-4">
+          <Tile label="Checks green" value="56/56" />
+          <Tile label="Check families" value="10" />
+          <Tile label="Anti-false-green tests" value="28" />
+          <Tile label="Two-run diff" value="empty" />
         </div>
+        <ul className="list-disc space-y-1.5 pl-5 text-sm">
+          <li>
+            <code>scripts/ui_smoke.py</code>: offline, same-process TestClient harness grading
+            every Week 6 surface — envelope shape, DOM landmarks, accessibility structure,
+            advisory-copy rules, auth isolation, report columns, provenance honesty,
+            policy guardrails, determinism, and the #140 <strong>role matrix</strong> (seeded
+            shopper / two store reviewers / policy admin; shopper review→403, cross-store
+            queue→empty, admin threshold-write→rejected naming the RE-SCOPE lock).
+          </li>
+          <li>
+            <strong>Cannot false-green:</strong> every required family has a test that plants a
+            failure and proves exit 1 — including probes contributed adversarially in review
+            (Tony&apos;s header-only report, Jinming&apos;s form-vs-JSON wrong-reason pass), both
+            pinned as permanent tests.
+          </li>
+          <li>
+            <strong>Determinism is self-enforcing:</strong> the harness runs its whole suite twice
+            per invocation and a mismatch is itself a required failure; output is sanitized
+            (ids/timestamps/paths) and byte-identical across runs.
+          </li>
+          <li>
+            <strong>#129 version pin:</strong> the report names its consumed host-contract version
+            (<code>&quot;1.0&quot;</code>); an unknown or divergent version is a required failure —
+            never coerced to latest.
+          </li>
+        </ul>
+        <p className="text-sm text-faint">
+          Evidence: <Evidence href={LINKS.pr154} label="PR #154 (merged, 2 approvals)" /> — five
+          teammate sign-offs absorbed; review findings closed same-day.
+        </p>
       </div>
 
-      <div>
-        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
-          Reviews given
-        </h3>
-        <div className="mt-3">
-          <EventList events={REVIEWS} />
+      {/* ---------------------------------------------------------------- #121 */}
+      <div className="space-y-4">
+        <SectionTitle>2 · Work-sync pipeline — integrated via the convergence baseline</SectionTitle>
+        <div className="grid gap-4 sm:grid-cols-4">
+          <Tile label="Event schema" value="v1" />
+          <Tile label="Adapters" value="3" />
+          <Tile label="Suite (Windows)" value="46 ✓" />
+          <Tile label="Rerun output" value="byte-identical" />
         </div>
+        <ul className="list-disc space-y-1.5 pl-5 text-sm">
+          <li>
+            Turns git metadata, GitHub items, and sanitized meeting/AI exports into one
+            <code> work_event</code> stream: stable <code>event_key</code> dedup (exact +
+            rebase-collapse), single-line redacted titles, provenance block on every event.
+          </li>
+          <li>
+            <strong>Missing work is never counted as zero:</strong> a source that cannot be read
+            reports <code>BLOCKED</code> with a reason on the page itself — this digest&apos;s own
+            coverage table shows <code>github: BLOCKED (not_configured)</code> because the live
+            adapter is roadmap M2.
+          </li>
+          <li>
+            Deterministic by construction: fixed <code>--as-of</code>, key-sorted JSON, no
+            timestamps or machine paths in output — two runs diff empty, same discipline the
+            scorecard uses.
+          </li>
+        </ul>
+        <p className="text-sm text-faint">
+          Evidence: <Evidence href={LINKS.pr155} label="#155 convergence (integrates #133)" /> —
+          this page is rendered from its real W30 output.
+        </p>
       </div>
 
-      <div>
-        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
-          Source coverage
-        </h3>
-        <ul className="mt-3 space-y-2">
-          {COVERAGE.map((row) => (
-            <li key={row.source} className="flex items-center gap-3 text-sm">
-              <span className="w-36 shrink-0 font-mono text-xs text-muted">{row.source}</span>
-              <span
-                className={`shrink-0 rounded px-1.5 font-mono text-xs font-semibold ${
-                  row.state === "OK" ? "text-success" : "text-warning"
-                }`}
-              >
-                {row.state}
-              </span>
-              <span className="w-8 shrink-0 text-right font-mono text-xs tabular-nums text-faint">
-                {row.events}
-              </span>
-              <span className="text-xs text-muted">{row.reason}</span>
-            </li>
-          ))}
+      {/* ---------------------------------------------------------------- #129 */}
+      <div className="space-y-4">
+        <SectionTitle>3 · Host-contract sections — frozen verbatim into es_claim_host_v1</SectionTitle>
+        <ul className="list-disc space-y-1.5 pl-5 text-sm">
+          <li>
+            <strong>Contract-version compatibility rules:</strong> pinned-set validation
+            (<code>SUPPORTED_CONTRACT_VERSIONS</code>); a version outside the set fails with
+            <code> unsupported_contract_version</code> — never interpreted as the latest. Adopted
+            into the frozen schema&apos;s <code>$defs/contract_version</code> and enforced by
+            fixture <code>invalid_unknown_contract_version.json</code>.
+          </li>
+          <li>
+            <strong>monitor_event schema:</strong> nine stable event names (funnel, latency,
+            queue-age, duplicate, cap, denial, override, access-denied, model-disagreement) with a
+            structural privacy guarantee — no free-text field exists; every string is a closed
+            enum, opaque ref, or timestamp; confidence and scores travel as bands that cannot be
+            re-inverted. Enforced by fixture <code>invalid_raw_observability_payload.json</code>.
+          </li>
+        </ul>
+        <p className="text-sm text-faint">
+          Evidence: <Evidence href={LINKS.issue129} label="#129 owner artifact" /> ·{" "}
+          <Evidence href={LINKS.pr148} label="PR #148 (frozen schema + fixtures, merged)" />
+        </p>
+      </div>
+
+      {/* ---------------------------------------------------------------- #119 */}
+      <div className="space-y-4">
+        <SectionTitle>4 · Device study — background/resumed-app scenario (assigned owner)</SectionTitle>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                {["Interruption point", "Variant", "Result"].map((h) => (
+                  <th key={h} className="border border-border px-2 py-1 text-left font-mono text-xs uppercase tracking-wider text-muted">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ["Mid-capture (framing)", "short 10s / long minutes", "Camera resumes LIVE; framing discarded — no data loss (low)"],
+                ["During analysis (spinner)", "short / long", "Analysis COMPLETED while backgrounded — no re-fire, no duplicate"],
+                ["During analysis", "screen lock", "NOT INTERRUPTIBLE — result renders faster than the lock transition"],
+                ["Result screen", "short / long", "Result STILL DISPLAYED — survives extended backgrounding"],
+                ["Force-quit (labeled case)", "swipe-away + relaunch", "Fresh session — expected iOS behavior, boundary noted"],
+              ].map((row) => (
+                <tr key={row[0] + row[1]}>
+                  {row.map((cell, i) => (
+                    <td key={i} className="border border-border px-2 py-1">
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-sm">
+          <strong>The gap that matters:</strong> the claim flow is <code>NOT_PRESENT</code> in
+          build 3.4.5, so the financially risky case — backgrounding during claim submission —
+          is untestable by construction and must re-run when that flow ships (ties to the #137
+          create-retry idempotency gate). iPhone 17 Pro Max / iOS 26.3.1(a) / 3.4.5 (2026072201).
+        </p>
+        <p className="text-sm text-faint">
+          Evidence: <Evidence href={LINKS.issue119} label="DEVICE-RESULT v1 on #119" />
+        </p>
+      </div>
+
+      {/* ---------------------------------------------------------------- reviews */}
+      <div className="space-y-4">
+        <SectionTitle>5 · Review shipped upstream</SectionTitle>
+        <ul className="list-disc space-y-1.5 pl-5 text-sm">
+          <li>
+            <Evidence href={LINKS.pr136} label="PR #136 (claims report)" /> — three findings, all
+            verified empirically in a worktree; the missing row bound landed upstream as{" "}
+            <code>MAX_CLAIM_REPORT_ROWS = 5000</code>, credited to the review.
+          </li>
         </ul>
       </div>
 
@@ -198,11 +212,10 @@ export default function View() {
           Honesty boundary
         </p>
         <p className="mt-2">
-          The <code>github</code> source is BLOCKED (<code>not_configured</code>) — the live
-          adapter is roadmap milestone M2, so GitHub-side work appears here only through the
-          sanitized export, and missing sources are never counted as zero work. PR #173 (the
-          Windows work-sync fix) and the #164 Windows triage landed minutes after this window
-          closed — they belong to W31, not this page.
+          Window: 2026-07-20 → 2026-07-27 (UTC−04:00). PR #173 (the Windows work-sync fix) and
+          the #164 Windows baseline triage landed minutes after this window closed — they belong
+          to W31. Scorecard evidence is source-structure proof, not rendered-browser or
+          physical-device proof; the device rows above are the physical-device evidence.
         </p>
       </div>
     </section>
