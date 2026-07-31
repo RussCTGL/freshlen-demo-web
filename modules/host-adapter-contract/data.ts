@@ -243,13 +243,15 @@ export const limitations = [
 /* ------------------------------------------------------------------ */
 
 export const recipeHeadline =
-  "The engine is finished and it works. The bottleneck is a human sign-off, and no engineering can move it.";
+  "The machinery is finished and proven. The corpus is not: ten records against a Friday floor of forty reviewed ones, and none of the ten is reviewed yet. Authoring the rest is our work and is not blocked by anyone; the sign-off pass that follows is not ours to do.";
 
 export const recipeProof = [
   { label: "tests/test_recipe_corpus.py", value: "38 passed" },
   { label: "tests/test_act.py + test_recipes.py", value: "170 passed" },
   { label: "eval/recipe_eval.py", value: "exit 0, byte-stable" },
   { label: "Hard safety / data gates", value: "9 / 9 PASS" },
+  { label: "Corpus records", value: "10 of 40" },
+  { label: "Records reviewed", value: "0 of 10" },
 ];
 
 export const recipeParadox = {
@@ -266,7 +268,7 @@ export const recipeParadox = {
     { metric: "hard gates", value: "PASS", floor: "", bad: false },
   ],
   explanation:
-    "All 10 corpus rows carry review_state \"draft\"; zero are approved. Production serves approved rows only, so every held-out scene correctly returns NO_MATCH. The system fails closed. Run the same evaluator against the draft rows as a diagnostic and it scores 1.00 — but that is a diagnostic, never a release number, because production deliberately withholds exactly those rows.",
+    "All 10 corpus rows carry review_state \"draft\"; zero are approved. Production serves approved rows only, so every held-out scene correctly returns NO_MATCH. The system fails closed, which is why the zero is correct behaviour rather than a defect. Run the same evaluator against the draft rows as a diagnostic and it scores 1.00. Read that number carefully: it says the retrieval engine resolves the 16 held-out scenes against the rows that exist. It does not say the corpus is large enough — 1.00 over ten records is not the same claim as 1.00 over forty, and the release floor is written against reviewed records, not draft ones.",
 };
 
 export type Gate = {
@@ -307,36 +309,45 @@ export const recipeGates: Gate[] = [
   },
   {
     id: "G1",
-    title: "Human safety + license sign-off on the 10 rows — 0 of 10 approved",
+    title: "Author the rest of the corpus — 10 records against a floor of 40",
     detail:
-      "Issue #86 states it plainly: an AI-generated draft is not an approved record. Nothing below can start until this clears, and it is not engineering work.",
-    owner: "Lawrence",
+      "Recorded numerically by Mohan on PR #132 on 2026-07-21: ten records, all draft, against the Friday target of at least forty reviewed records, so roughly thirty more records plus a sign-off pass remain. This is the one remaining gate that is ours and it is blocked by nobody — it is authoring work against a frozen schema, and the validators that will check it already pass. Naming it first because the diagnostic 1.00 above makes it easy to miss.",
+    owner: "Lisa + Jinming, Mohan supporting",
     state: "blocked",
-    stamp: "blocked",
+    stamp: "ours, not blocked",
   },
   {
     id: "G2",
-    title: "Freeze row content, then publish RECIPE_APPROVAL_DIGESTS",
+    title: "Human safety + license sign-off — 0 records reviewed so far",
     detail:
-      "A deployment-side authority deliberately independent of the repository: corpus review fields record provenance but do not authenticate who approved. Exact per-row SHA-256, compared with a constant-time digest check, revocable without touching the corpus.",
-    owner: "Deployment / operator",
+      "Issue #86 states it plainly: an AI-generated draft is not an approved record, and approval requires reviewed_by set to the named approver. Nothing below can start until this clears, and it is not engineering work. It does not have to wait for all forty either — signing any subset lifts coverage off zero and lets the measurement gate begin.",
+    owner: "Lawrence",
     state: "waiting",
     stamp: "waits on G1",
   },
   {
     id: "G3",
-    title: "Measure the real quality floors on the approved corpus",
+    title: "Freeze row content, then publish RECIPE_APPROVAL_DIGESTS",
     detail:
-      "The 0.80 and 0.90 floors are labelled descriptive and are not yet measured — and a floor must never be invented after seeing the results. This is the only remaining engineering task, and it is last in line.",
-    owner: "Jinming + Lisa + Mohan",
+      "A deployment-side authority deliberately independent of the repository: corpus review fields record provenance but do not authenticate who approved. Exact per-row SHA-256, compared with a constant-time digest check, revocable without touching the corpus.",
+    owner: "Deployment / operator",
     state: "waiting",
     stamp: "waits on G2",
   },
   {
     id: "G4",
+    title: "Measure the real quality floors on the approved corpus",
+    detail:
+      "The 0.80 and 0.90 floors are labelled descriptive and are not yet measured — and a floor must never be invented after seeing the results. Last in line, and it is measurement rather than construction.",
+    owner: "Jinming + Lisa + Mohan",
+    state: "waiting",
+    stamp: "waits on G3",
+  },
+  {
+    id: "G5",
     title: "Public shopper serving — a separate gate entirely",
     detail:
-      "Shopper food guidance is held under GATE: RE-SCOPE. Templates, retrieval and generated candidates all remain private review paths. Unaffected by G1–G3.",
+      "Shopper food guidance is held under GATE: RE-SCOPE. Templates, retrieval and generated candidates all remain private review paths. Unaffected by G1–G4.",
     owner: "Separate calibration gate",
     state: "separate",
     stamp: "out of scope",
@@ -349,7 +360,7 @@ export const recipeOrdering = {
   order: ["freeze", "approve", "digest", "measure"],
   wrong: "approve → edit → digest",
   conclusion:
-    "So the honest answer to \"when can recipes demo?\" is that it is a sign-off latency question, not a build question. Three of the four remaining gates are not ours, and the one that is ours is last in line. Per the Week 7 definition of done, all three issues should be recorded in rc1 with a named owner, exact blocker and next action — otherwise they are a frozen Week 8 limitation.",
+    "So the honest answer to \"when can recipes demo?\" has two halves, and it would be easy to give only the flattering one. The machinery is finished and proven, and that part is real. But the corpus is at a quarter of its floor, and closing that gap is authoring work this team owns and nobody else is holding. Only after that does it become a sign-off question. Per the Week 7 definition of done, all three issues should be recorded in rc1 with a named owner, exact blocker and next action — otherwise they are a frozen Week 8 limitation.",
   overdue:
-    "All three issues are open, still on the Week 6 milestone, and were due July 24 — six days overdue into a Week 8 closeout.",
+    "All three issues are open, still on the Week 6 milestone, and were due July 24 — six days overdue into a Week 8 closeout. Primary owners are Lisa and Jinming, with Mohan supporting.",
 };
