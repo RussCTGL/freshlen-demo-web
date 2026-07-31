@@ -98,6 +98,39 @@ export const states: StateNode[] = [
   { name: "auto_approved", kind: "unreachable" },
 ];
 
+/**
+ * The whole closed set, one entry per code, so the page can render 21 objects
+ * instead of printing the number 21. Grouped exactly as the frozen
+ * `http_status_for_error` mapping in contracts/es_claim_host_v1.schema.json.
+ */
+export type ErrorCode = { code: string; status: number; cls: "caller" | "dependency" };
+export const errorCodes: ErrorCode[] = [
+  { code: "unauthenticated", status: 401, cls: "caller" },
+  { code: "forbidden_role", status: 403, cls: "caller" },
+  { code: "forbidden_cross_store", status: 403, cls: "caller" },
+  { code: "forbidden_cross_account", status: 403, cls: "caller" },
+  { code: "authority_override_denied", status: 403, cls: "caller" },
+  { code: "idempotency_conflict", status: 409, cls: "caller" },
+  { code: "stale_revision", status: 409, cls: "caller" },
+  { code: "invalid_transition", status: 409, cls: "caller" },
+  { code: "invalid_money_format", status: 400, cls: "caller" },
+  { code: "unsupported_contract_version", status: 400, cls: "caller" },
+  { code: "invalid_capture_field", status: 400, cls: "caller" },
+  { code: "ceiling_exceeded", status: 400, cls: "caller" },
+  { code: "amount_inflation_denied", status: 400, cls: "caller" },
+  { code: "invalid_reason_code", status: 400, cls: "caller" },
+  { code: "unsafe_observability_payload", status: 400, cls: "caller" },
+  { code: "missing_required_field", status: 400, cls: "caller" },
+  { code: "invalid_enum_value", status: 400, cls: "caller" },
+  { code: "dependency_rate_limited", status: 429, cls: "dependency" },
+  { code: "dependency_malformed_response", status: 502, cls: "dependency" },
+  { code: "dependency_unavailable", status: 503, cls: "dependency" },
+  { code: "dependency_timeout", status: 504, cls: "dependency" },
+];
+
+/** Corpus progress for the #86-88 meter. Numbers from Mohan's review on PR #132. */
+export const corpus = { floor: 40, authored: 10, reviewed: 0 };
+
 export const errorClasses = [
   {
     name: "Caller fault",
@@ -181,6 +214,8 @@ export type Classification = {
   title: string;
   status: "verified" | "blocked" | "partial";
   stamp: string;
+  /** The 2-3 numbers that decide the row, shown without expanding the detail. */
+  facts: { k: string; v: string }[];
   detail: string;
 };
 export const classification: Classification[] = [
@@ -189,6 +224,11 @@ export const classification: Classification[] = [
     title: "Host contract — endpoint / role / state / error matrix",
     status: "verified",
     stamp: "verified",
+    facts: [
+      { k: "golden path", v: "16 / 16" },
+      { k: "contract tests", v: "70 passed" },
+      { k: "error set", v: "21 closed" },
+    ],
     detail:
       "16/16 offline golden path plus 70 contract tests, both on 83b9a8b.",
   },
@@ -197,6 +237,11 @@ export const classification: Classification[] = [
     title: "Native adapter mapping — device side moved, source side still blocked",
     status: "blocked",
     stamp: "source blocked",
+    facts: [
+      { k: "testers, same build", v: "5 of 5 blocked" },
+      { k: "claim path reachable", v: "0" },
+      { k: "source linkage", v: "NONE" },
+    ],
     detail:
       "4.2 is released and the device matrix on #164 is no longer ambiguous. Five testers on the identical build — 4.2.0 / 2026072807 — independently reach the same wall: the on-device scanner never installs, capture stays paused, and no claim, receipt or reviewer journey is reachable. The one earlier record that looked like a counter-example is a historical row on 3.4.5 / 2026072201, not this build. The blocker also reproduces on 4.1.0 / 2026072806, so it is a standing model-distribution gap rather than a 4.2 regression. Two things follow for this lane. The client half of the adapter cannot be exercised on any shipped build, and source linkage is INCONCLUSIVE or NONE on every row filed — no tester can map an installed build to a commit, because nobody outside the native team has read access to that repository. Only Lawrence can grant it.",
   },
@@ -205,6 +250,11 @@ export const classification: Classification[] = [
     title: "Four-level rollback — required by the issue, and the load-bearing level is proven",
     status: "partial",
     stamp: "partly proven",
+    facts: [
+      { k: "levels proven", v: "2 of 4" },
+      { k: "policy rollback", v: "VERIFIED" },
+      { k: "client flag", v: "native repo" },
+    ],
     detail:
       "Client flag → adapter routing → policy revision → contract pin. The policy level is VERIFIED, not described: the offline run injects a failure mid-write and both the revision and the cap stay unchanged, which is the issue's own acceptance check that a failed write rolls back policy and audit atomically. The contract pin is exercised by the unsupported_contract_version fixture. Stopping adapter routing is an operational step with no code. The client feature flag lives in the native repository, so it inherits row B's block.",
   },
