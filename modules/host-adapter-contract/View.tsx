@@ -281,7 +281,7 @@ export default function View() {
                   ? "border-l-success"
                   : c.status === "blocked"
                     ? "border-l-danger"
-                    : "border-l-faint"
+                    : "border-l-warning"
               }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -295,7 +295,7 @@ export default function View() {
                       ? "verified"
                       : c.status === "blocked"
                         ? "blocked"
-                        : "neutral"
+                        : "waiting"
                   }
                 >
                   {c.stamp}

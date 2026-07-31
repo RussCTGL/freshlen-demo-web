@@ -179,7 +179,7 @@ export const baseline = {
 export type Classification = {
   id: string;
   title: string;
-  status: "verified" | "blocked" | "design-only";
+  status: "verified" | "blocked" | "partial";
   stamp: string;
   detail: string;
 };
@@ -194,19 +194,19 @@ export const classification: Classification[] = [
   },
   {
     id: "B",
-    title: "Native adapter mapping — neither source-verified nor device-verified",
+    title: "Native adapter mapping — device side moved, source side still blocked",
     status: "blocked",
-    stamp: "blocked",
+    stamp: "source blocked",
     detail:
-      "No read access to the private shopper-iOS repository; only Lawrence can grant it. Related: issue #179 — the build anyone can install has no claim entry point, and 4.2 is in Apple review rather than released, so device verification cannot begin.",
+      "4.2 is released. On 2026-07-30 a teammate recorded a device observation on 4.2.0: the claim button is present and a claim was sent successfully, which closes the entry-point blocker issue #179 raised against 3.4.5. That observation does not cover the reviewer half, backend receipt, duplicate prevention, or whether an approved amount was server-derived — those stay INCONCLUSIVE, not failed. Independently of the build, there is still no read access to the private shopper-iOS repository, so an installed build cannot be mapped to a commit. Only Lawrence can grant that.",
   },
   {
     id: "C",
-    title: "Four-level rollback / feature flag — specified, not shipped",
-    status: "design-only",
-    stamp: "design only",
+    title: "Four-level rollback — required by the issue, and the load-bearing level is proven",
+    status: "partial",
+    stamp: "partly proven",
     detail:
-      "Client flag → adapter routing → policy revision → contract pin. Described here, not claimed to run.",
+      "Client flag → adapter routing → policy revision → contract pin. The policy level is VERIFIED, not described: the offline run injects a failure mid-write and both the revision and the cap stay unchanged, which is the issue's own acceptance check that a failed write rolls back policy and audit atomically. The contract pin is exercised by the unsupported_contract_version fixture. Stopping adapter routing is an operational step with no code. The client feature flag lives in the native repository, so it inherits row B's block.",
   },
 ];
 
