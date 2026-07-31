@@ -198,7 +198,7 @@ export const classification: Classification[] = [
     status: "blocked",
     stamp: "source blocked",
     detail:
-      "4.2 is released. On 2026-07-30 a teammate recorded a device observation on 4.2.0: the claim button is present and a claim was sent successfully, which closes the entry-point blocker issue #179 raised against 3.4.5. That observation does not cover the reviewer half, backend receipt, duplicate prevention, or whether an approved amount was server-derived — those stay INCONCLUSIVE, not failed. Independently of the build, there is still no read access to the private shopper-iOS repository, so an installed build cannot be mapped to a commit. Only Lawrence can grant that.",
+      "4.2 is released, and three device records now exist. Two testers on the identical build — 4.2.0 / 2026072807 — independently reach no claim path at all and an unavailable scanner. A third record reports a working claim button and a claim sent successfully, but carries no build number, so it cannot yet be attributed to this build. The reconciling question is cheap and unanswered: either 4.2.0 covers more than one build, or the claim surface only appears for a signed-in account, since one of the two blocked testers recorded that Apple Sign-In was unavailable and did not sign in. Until that is settled, the defensible row is that the claim surface is not reachable on 2026072807, not that 4.2 has an entry point. Independently of all of it, there is still no read access to the private shopper-iOS repository, so no installed build can be mapped to a commit. Only Lawrence can grant that.",
   },
   {
     id: "C",
