@@ -1,7 +1,9 @@
 import { StatBars } from "@/components/StatBars";
+import { BpmnDiagram } from "./Bpmn";
 import {
   story,
   contract,
+  flow,
   orchestrator,
   gateBoard,
   blockedNote,
@@ -37,7 +39,18 @@ export default function View() {
         </div>
       </div>
 
-      {/* ─── 2. The orchestrator ─────────────────────────────────────── */}
+      {/* ─── 2. The flow, as BPMN ────────────────────────────────────── */}
+      <div className={CARD}>
+        <h3 className={LABEL}>{flow.title}</h3>
+        <div className="mt-4">
+          <BpmnDiagram />
+        </div>
+        <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
+          {flow.caption}
+        </p>
+      </div>
+
+      {/* ─── 3. The orchestrator ─────────────────────────────────────── */}
       <div className={CARD}>
         <h3 className={LABEL}>{orchestrator.title}</h3>
         <ul className="mt-3 space-y-2.5">
