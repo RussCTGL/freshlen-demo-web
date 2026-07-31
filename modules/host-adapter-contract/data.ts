@@ -11,6 +11,77 @@ export const candidate = {
   environment: "Windows 11 zh-CN · CPython 3.13.9 · PYTHONIOENCODING=utf-8",
 };
 
+/**
+ * The first screen has to answer two questions a supervisor actually asks:
+ * what did you build, and what is stuck. Everything below this pair is the
+ * evidence for it.
+ */
+export const delivered = [
+  {
+    what: "Froze the host adapter contract, v1",
+    detail: "8 operations × 4 roles, the claim state machine, the money rules and a closed 21-code error set — the seam a host application implements to talk to FreshLens.",
+    proof: "70 contract tests · 16/16 offline loop",
+    ref: "#158",
+  },
+  {
+    what: "Added the dependency-failure class — 4 new codes",
+    detail: "429, 502, 503 and 504 now land on named states that guarantee the claim is unchanged and carry a recovery_action, so a host can tell 'we refused you' from 'we could not reach something'.",
+    proof: "PR #195, green",
+    ref: "#195",
+  },
+  {
+    what: "Proved the rollback is atomic, not described",
+    detail: "A failure injected mid-write leaves both the policy revision and the monthly cap untouched — the issue's own acceptance check, run rather than asserted.",
+    proof: "injected-failure run, VERIFIED",
+    ref: "#158",
+  },
+  {
+    what: "Wrote the handoff: validator + the four lane artifacts",
+    detail: "A standalone contract validator that is byte-stable and non-vacuous, plus the integration order, rollback matrix and monitoring an incoming owner needs.",
+    proof: "PR #183 + PR #184, green",
+    ref: "#183 · #184",
+  },
+  {
+    what: "Reviewed nine teammate pull requests",
+    detail: "Including the red-team suites on #160, where a demonstrated vacuous assertion was returned with a reproduction, and the week-7 device record on #164.",
+    proof: "9 cross-reviews · 1 device record",
+    ref: "#160 · #164",
+  },
+];
+
+export type Ask = {
+  what: string;
+  owner: string;
+  why: string;
+  severity: "blocking" | "open";
+};
+export const asks: Ask[] = [
+  {
+    what: "Approve three green pull requests — #183, #184, #195",
+    owner: "Lawrence + reviewers",
+    why: "All three pass CI and have sat unapproved. #184 carries the handoff document, so nothing downstream of it can start.",
+    severity: "blocking",
+  },
+  {
+    what: "Read access to the private shopper-iOS repository",
+    owner: "Lawrence only",
+    why: "No tester on the team can map an installed build to a commit. Every device row on this program therefore stays version-and-build-only, mine included.",
+    severity: "blocking",
+  },
+  {
+    what: "A sign-off pass on the recipe corpus — any subset, not all 40",
+    owner: "Lawrence",
+    why: "Zero of the ten drafted records are approved, which is why production coverage reads 0.00. Signing any subset lifts it off zero and lets the measurement gate start.",
+    severity: "blocking",
+  },
+  {
+    what: "An owner decision: should the server emit error_code?",
+    owner: "needs an owner call",
+    why: "The client mapping merged this week reads error_code, recovery_action and retry_after_seconds. The server sends none of them, so the new recovery copy is unreachable in the running app. It degrades safely.",
+    severity: "open",
+  },
+];
+
 export const headline = [
   { label: "Offline golden path", value: "16 / 16", note: "exit 0, 0.67 s" },
   { label: "Contract rule tests", value: "70", note: "passed in 0.28 s" },
@@ -98,6 +169,39 @@ export const states: StateNode[] = [
   { name: "auto_approved", kind: "unreachable" },
 ];
 
+/**
+ * The whole closed set, one entry per code, so the page can render 21 objects
+ * instead of printing the number 21. Grouped exactly as the frozen
+ * `http_status_for_error` mapping in contracts/es_claim_host_v1.schema.json.
+ */
+export type ErrorCode = { code: string; status: number; cls: "caller" | "dependency" };
+export const errorCodes: ErrorCode[] = [
+  { code: "unauthenticated", status: 401, cls: "caller" },
+  { code: "forbidden_role", status: 403, cls: "caller" },
+  { code: "forbidden_cross_store", status: 403, cls: "caller" },
+  { code: "forbidden_cross_account", status: 403, cls: "caller" },
+  { code: "authority_override_denied", status: 403, cls: "caller" },
+  { code: "idempotency_conflict", status: 409, cls: "caller" },
+  { code: "stale_revision", status: 409, cls: "caller" },
+  { code: "invalid_transition", status: 409, cls: "caller" },
+  { code: "invalid_money_format", status: 400, cls: "caller" },
+  { code: "unsupported_contract_version", status: 400, cls: "caller" },
+  { code: "invalid_capture_field", status: 400, cls: "caller" },
+  { code: "ceiling_exceeded", status: 400, cls: "caller" },
+  { code: "amount_inflation_denied", status: 400, cls: "caller" },
+  { code: "invalid_reason_code", status: 400, cls: "caller" },
+  { code: "unsafe_observability_payload", status: 400, cls: "caller" },
+  { code: "missing_required_field", status: 400, cls: "caller" },
+  { code: "invalid_enum_value", status: 400, cls: "caller" },
+  { code: "dependency_rate_limited", status: 429, cls: "dependency" },
+  { code: "dependency_malformed_response", status: 502, cls: "dependency" },
+  { code: "dependency_unavailable", status: 503, cls: "dependency" },
+  { code: "dependency_timeout", status: 504, cls: "dependency" },
+];
+
+/** Corpus progress for the #86-88 meter. Numbers from Mohan's review on PR #132. */
+export const corpus = { floor: 40, authored: 10, reviewed: 0 };
+
 export const errorClasses = [
   {
     name: "Caller fault",
@@ -181,6 +285,8 @@ export type Classification = {
   title: string;
   status: "verified" | "blocked" | "partial";
   stamp: string;
+  /** The 2-3 numbers that decide the row, shown without expanding the detail. */
+  facts: { k: string; v: string }[];
   detail: string;
 };
 export const classification: Classification[] = [
@@ -189,6 +295,11 @@ export const classification: Classification[] = [
     title: "Host contract — endpoint / role / state / error matrix",
     status: "verified",
     stamp: "verified",
+    facts: [
+      { k: "golden path", v: "16 / 16" },
+      { k: "contract tests", v: "70 passed" },
+      { k: "error set", v: "21 closed" },
+    ],
     detail:
       "16/16 offline golden path plus 70 contract tests, both on 83b9a8b.",
   },
@@ -197,14 +308,24 @@ export const classification: Classification[] = [
     title: "Native adapter mapping — device side moved, source side still blocked",
     status: "blocked",
     stamp: "source blocked",
+    facts: [
+      { k: "testers, same build", v: "5 of 5 blocked" },
+      { k: "claim path reachable", v: "0" },
+      { k: "source linkage", v: "NONE" },
+    ],
     detail:
-      "4.2 is released, and three device records now exist. Two testers on the identical build — 4.2.0 / 2026072807 — independently reach no claim path at all and an unavailable scanner. A third record reports a working claim button and a claim sent successfully, but carries no build number, so it cannot yet be attributed to this build. The reconciling question is cheap and unanswered: either 4.2.0 covers more than one build, or the claim surface only appears for a signed-in account, since one of the two blocked testers recorded that Apple Sign-In was unavailable and did not sign in. Until that is settled, the defensible row is that the claim surface is not reachable on 2026072807, not that 4.2 has an entry point. Independently of all of it, there is still no read access to the private shopper-iOS repository, so no installed build can be mapped to a commit. Only Lawrence can grant that.",
+      "4.2 is released and the device matrix on #164 is no longer ambiguous. Five testers on the identical build — 4.2.0 / 2026072807 — independently reach the same wall: the on-device scanner never installs, capture stays paused, and no claim, receipt or reviewer journey is reachable. The one earlier record that looked like a counter-example is a historical row on 3.4.5 / 2026072201, not this build. The blocker also reproduces on 4.1.0 / 2026072806, so it is a standing model-distribution gap rather than a 4.2 regression. Two things follow for this lane. The client half of the adapter cannot be exercised on any shipped build, and source linkage is INCONCLUSIVE or NONE on every row filed — no tester can map an installed build to a commit, because nobody outside the native team has read access to that repository. Only Lawrence can grant it.",
   },
   {
     id: "C",
     title: "Four-level rollback — required by the issue, and the load-bearing level is proven",
     status: "partial",
     stamp: "partly proven",
+    facts: [
+      { k: "levels proven", v: "2 of 4" },
+      { k: "policy rollback", v: "VERIFIED" },
+      { k: "client flag", v: "native repo" },
+    ],
     detail:
       "Client flag → adapter routing → policy revision → contract pin. The policy level is VERIFIED, not described: the offline run injects a failure mid-write and both the revision and the cap stay unchanged, which is the issue's own acceptance check that a failed write rolls back policy and audit atomically. The contract pin is exercised by the unsupported_contract_version fixture. Stopping adapter routing is an operational step with no code. The client feature flag lives in the native repository, so it inherits row B's block.",
   },
@@ -230,8 +351,68 @@ export const limitations = [
 /* Recipe track #86–88 — the honest critical path                      */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Read at the demo: this section lost the room because it opened on metrics and
+ * gate IDs without ever saying what the feature is. It now opens with the
+ * feature, then one picture of where it stands, and only then the numbers.
+ */
+export const recipeWhatItIs = [
+  { step: "Produce is nearing expiry", note: "already known from the inventory" },
+  { step: "Suggest a recipe that uses it", note: "the part #86–88 builds" },
+  { step: "It gets eaten instead of binned", note: "the outcome we are after" },
+];
+
+/** The five stages, in order, as one rail. This is the section's explainer. */
+export type Stage = {
+  n: number;
+  label: string;
+  status: string;
+  owner: string;
+  state: "done" | "active" | "waiting" | "separate";
+};
+export const recipeStages: Stage[] = [
+  { n: 1, label: "Build the machinery", status: "done", owner: "us", state: "done" },
+  { n: 2, label: "Write the recipes", status: "10 of 40", owner: "us", state: "active" },
+  { n: 3, label: "Sign off on safety", status: "0 signed", owner: "Lawrence", state: "waiting" },
+  { n: 4, label: "Measure quality", status: "not started", owner: "us", state: "waiting" },
+  { n: 5, label: "Show to shoppers", status: "separate gate", owner: "—", state: "separate" },
+];
+
 export const recipeHeadline =
-  "The machinery is finished and proven. The corpus is not: ten records against a Friday floor of forty reviewed ones, and none of the ten is reviewed yet. Authoring the rest is our work and is not blocked by anyone; the sign-off pass that follows is not ours to do.";
+  "The machinery is finished and proven. The corpus is not.";
+
+/** The paradox, stated as a conclusion rather than left for the reader to derive. */
+export const paradoxVerdict = {
+  title: "Why the score reads 0.00 — the same test, run twice",
+  lede: "Nothing is broken. The production run only counts recipes a human has signed off, and none have been signed off yet. Run the identical evaluator over the drafts and it scores full marks.",
+  series: [
+    { key: "approved", label: "Approved rows only — what production counts" },
+    { key: "draft", label: "Draft rows — same evaluator" },
+  ],
+  rows: [
+    {
+      metric: "coverage@1",
+      floor: 0.8,
+      approved: 0,
+      approvedLabel: "0.00",
+      draft: 1,
+      draftLabel: "1.00",
+    },
+    {
+      metric: "urgency-respect",
+      floor: 0.9,
+      approved: null,
+      approvedLabel: "not measured",
+      draft: 1,
+      draftLabel: "1.00",
+    },
+  ],
+  clean: "Clean no-match rate 1.00 and constraint-violation rate 0.00 on both runs — the safety behaviour does not depend on approval.",
+};
+
+/** The long form, kept for the disclosure under the headline. */
+export const recipeHeadlineWhy =
+  "Ten records against a Friday floor of forty reviewed ones, and none of the ten is reviewed yet. Authoring the rest is our work and is not blocked by anyone; the sign-off pass that follows is not ours to do.";
 
 export const recipeProof = [
   { label: "tests/test_recipe_corpus.py", value: "38 passed" },
@@ -264,6 +445,8 @@ export type Gate = {
   title: string;
   detail: string;
   owner: string;
+  /** One plain sentence for a reader who does not know the vocabulary. */
+  plain?: string;
   state: "done" | "blocked" | "waiting";
   stamp: string;
 };
@@ -297,7 +480,8 @@ export const recipeGates: Gate[] = [
   },
   {
     id: "G1",
-    title: "Author the rest of the corpus — 10 records against a floor of 40",
+    title: "Write the remaining recipes",
+    plain: "Thirty more records against a floor of forty. Authoring work, not engineering.",
     detail:
       "Recorded numerically by Mohan on PR #132 on 2026-07-21: ten records, all draft, against the Friday target of at least forty reviewed records, so roughly thirty more records plus a sign-off pass remain. This is the one remaining gate that is ours and it is blocked by nobody — it is authoring work against a frozen schema, and the validators that will check it already pass. Naming it first because the diagnostic 1.00 above makes it easy to miss.",
     owner: "Lisa + Jinming, Mohan supporting",
@@ -306,7 +490,8 @@ export const recipeGates: Gate[] = [
   },
   {
     id: "G2",
-    title: "Human safety + license sign-off — 0 records reviewed so far",
+    title: "One person signs off on safety and licensing",
+    plain: "An AI-written draft is not an approved record. Signing any subset unblocks the measurement gate.",
     detail:
       "Issue #86 states it plainly: an AI-generated draft is not an approved record, and approval requires reviewed_by set to the named approver. Nothing below can start until this clears, and it is not engineering work. It does not have to wait for all forty either — signing any subset lifts coverage off zero and lets the measurement gate begin.",
     owner: "Lawrence",
@@ -315,7 +500,8 @@ export const recipeGates: Gate[] = [
   },
   {
     id: "G3",
-    title: "Freeze row content, then publish RECIPE_APPROVAL_DIGESTS",
+    title: "Lock the wording, then publish the fingerprints",
+    plain: "A deployment-side authority, revocable without touching the repository.",
     detail:
       "A deployment-side authority deliberately independent of the repository: corpus review fields record provenance but do not authenticate who approved. Exact per-row SHA-256, compared with a constant-time digest check, revocable without touching the corpus.",
     owner: "Deployment / operator",
@@ -324,7 +510,8 @@ export const recipeGates: Gate[] = [
   },
   {
     id: "G4",
-    title: "Measure the real quality floors on the approved corpus",
+    title: "Measure quality on the signed set",
+    plain: "The 0.80 and 0.90 floors stay descriptive until this runs — and a floor may never be invented after seeing results.",
     detail:
       "The 0.80 and 0.90 floors are labelled descriptive and are not yet measured — and a floor must never be invented after seeing the results. Last in line, and it is measurement rather than construction.",
     owner: "Jinming + Lisa + Mohan",
@@ -335,7 +522,7 @@ export const recipeGates: Gate[] = [
 
 export const recipeOrdering = {
   warning:
-    "Approval binds to exact row bytes. If the text is signed off and then anyone fixes a typo, that row's digest changes and serving breaks silently.",
+    "Sign first, then fingerprint. Edit a single word after signing and the fingerprint stops matching — serving stops, and it stops quietly.",
   order: ["freeze", "approve", "digest", "measure"],
   wrong: "approve → edit → digest",
   conclusion:
