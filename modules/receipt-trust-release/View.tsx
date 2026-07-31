@@ -231,12 +231,9 @@ export default function View() {
       <EvidenceIdentity />
 
       <div>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-muted">60–90 second Friday sequence</p>
-            <h3 className="mt-2 text-2xl font-semibold">Create, verify, reject, preserve compatibility</h3>
-          </div>
-          <p className="max-w-md text-sm text-muted">Select each step to replay the exact sanitized result captured from the evidence probe.</p>
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">observed receipt checks</p>
+          <h3 className="mt-2 text-2xl font-semibold">Create, verify, reject, preserve compatibility</h3>
         </div>
 
         <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5" role="group" aria-label="Receipt evidence scenarios">
@@ -314,15 +311,6 @@ export default function View() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-info/30 bg-info/5 p-5 sm:p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-info">recommended narration</p>
-        <ol className="mt-4 grid gap-3 text-sm leading-6 text-muted md:grid-cols-2">
-          <li className="rounded-xl border border-border bg-surface p-4"><span className="font-semibold text-foreground">1.</span> “At exact head 23a04f3, I created this Ed25519 receipt and verified it using only the public registry record. The result was valid with reason ok.”</li>
-          <li className="rounded-xl border border-border bg-surface p-4"><span className="font-semibold text-foreground">2.</span> “Changing a signed payload field produced digest_mismatch; changing the key ID produced key_metadata_mismatch; relabelling it as HMAC was also rejected.”</li>
-          <li className="rounded-xl border border-border bg-surface p-4"><span className="font-semibold text-foreground">3.</span> “A separate historical HMAC fixture still verified. Active keys sign and verify, while retired keys verify historical receipts only.”</li>
-          <li className="rounded-xl border border-border bg-surface p-4"><span className="font-semibold text-foreground">4.</span> “The focused result is 13 passed with exit zero. The lane is still code-shipped-not-verified: Xpired 4.2 scanning, source linkage, durability, external trust, and issuance remain blocked or inconclusive.”</li>
-        </ol>
-      </div>
     </section>
   );
 }
