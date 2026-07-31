@@ -210,25 +210,13 @@ export const classification: Classification[] = [
   },
 ];
 
-/** Limitations named before anyone else finds them. */
+/** Limitations inside lane #158, named before anyone else finds them. */
 export const limitations = [
   {
     title: "The server never emits error_code",
     consequence:
       "err() returns {status, message} only. The client mapping merged this week reads error_code, recovery_action and retry_after_seconds — all three are always empty, so the new recovery copy is unreachable in the running app. It degrades safely. The vocabulary now has a consumer and still has no emitter.",
     owner: "#158 · needs an owner call",
-  },
-  {
-    title: "Two claim endpoints have zero consumers",
-    consequence:
-      "GET /api/claims/{id} and GET /api/claims are never called by the client, so 5 of 8 named states are reachable and approved/declined are unreachable rather than merely unstyled. Not blocked — the endpoints work today.",
-    owner: "#159",
-  },
-  {
-    title: "Two event vocabularies, relationship undecided",
-    consequence:
-      "The frozen monitor_event and the emitter being built disagree on correlation key, timestamp type and event names. A host should treat monitor_event as the export shape it must satisfy, not assume the emitter already produces it.",
-    owner: "#161",
   },
   {
     title: "One table in the handoff doc can still go stale silently",

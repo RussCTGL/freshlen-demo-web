@@ -433,7 +433,7 @@ export default function View() {
 
       {/* ---- limitations ---- */}
       <div>
-        <SectionTitle>Said out loud, before anyone finds them</SectionTitle>
+        <SectionTitle>Said out loud — the two limitations inside this lane</SectionTitle>
         <ul className="mt-3 space-y-2">
           {limitations.map((l) => (
             <li
