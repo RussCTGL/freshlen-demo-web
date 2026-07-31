@@ -84,6 +84,7 @@ export const week8 = {
 
 export const limitations = [
   "This packet records local, offline command evidence on one machine. It does not prove — and does not claim — native release, production readiness, model or OOD quality, durable multi-worker operation, or managed deployment.",
+  "The UI/API gate is the offline structural scorecard only. The orchestrator does not validate or aggregate the all-eight physical-device matrix — device participation, app build, and native source-linkage records are separate, separately-owned evidence and are never counted among this packet's verified gates.",
   "The freshness model remains advisory and the calibration gate remains RE-SCOPE (human-review-only): no automatic approval, no automatic model-based denial. An approved amount is not issuance.",
   "The orchestrator (#202) is a draft under review; the numbers above are its recorded clean-run evidence, not a merged result.",
 ];
