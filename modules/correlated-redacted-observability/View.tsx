@@ -2,26 +2,36 @@
 
 import { useState } from "react";
 import {
-  happyTrace,
-  failureTrace,
+  confirmedFlow,
+  missingConfirmationFlow,
+  escalationNote,
+  mixedStream,
+  claimLabels,
+  claimSwatch,
   recordedFields,
   neverRecordedFields,
   recoveryTable,
   stats,
   timeline,
-  type TraceStep,
+  type FlowStep,
+  type ClaimTag,
 } from "./data";
 
-const tagStyle: Record<TraceStep["tag"], string> = {
-  start: "border-border bg-surface-raised text-foreground",
+const flowTagStyle: Record<FlowStep["tag"], string> = {
   normal: "border-border bg-surface-raised text-foreground",
   problem: "border-warning/40 bg-warning/10 text-warning",
   recovered: "border-success/40 bg-success/10 text-success",
 };
 
+const claimTags: ClaimTag[] = ["A", "B", "C"];
+
 export default function View() {
-  const [showFailure, setShowFailure] = useState(false);
-  const steps = showFailure ? failureTrace : happyTrace;
+  const [showMissingConfirmation, setShowMissingConfirmation] = useState(false);
+  const flowSteps = showMissingConfirmation ? missingConfirmationFlow : confirmedFlow;
+  const [pulledClaim, setPulledClaim] = useState<ClaimTag | null>(null);
+  const pulledEvents = pulledClaim
+    ? mixedStream.filter((e) => e.claim === pulledClaim)
+    : [];
 
   return (
     <section className="space-y-8">
@@ -35,62 +45,132 @@ export default function View() {
       </p>
 
       <div className="rounded-lg border border-border bg-surface p-5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-faint">
+          Part 1 — Why one ID matters
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          In real life, lots of claims are being logged at the same time. Here&apos;s what that
+          actually looks like as it&apos;s written down — three different claims, all logging at
+          once, in the order it really happens:
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {mixedStream.map((entry, i) => (
+            <span
+              key={i}
+              className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${claimSwatch[entry.claim]} ${
+                pulledClaim && pulledClaim !== entry.claim ? "opacity-25" : ""
+              }`}
+            >
+              {entry.claim} · {entry.event}
+            </span>
+          ))}
+        </div>
+
+        <p className="mt-4 text-sm text-muted">
+          Messy — but every single entry is tagged with its own claim&apos;s ID. Pick one below,
+          and its full story pulls right out of the noise, already in order:
+        </p>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {claimTags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => setPulledClaim(pulledClaim === tag ? null : tag)}
+              aria-pressed={pulledClaim === tag}
+              className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${claimSwatch[tag]} ${
+                pulledClaim === tag ? "ring-2 ring-brand" : "opacity-70 hover:opacity-100"
+              }`}
+            >
+              {claimLabels[tag]}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 min-h-[3rem] rounded-lg border border-dashed border-border bg-surface-raised p-3">
+          {pulledClaim ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {pulledEvents.map((entry, i) => (
+                <span key={i} className="flex items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${claimSwatch[entry.claim]}`}>
+                    {claimLabels[entry.claim]} · {entry.event}
+                  </span>
+                  {i < pulledEvents.length - 1 && <span className="text-faint">→</span>}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-faint">
+              Nothing pulled out yet — click one of the three claims above.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-surface p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-widest text-faint">
-            Trace one claim, step by step
+            Part 2 — What happens when decision anchoring fails
           </p>
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => setShowFailure(false)}
-              aria-pressed={!showFailure}
+              onClick={() => setShowMissingConfirmation(false)}
+              aria-pressed={!showMissingConfirmation}
               className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                !showFailure
+                !showMissingConfirmation
                   ? "border-brand bg-brand-tint font-medium text-brand"
                   : "border-border bg-background text-muted hover:border-brand hover:text-foreground"
               }`}
             >
-              Normal claim
+              Confirmed normally
             </button>
             <button
               type="button"
-              onClick={() => setShowFailure(true)}
-              aria-pressed={showFailure}
+              onClick={() => setShowMissingConfirmation(true)}
+              aria-pressed={showMissingConfirmation}
               className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                showFailure
+                showMissingConfirmation
                   ? "border-brand bg-brand-tint font-medium text-brand"
                   : "border-border bg-background text-muted hover:border-brand hover:text-foreground"
               }`}
             >
-              Something goes wrong
+              Confirmation doesn&apos;t come back
             </button>
           </div>
         </div>
 
-        <ol className="mt-5 space-y-3">
-          {steps.map((step, i) => (
-            <li key={step.label} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${tagStyle[step.tag]}`}
-                >
-                  {i + 1}
-                </span>
-                {i < steps.length - 1 && <span className="mt-1 h-full w-px flex-1 bg-border" />}
+        <p className="mt-2 text-sm text-muted">
+          Separate from the recorder above: whenever a human reviewer makes a decision, the
+          system also has to write a tamper-evident record of it — the &quot;anchor&quot; step —
+          and needs a confirmation back that it worked.
+        </p>
+
+        <div className="mt-4 space-y-2">
+          {flowSteps.map((step, i) => (
+            <div key={i} className={`flex ${step.actor === "system" ? "justify-start" : "justify-end"}`}>
+              <div className={`max-w-[85%] rounded-lg border px-3 py-2 ${flowTagStyle[step.tag]}`}>
+                <p className="text-xs font-semibold uppercase tracking-wide opacity-70">
+                  {step.actor === "system" ? "System →" : "Anchor service →"}
+                </p>
+                <p className="text-sm">{step.label}</p>
               </div>
-              <div className={`flex-1 rounded-lg border px-4 py-2.5 ${tagStyle[step.tag]}`}>
-                <p className="text-sm font-semibold">{step.label}</p>
-                <p className="mt-0.5 text-sm opacity-90">{step.plain}</p>
-              </div>
-            </li>
+            </div>
           ))}
-        </ol>
+        </div>
 
         <p className="mt-4 text-xs text-faint">
-          {showFailure
-            ? "This is the actual recovery rule for this failure: retry the same request, never roll it back. Proven by a test, not just described."
-            : "Toggle above to see what happens when the recorder catches a real failure partway through."}
+          {showMissingConfirmation
+            ? "The same request id is what makes a safe retry possible — proven by a test, not just described."
+            : "Toggle above to see what happens when that confirmation doesn't come back."}
         </p>
+
+        {showMissingConfirmation && (
+          <p className="mt-3 rounded-lg border border-border bg-surface-raised p-3 text-xs text-muted">
+            {escalationNote}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

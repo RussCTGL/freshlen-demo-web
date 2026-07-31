@@ -1,35 +1,75 @@
 // Module-private data. Sourced from src/observability.py, docs/OBSERVABILITY-RUNBOOK.md,
 // and tests/test_observability.py on es-intern-freshlens (#161).
 
-export type TraceStep = {
-  label: string;
-  plain: string;
-  tag: "start" | "normal" | "problem" | "recovered";
+export type ClaimTag = "A" | "B" | "C";
+
+export type StreamEntry = {
+  claim: ClaimTag;
+  event: string;
 };
 
-// The real event chain for one claim, in the order src/observability.py emits it.
-// claim.anchor_pending / claim.anchor_failed only appear if a retry was needed —
-// shown here as the branch that demonstrates the recovery story.
-export const happyTrace: TraceStep[] = [
-  { label: "Claim submitted", plain: "Shopper submits a photo + receipt.", tag: "start" },
-  { label: "Claim scored", plain: "The freshness model gives an advisory score.", tag: "normal" },
-  { label: "Decision recorded", plain: "A human reviewer approves or declines.", tag: "normal" },
+// Illustrates the flight-recorder idea itself: several claims logging at the same time,
+// interleaved in the order they'd actually be written — before anyone filters by claim_id.
+export const mixedStream: StreamEntry[] = [
+  { claim: "A", event: "submitted" },
+  { claim: "B", event: "submitted" },
+  { claim: "A", event: "scored" },
+  { claim: "C", event: "submitted" },
+  { claim: "B", event: "scored" },
+  { claim: "A", event: "decided" },
+  { claim: "C", event: "scored" },
+  { claim: "B", event: "decided" },
+  { claim: "C", event: "decided" },
 ];
 
-export const failureTrace: TraceStep[] = [
-  { label: "Claim submitted", plain: "Shopper submits a photo + receipt.", tag: "start" },
-  { label: "Claim scored", plain: "The freshness model gives an advisory score.", tag: "normal" },
+export const claimLabels: Record<ClaimTag, string> = {
+  A: "Claim A",
+  B: "Claim B",
+  C: "Claim C",
+};
+
+export const claimSwatch: Record<ClaimTag, string> = {
+  A: "border-brand/40 bg-brand-tint text-brand-strong",
+  B: "border-warning/40 bg-warning/10 text-warning",
+  C: "border-border-strong bg-surface-raised text-foreground",
+};
+
+export type FlowStep = {
+  actor: "system" | "service";
+  label: string;
+  tag: "normal" | "problem" | "recovered";
+};
+
+// What happens when a human reviewer's decision gets anchored (tamper-evident recorded).
+// Sourced from the AnchorReconciliationRequired recovery row in docs/OBSERVABILITY-RUNBOOK.md:
+// "Do not roll back. The anchor already accepted the digest. Retry the exact same request;
+// review_claim reconciles idempotently to the same decision/anchor."
+export const confirmedFlow: FlowStep[] = [
+  { actor: "system", label: "Send decision-record request (id: r_8f21)", tag: "normal" },
+  { actor: "service", label: "Confirmed — recorded", tag: "normal" },
+];
+
+export const missingConfirmationFlow: FlowStep[] = [
+  { actor: "system", label: "Send decision-record request (id: r_9a44)", tag: "normal" },
   {
-    label: "Anchor problem detected",
-    plain: "The tamper-evident record-keeping step didn't confirm in time.",
+    actor: "service",
+    label: "No confirmation comes back — e.g. a network hiccup",
     tag: "problem",
   },
   {
-    label: "Recovered automatically",
-    plain: "The system retries the exact same request instead of guessing — no data lost, no duplicate claim.",
+    actor: "system",
+    label: "Retry — the exact same request, same id: r_9a44",
+    tag: "normal",
+  },
+  {
+    actor: "service",
+    label: "Recognizes id r_9a44 as already seen — returns the same result, does not record it twice",
     tag: "recovered",
   },
 ];
+
+export const escalationNote =
+  "And if the retry itself doesn't confirm either? The system doesn't just keep silently retrying forever — repeated failures get flagged to a human as a possible problem with the recording service itself, not papered over. Either way, the claim is never left in a broken state.";
 
 export const recordedFields = [
   "which claim this event belongs to (a random ID, not a name)",
