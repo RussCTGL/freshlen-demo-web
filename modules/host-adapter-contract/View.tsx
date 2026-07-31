@@ -73,18 +73,56 @@ const PRINT_CSS = `
   }
   [data-lane="158"] details > p { border-left-width: 2px; }
 
-  /* Pagination. Keeping whole sections together is what produced half-empty
-     pages: a section that does not fit in the remaining space jumps wholesale.
-     So only atomic units are protected -- one card, one figure, one row -- and
-     a section is allowed to flow across a break. Headings and their first
-     block stay together so a title never strands at the foot of a page. */
-  [data-lane="158"] [data-atom] { break-inside: avoid; page-break-inside: avoid; }
-  [data-lane="158"] figure { break-inside: avoid; page-break-inside: avoid; }
-  [data-lane="158"] h3 { break-after: avoid; page-break-after: avoid; }
-  [data-lane="158"] li { break-inside: avoid; }
-  [data-lane="158"] tr { break-inside: avoid; }
-  [data-lane="158"] table { break-inside: auto; }
-  [data-lane="158"] thead { display: table-header-group; }
+  /* --- Pagination -------------------------------------------------------
+     The PDF is the report, so its pages are composed rather than left to
+     fall where they may. Two rules together:
+
+     1. Nothing visual may split. Letting a table or a chip grid break in the
+        middle is what makes a page look broken; every panel, figure, table
+        and list item is atomic.
+     2. Pages start where the argument starts. Relying on flow alone gives
+        either mid-block splits or half-empty pages, so each major section is
+        given an explicit page break. A page then holds one topic.
+
+     Paper also needs less air than a screen: the rhythm and panel padding are
+     tightened here so a composed page still fills. */
+  @page { size: A4 portrait; margin: 12mm 11mm 14mm; }
+
+  [data-lane="158"] > * + * { margin-top: 14px !important; }
+  [data-lane="158"] .p-5 { padding: 12px !important; }
+  [data-lane="158"] .p-4 { padding: 10px !important; }
+  [data-lane="158"] .p-3\\.5 { padding: 9px !important; }
+  [data-lane="158"] .space-y-12 > * + * { margin-top: 14px !important; }
+
+  [data-lane="158"] [data-atom],
+  [data-lane="158"] figure,
+  [data-lane="158"] table,
+  [data-lane="158"] ol > li,
+  [data-lane="158"] ul > li,
+  [data-lane="158"] tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* A row of three narrow columns holding paragraphs is worse than useless on
+     A4: the measure is too tight, and if the row is taller than the page then
+     break-inside cannot be honoured at all and it splits mid-card anyway. On
+     paper these stack, so each card is a whole unit that can never fragment. */
+  [data-lane="158"] [data-stack-print] { grid-template-columns: 1fr !important; }
+
+  [data-lane="158"] [data-page] {
+    break-before: page !important;
+    page-break-before: always !important;
+    margin-top: 0 !important;
+  }
+  /* A caption belongs to the thing below it. Without this a "how to read
+     this" line strands at the top of a page and its visual starts the next
+     one — which is how two 138-character pages appeared. */
+  [data-lane="158"] h3,
+  [data-lane="158"] [data-note] {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
   [data-lane="158"] p { orphans: 3; widows: 3; }
 }
 `;
@@ -108,7 +146,7 @@ function Lead({ children }: { children: React.ReactNode }) {
 /** A short "how to read this" line placed next to the thing it explains. */
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex gap-2 text-[13px] leading-relaxed text-muted">
+    <p data-note className="flex gap-2 text-[13px] leading-relaxed text-muted">
       <span aria-hidden className="select-none font-mono text-faint">
         ↳
       </span>
@@ -236,7 +274,7 @@ function CorpusMeter() {
     missing: "border-dashed border-border-strong",
   };
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
+    <div data-atom className="rounded-lg border border-border bg-surface p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <span className="font-mono text-[10px] uppercase tracking-widest text-faint">
           Corpus against the Friday floor
@@ -542,13 +580,31 @@ export default function View() {
         </div>
       </div>
 
+      {/* The headline numbers close the summary page: they are the evidence for
+          the five items above, not a separate topic. */}
+      <div data-atom className="grid gap-3 sm:grid-cols-3">
+        {headline.map((s) => (
+          <div key={s.label} className="rounded-lg border border-border bg-surface px-4 py-3">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
+              {s.label}
+            </div>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="font-mono text-3xl font-semibold tabular-nums text-foreground">
+                {s.value}
+              </span>
+              <span className="font-mono text-[11px] text-muted">{s.note}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* ============ 1. verdict board ============ */}
-      <div className="space-y-4">
+      <div data-page className="space-y-4">
         <Note>
           The evidence for all of the above, in three lanes. Each card carries the numbers that
           decide it; everything further down is the working.
         </Note>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div data-stack-print className="grid gap-3 sm:grid-cols-3">
           {classification.map((c) => {
             const t = TONE[c.status === "partial" ? "waiting" : c.status];
             return (
@@ -584,36 +640,16 @@ export default function View() {
           })}
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          {headline.map((s) => (
-            <div key={s.label} className="rounded-lg border border-border bg-surface px-4 py-3">
-              <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
-                {s.label}
-              </div>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-semibold tabular-nums text-foreground">
-                  {s.value}
-                </span>
-                <span className="font-mono text-[11px] text-muted">{s.note}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className="font-mono text-[11px] text-faint">
-          {candidate.repo} · contract v{candidate.contractVersion} · re-run on{" "}
-          <code>{candidate.commit}</code> · {candidate.environment}
-        </p>
       </div>
 
       {/* ============ 2. authority grid ============ */}
-      <div className="space-y-3">
+      <div data-page className="space-y-3">
         <SectionTitle n="01">Server-derived authority · 8 operations × 4 roles</SectionTitle>
         <Note>
           Green is allowed and names the scope the server derives; red is a refusal. The caller
           never states its own role.
         </Note>
-        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+        <div data-atom className="overflow-x-auto rounded-lg border border-border bg-surface">
           <table className="w-full min-w-[680px] text-sm">
             <thead>
               <tr className="bg-surface-raised">
@@ -665,7 +701,7 @@ export default function View() {
           Boxed states are terminal. <code>auto_approved</code> is struck through because the
           calibration gate holds it unreachable.
         </Note>
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-4">
+        <div data-atom className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-4">
           <StateChip node={states[0]} />
           <span className="text-faint">→</span>
           <StateChip node={states[1]} />
@@ -696,14 +732,14 @@ export default function View() {
       </div>
 
       {/* ============ 4. the closed error set, drawn ============ */}
-      <div className="space-y-3">
+      <div data-page className="space-y-3">
         <SectionTitle n="03">Closed error set · 21 codes, two classes</SectionTitle>
         <Note>
           One chip per code, coloured by HTTP status. The two classes differ in one way that
           matters: only a dependency failure carries a <code>recovery_action</code>.
         </Note>
 
-        <div className="rounded-lg border border-border bg-surface p-4">
+        <div data-atom className="rounded-lg border border-border bg-surface p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <span className="text-sm font-semibold">
               Caller fault{" "}
@@ -754,13 +790,13 @@ export default function View() {
       </div>
 
       {/* ============ 5. evidence ledger ============ */}
-      <div className="space-y-3">
+      <div data-page className="space-y-3">
         <SectionTitle n="04">Evidence · command → actual output</SectionTitle>
         <Note>
           A row may only cite what its commit actually contains — which is why the contract
           validator, real and passing but living in an unmerged PR, is amber rather than green.
         </Note>
-        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+        <div data-atom className="overflow-x-auto rounded-lg border border-border bg-surface">
           <table className="w-full min-w-[680px] text-sm">
             <tbody>
               {evidence.map((row) => (
@@ -789,7 +825,7 @@ export default function View() {
             </tbody>
           </table>
         </div>
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-lg border border-border bg-surface px-4 py-3 font-mono text-sm tabular-nums">
+        <div data-atom className="flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-lg border border-border bg-surface px-4 py-3 font-mono text-sm tabular-nums">
           <span className="text-[10px] uppercase tracking-widest text-faint">
             Baseline, re-measured
           </span>
@@ -804,11 +840,11 @@ export default function View() {
       </div>
 
       {/* ============ 6. recipe track ============ */}
-      <div className="space-y-3">
+      <div data-page className="space-y-3">
         <SectionTitle n="05">Recipe track #86–88 · the honest critical path</SectionTitle>
 
         {/* A. what the feature actually is */}
-        <div className="rounded-lg border border-border bg-surface p-5">
+        <div data-atom className="rounded-lg border border-border bg-surface p-5">
           <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
             What #86–88 is, before any status
           </div>
@@ -835,7 +871,7 @@ export default function View() {
         </div>
 
         {/* B. one picture of where it stands */}
-        <div className="rounded-lg border border-border bg-surface p-5">
+        <div data-atom className="rounded-lg border border-border bg-surface p-5">
           <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
             Where it stands · five stages, in order
           </div>
@@ -849,14 +885,19 @@ export default function View() {
           </p>
         </div>
 
-        {/* C. stage 2 in detail */}
-        <CorpusMeter />
+        {/* C + D. the two graphics that carry the argument, paired on one page:
+            how far the corpus is, then why the headline score looks alarming.
+            Both are text-light and ink-heavy, so they belong together rather
+            than trailing single-file after the prose blocks. */}
+        <div data-page className="space-y-3">
+          <CorpusMeter />
 
         {/* D. why the headline number looks alarming */}
-        <ParadoxChart />
+          <ParadoxChart />
+        </div>
 
         {/* E. the four gates, separated from the three shipped issues */}
-        <div className="grid gap-3 lg:grid-cols-[auto_1fr]">
+        <div data-page className="grid gap-3 lg:grid-cols-[auto_1fr]">
           <div className="rounded-lg border border-border bg-surface p-4">
             <div className="font-mono text-[10px] uppercase tracking-widest text-success">
               Shipped
@@ -938,13 +979,13 @@ export default function View() {
       </div>
 
       {/* ============ 7. limitations ============ */}
-      <div className="space-y-3">
+      <div data-page className="space-y-3">
         <SectionTitle n="06">Said out loud · the two limitations inside this lane</SectionTitle>
         <Note>
           Both are #158&apos;s own. Limitations belonging to other lanes are deliberately not
           listed here.
         </Note>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div data-atom className="grid gap-3 sm:grid-cols-2">
           {limitations.map((l) => (
             <div key={l.title} data-atom className="rounded-lg border border-border bg-surface p-3.5">
               <div className="flex items-baseline justify-between gap-2">
@@ -957,9 +998,11 @@ export default function View() {
         </div>
       </div>
 
-      <p className="border-t border-border-strong pt-4 font-mono text-xs text-muted">
+      <p className="border-t border-border-strong pt-4 font-mono text-[11px] leading-relaxed text-muted">
         Lane #158 · Jinming Cao · every figure re-run on <code>{candidate.commit}</code> before it
         was written down.
+        <br />
+        {candidate.repo} · contract v{candidate.contractVersion} · {candidate.environment}
       </p>
     </section>
   );
