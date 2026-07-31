@@ -73,12 +73,37 @@ const PRINT_CSS = `
   }
   [data-lane="158"] details > p { border-left-width: 2px; }
 
-  [data-lane="158"] [data-block] { break-inside: avoid; page-break-inside: avoid; }
+  /* Pagination. Keeping whole sections together is what produced half-empty
+     pages: a section that does not fit in the remaining space jumps wholesale.
+     So only atomic units are protected -- one card, one figure, one row -- and
+     a section is allowed to flow across a break. Headings and their first
+     block stay together so a title never strands at the foot of a page. */
+  [data-lane="158"] [data-atom] { break-inside: avoid; page-break-inside: avoid; }
   [data-lane="158"] figure { break-inside: avoid; page-break-inside: avoid; }
-  [data-lane="158"] table { break-inside: auto; }
+  [data-lane="158"] h3 { break-after: avoid; page-break-after: avoid; }
+  [data-lane="158"] li { break-inside: avoid; }
   [data-lane="158"] tr { break-inside: avoid; }
+  [data-lane="158"] table { break-inside: auto; }
+  [data-lane="158"] thead { display: table-header-group; }
+  [data-lane="158"] p { orphans: 3; widows: 3; }
 }
 `;
+
+/*
+ * One container style on the whole page: `rounded-lg border border-border
+ * bg-surface`. Colour lives on the data inside a panel, never on the panel's
+ * own frame — four different tinted borders was what made the page read as
+ * separate floating pieces rather than one document.
+ */
+
+/** A takeaway. Deliberately unframed, so it reads as the page talking. */
+function Lead({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="border-l-2 border-brand pl-3.5 text-[15px] font-semibold leading-relaxed">
+      {children}
+    </p>
+  );
+}
 
 /** A short "how to read this" line placed next to the thing it explains. */
 function Note({ children }: { children: React.ReactNode }) {
@@ -450,9 +475,9 @@ export default function View() {
       </div>
 
       {/* ============ 0. what I did / what is stuck ============ */}
-      <div data-block className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
         {/* delivered */}
-        <div className="rounded-lg border border-border bg-surface p-5">
+        <div data-atom className="rounded-lg border border-border bg-surface p-5">
           <div className="flex items-baseline justify-between gap-3 border-b border-border pb-2.5">
             <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-brand">
               What I built this week
@@ -483,8 +508,8 @@ export default function View() {
         </div>
 
         {/* asks */}
-        <div className="rounded-lg border border-danger/40 bg-danger/5 p-5">
-          <div className="flex items-baseline justify-between gap-3 border-b border-danger/25 pb-2.5">
+        <div data-atom className="rounded-lg border border-border bg-surface p-5">
+          <div className="flex items-baseline justify-between gap-3 border-b border-border pb-2.5">
             <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-danger">
               What is stuck, and who can unstick it
             </h3>
@@ -510,7 +535,7 @@ export default function View() {
               </li>
             ))}
           </ul>
-          <p className="mt-4 border-t border-danger/25 pt-3 text-[13px] leading-relaxed text-muted">
+          <p className="mt-4 border-t border-border pt-3 text-[13px] leading-relaxed text-muted">
             None of the four is waiting on code. Three need a decision from one person; the fourth
             needs an owner named.
           </p>
@@ -518,7 +543,7 @@ export default function View() {
       </div>
 
       {/* ============ 1. verdict board ============ */}
-      <div data-block className="space-y-4">
+      <div className="space-y-4">
         <Note>
           The evidence for all of the above, in three lanes. Each card carries the numbers that
           decide it; everything further down is the working.
@@ -529,8 +554,11 @@ export default function View() {
             return (
               <div
                 key={c.id}
-                className={`flex flex-col gap-2 rounded-lg border p-4 ${t.border} ${t.bg}`}
+                data-atom
+                className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4"
               >
+                {/* state reads off a rule on the data side, not off the frame */}
+                <span className={`-mt-1 h-0.5 w-8 rounded-full ${t.dot}`} />
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-[10px] uppercase tracking-widest text-faint">
                     {c.id}
@@ -579,7 +607,7 @@ export default function View() {
       </div>
 
       {/* ============ 2. authority grid ============ */}
-      <div data-block className="space-y-3">
+      <div className="space-y-3">
         <SectionTitle n="01">Server-derived authority · 8 operations × 4 roles</SectionTitle>
         <Note>
           Green is allowed and names the scope the server derives; red is a refusal. The caller
@@ -618,11 +646,11 @@ export default function View() {
             </tbody>
           </table>
         </div>
-        <div className="rounded-lg border border-brand/40 bg-brand-tint/40 px-4 py-3">
-          <div className="text-sm font-semibold">
+        <div>
+          <Lead>
             Supplying your own <code>reviewer_id</code>, <code>account_id</code> or{" "}
             <code>store_id</code> is refused on presence alone — even when the value is correct.
-          </div>
+          </Lead>
           <Why>
             The check returns <code>403 authority_override_denied</code> before resource scope is
             evaluated, so an impersonation attempt is never masked behind a cross-store error.
@@ -631,7 +659,7 @@ export default function View() {
       </div>
 
       {/* ============ 3. state machine ============ */}
-      <div data-block className="space-y-3">
+      <div className="space-y-3">
         <SectionTitle n="02">Claim state machine</SectionTitle>
         <Note>
           Boxed states are terminal. <code>auto_approved</code> is struck through because the
@@ -653,11 +681,11 @@ export default function View() {
             unreachable while the calibration gate is RE-SCOPE
           </span>
         </div>
-        <div className="rounded-lg border border-brand/40 bg-brand-tint/40 px-4 py-3">
-          <div className="text-sm font-semibold">
+        <div>
+          <Lead>
             An evaluation that numerically qualifies for auto-approval still routes to{" "}
             <code>human_review</code>, every time. That is success, not an error.
-          </div>
+          </Lead>
           <Why>
             <code>status</code> stays <code>ok</code>: in-flight state is a status value and never
             an error code, so a host polling for progress cannot mistake &quot;not done yet&quot;
@@ -668,7 +696,7 @@ export default function View() {
       </div>
 
       {/* ============ 4. the closed error set, drawn ============ */}
-      <div data-block className="space-y-3">
+      <div className="space-y-3">
         <SectionTitle n="03">Closed error set · 21 codes, two classes</SectionTitle>
         <Note>
           One chip per code, coloured by HTTP status. The two classes differ in one way that
@@ -726,7 +754,7 @@ export default function View() {
       </div>
 
       {/* ============ 5. evidence ledger ============ */}
-      <div data-block className="space-y-3">
+      <div className="space-y-3">
         <SectionTitle n="04">Evidence · command → actual output</SectionTitle>
         <Note>
           A row may only cite what its commit actually contains — which is why the contract
@@ -776,7 +804,7 @@ export default function View() {
       </div>
 
       {/* ============ 6. recipe track ============ */}
-      <div data-block className="space-y-3">
+      <div className="space-y-3">
         <SectionTitle n="05">Recipe track #86–88 · the honest critical path</SectionTitle>
 
         {/* A. what the feature actually is */}
@@ -876,7 +904,7 @@ export default function View() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-warning/40 bg-warning/5 p-4">
+        <div data-atom className="rounded-lg border border-border bg-surface p-4">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-warning">
               Order is load-bearing
@@ -910,7 +938,7 @@ export default function View() {
       </div>
 
       {/* ============ 7. limitations ============ */}
-      <div data-block className="space-y-3">
+      <div className="space-y-3">
         <SectionTitle n="06">Said out loud · the two limitations inside this lane</SectionTitle>
         <Note>
           Both are #158&apos;s own. Limitations belonging to other lanes are deliberately not
@@ -918,7 +946,7 @@ export default function View() {
         </Note>
         <div className="grid gap-3 sm:grid-cols-2">
           {limitations.map((l) => (
-            <div key={l.title} className="rounded-lg border border-danger/35 bg-surface p-3.5">
+            <div key={l.title} data-atom className="rounded-lg border border-border bg-surface p-3.5">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-sm font-semibold leading-snug">{l.title}</span>
                 <span className="shrink-0 font-mono text-[10px] text-faint">{l.owner}</span>
