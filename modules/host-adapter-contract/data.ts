@@ -198,7 +198,7 @@ export const classification: Classification[] = [
     status: "blocked",
     stamp: "source blocked",
     detail:
-      "4.2 is released. On 2026-07-30 a teammate recorded a device observation on 4.2.0: the claim button is present and a claim was sent successfully, which closes the entry-point blocker issue #179 raised against 3.4.5. That observation does not cover the reviewer half, backend receipt, duplicate prevention, or whether an approved amount was server-derived — those stay INCONCLUSIVE, not failed. Independently of the build, there is still no read access to the private shopper-iOS repository, so an installed build cannot be mapped to a commit. Only Lawrence can grant that.",
+      "4.2 is released, and three device records now exist. Two testers on the identical build — 4.2.0 / 2026072807 — independently reach no claim path at all and an unavailable scanner. A third record reports a working claim button and a claim sent successfully, but carries no build number, so it cannot yet be attributed to this build. The reconciling question is cheap and unanswered: either 4.2.0 covers more than one build, or the claim surface only appears for a signed-in account, since one of the two blocked testers recorded that Apple Sign-In was unavailable and did not sign in. Until that is settled, the defensible row is that the claim surface is not reachable on 2026072807, not that 4.2 has an entry point. Independently of all of it, there is still no read access to the private shopper-iOS repository, so no installed build can be mapped to a commit. Only Lawrence can grant that.",
   },
   {
     id: "C",
@@ -210,25 +210,13 @@ export const classification: Classification[] = [
   },
 ];
 
-/** Limitations named before anyone else finds them. */
+/** Limitations inside lane #158, named before anyone else finds them. */
 export const limitations = [
   {
     title: "The server never emits error_code",
     consequence:
       "err() returns {status, message} only. The client mapping merged this week reads error_code, recovery_action and retry_after_seconds — all three are always empty, so the new recovery copy is unreachable in the running app. It degrades safely. The vocabulary now has a consumer and still has no emitter.",
     owner: "#158 · needs an owner call",
-  },
-  {
-    title: "Two claim endpoints have zero consumers",
-    consequence:
-      "GET /api/claims/{id} and GET /api/claims are never called by the client, so 5 of 8 named states are reachable and approved/declined are unreachable rather than merely unstyled. Not blocked — the endpoints work today.",
-    owner: "#159",
-  },
-  {
-    title: "Two event vocabularies, relationship undecided",
-    consequence:
-      "The frozen monitor_event and the emitter being built disagree on correlation key, timestamp type and event names. A host should treat monitor_event as the export shape it must satisfy, not assume the emitter already produces it.",
-    owner: "#161",
   },
   {
     title: "One table in the handoff doc can still go stale silently",
@@ -243,13 +231,15 @@ export const limitations = [
 /* ------------------------------------------------------------------ */
 
 export const recipeHeadline =
-  "The engine is finished and it works. The bottleneck is a human sign-off, and no engineering can move it.";
+  "The machinery is finished and proven. The corpus is not: ten records against a Friday floor of forty reviewed ones, and none of the ten is reviewed yet. Authoring the rest is our work and is not blocked by anyone; the sign-off pass that follows is not ours to do.";
 
 export const recipeProof = [
   { label: "tests/test_recipe_corpus.py", value: "38 passed" },
   { label: "tests/test_act.py + test_recipes.py", value: "170 passed" },
   { label: "eval/recipe_eval.py", value: "exit 0, byte-stable" },
   { label: "Hard safety / data gates", value: "9 / 9 PASS" },
+  { label: "Corpus records", value: "10 of 40" },
+  { label: "Records reviewed", value: "0 of 10" },
 ];
 
 export const recipeParadox = {
@@ -266,7 +256,7 @@ export const recipeParadox = {
     { metric: "hard gates", value: "PASS", floor: "", bad: false },
   ],
   explanation:
-    "All 10 corpus rows carry review_state \"draft\"; zero are approved. Production serves approved rows only, so every held-out scene correctly returns NO_MATCH. The system fails closed. Run the same evaluator against the draft rows as a diagnostic and it scores 1.00 — but that is a diagnostic, never a release number, because production deliberately withholds exactly those rows.",
+    "All 10 corpus rows carry review_state \"draft\"; zero are approved. Production serves approved rows only, so every held-out scene correctly returns NO_MATCH. The system fails closed, which is why the zero is correct behaviour rather than a defect. Run the same evaluator against the draft rows as a diagnostic and it scores 1.00. Read that number carefully: it says the retrieval engine resolves the 16 held-out scenes against the rows that exist. It does not say the corpus is large enough — 1.00 over ten records is not the same claim as 1.00 over forty, and the release floor is written against reviewed records, not draft ones.",
 };
 
 export type Gate = {
@@ -274,7 +264,7 @@ export type Gate = {
   title: string;
   detail: string;
   owner: string;
-  state: "done" | "blocked" | "waiting" | "separate";
+  state: "done" | "blocked" | "waiting";
   stamp: string;
 };
 export const recipeGates: Gate[] = [
@@ -307,39 +297,39 @@ export const recipeGates: Gate[] = [
   },
   {
     id: "G1",
-    title: "Human safety + license sign-off on the 10 rows — 0 of 10 approved",
+    title: "Author the rest of the corpus — 10 records against a floor of 40",
     detail:
-      "Issue #86 states it plainly: an AI-generated draft is not an approved record. Nothing below can start until this clears, and it is not engineering work.",
-    owner: "Lawrence",
-    state: "blocked",
-    stamp: "blocked",
+      "Recorded numerically by Mohan on PR #132 on 2026-07-21: ten records, all draft, against the Friday target of at least forty reviewed records, so roughly thirty more records plus a sign-off pass remain. This is the one remaining gate that is ours and it is blocked by nobody — it is authoring work against a frozen schema, and the validators that will check it already pass. Naming it first because the diagnostic 1.00 above makes it easy to miss.",
+    owner: "Lisa + Jinming, Mohan supporting",
+    state: "waiting",
+    stamp: "ours, not blocked",
   },
   {
     id: "G2",
-    title: "Freeze row content, then publish RECIPE_APPROVAL_DIGESTS",
+    title: "Human safety + license sign-off — 0 records reviewed so far",
     detail:
-      "A deployment-side authority deliberately independent of the repository: corpus review fields record provenance but do not authenticate who approved. Exact per-row SHA-256, compared with a constant-time digest check, revocable without touching the corpus.",
-    owner: "Deployment / operator",
+      "Issue #86 states it plainly: an AI-generated draft is not an approved record, and approval requires reviewed_by set to the named approver. Nothing below can start until this clears, and it is not engineering work. It does not have to wait for all forty either — signing any subset lifts coverage off zero and lets the measurement gate begin.",
+    owner: "Lawrence",
     state: "waiting",
     stamp: "waits on G1",
   },
   {
     id: "G3",
-    title: "Measure the real quality floors on the approved corpus",
+    title: "Freeze row content, then publish RECIPE_APPROVAL_DIGESTS",
     detail:
-      "The 0.80 and 0.90 floors are labelled descriptive and are not yet measured — and a floor must never be invented after seeing the results. This is the only remaining engineering task, and it is last in line.",
-    owner: "Jinming + Lisa + Mohan",
+      "A deployment-side authority deliberately independent of the repository: corpus review fields record provenance but do not authenticate who approved. Exact per-row SHA-256, compared with a constant-time digest check, revocable without touching the corpus.",
+    owner: "Deployment / operator",
     state: "waiting",
     stamp: "waits on G2",
   },
   {
     id: "G4",
-    title: "Public shopper serving — a separate gate entirely",
+    title: "Measure the real quality floors on the approved corpus",
     detail:
-      "Shopper food guidance is held under GATE: RE-SCOPE. Templates, retrieval and generated candidates all remain private review paths. Unaffected by G1–G3.",
-    owner: "Separate calibration gate",
-    state: "separate",
-    stamp: "out of scope",
+      "The 0.80 and 0.90 floors are labelled descriptive and are not yet measured — and a floor must never be invented after seeing the results. Last in line, and it is measurement rather than construction.",
+    owner: "Jinming + Lisa + Mohan",
+    state: "waiting",
+    stamp: "waits on G3",
   },
 ];
 
@@ -349,7 +339,7 @@ export const recipeOrdering = {
   order: ["freeze", "approve", "digest", "measure"],
   wrong: "approve → edit → digest",
   conclusion:
-    "So the honest answer to \"when can recipes demo?\" is that it is a sign-off latency question, not a build question. Three of the four remaining gates are not ours, and the one that is ours is last in line. Per the Week 7 definition of done, all three issues should be recorded in rc1 with a named owner, exact blocker and next action — otherwise they are a frozen Week 8 limitation.",
+    "So the honest answer to \"when can recipes demo?\" has two halves, and it would be easy to give only the flattering one. The machinery is finished and proven, and that part is real. But the corpus is at a quarter of its floor, and closing that gap is authoring work this team owns and nobody else is holding. Only after that does it become a sign-off question. Per the Week 7 definition of done, all three issues should be recorded in rc1 with a named owner, exact blocker and next action — otherwise they are a frozen Week 8 limitation.",
   overdue:
-    "All three issues are open, still on the Week 6 milestone, and were due July 24 — six days overdue into a Week 8 closeout.",
+    "All three issues are open, still on the Week 6 milestone, and were due July 24 — six days overdue into a Week 8 closeout. Primary owners are Lisa and Jinming, with Mohan supporting.",
 };
