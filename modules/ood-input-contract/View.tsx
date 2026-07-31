@@ -7,6 +7,7 @@ import {
   unfilled,
   proxies,
   gateCheck,
+  selfCheck,
   digests,
   encoderRuntime,
   testCounts,
@@ -56,6 +57,9 @@ export default function View() {
           ))}
         </ul>
         <p className="mt-4 border-t border-border pt-3 text-sm text-muted">
+          {selfCheck}
+        </p>
+        <p className="mt-3 text-sm text-muted">
           A structurally valid manifest exiting zero would be quotable as
           &ldquo;the OOD gate passes.&rdquo; Filling the approval block with
           empty strings does not satisfy the check, and neither does a filled

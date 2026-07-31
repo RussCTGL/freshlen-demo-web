@@ -47,13 +47,13 @@ export const proxies = [
 
 /** `ood_manifest.py check` on the tracked manifest. Exit 1 is the correct result. */
 export const gateCheck = {
-  passed: 14,
-  total: 16,
+  passed: 15,
+  total: 17,
   exitCode: 1,
   failing: [
     {
       check: "contract_approved",
-      why: "the approval block is unfilled and its status is BLOCKED — no dated evaluator decision exists",
+      why: "its status is BLOCKED rather than APPROVED, and every field of the dated decision is still empty",
     },
     {
       check: "category_coverage",
@@ -67,7 +67,7 @@ export const digests = [
   {
     artifact: "data/ood/index.csv",
     sha256: "050fc9933462588231cd1952712e41cba4467e86d3147b2a3e7205e63b8daa1f",
-    note: "18 synthetic rows, each binding its image with image_sha256",
+    note: "18 synthetic rows, each binding its image with image_sha256. Reproduced by two reviewers on Windows — one on a Chinese-locale checkout with core.autocrlf=true, all 18 image hashes matching.",
   },
   {
     artifact: "evidence manifest (seed 42)",
@@ -79,7 +79,13 @@ export const digests = [
 /** The generation identity is only as stable as its encoder. */
 export const encoderRuntime = "Pillow 12.1.1";
 
-export const testCounts = { manifest: 23, fixtures: 13 };
+export const testCounts = { manifest: 33, fixtures: 16 };
+
+/** One of the 15 passes is the validator checking the contract it was handed. */
+export const selfCheck =
+  "contract_supported passes at v1.1. A contract of the wrong version, missing keys, or " +
+  "the wrong shape is reported as a failed check rather than crashing the run — so the " +
+  "other sixteen results are only ever read against a contract this validator can read.";
 
 /** Recipe serving, from eval/recipe_eval.py. Two numbers, and only one is a result. */
 export const recipe = {
