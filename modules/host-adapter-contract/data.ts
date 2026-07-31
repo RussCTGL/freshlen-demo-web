@@ -264,7 +264,7 @@ export type Gate = {
   title: string;
   detail: string;
   owner: string;
-  state: "done" | "blocked" | "waiting" | "separate";
+  state: "done" | "blocked" | "waiting";
   stamp: string;
 };
 export const recipeGates: Gate[] = [
@@ -301,7 +301,7 @@ export const recipeGates: Gate[] = [
     detail:
       "Recorded numerically by Mohan on PR #132 on 2026-07-21: ten records, all draft, against the Friday target of at least forty reviewed records, so roughly thirty more records plus a sign-off pass remain. This is the one remaining gate that is ours and it is blocked by nobody — it is authoring work against a frozen schema, and the validators that will check it already pass. Naming it first because the diagnostic 1.00 above makes it easy to miss.",
     owner: "Lisa + Jinming, Mohan supporting",
-    state: "blocked",
+    state: "waiting",
     stamp: "ours, not blocked",
   },
   {
@@ -330,15 +330,6 @@ export const recipeGates: Gate[] = [
     owner: "Jinming + Lisa + Mohan",
     state: "waiting",
     stamp: "waits on G3",
-  },
-  {
-    id: "G5",
-    title: "Public shopper serving — a separate gate entirely",
-    detail:
-      "Shopper food guidance is held under GATE: RE-SCOPE. Templates, retrieval and generated candidates all remain private review paths. Unaffected by G1–G4.",
-    owner: "Separate calibration gate",
-    state: "separate",
-    stamp: "out of scope",
   },
 ];
 
