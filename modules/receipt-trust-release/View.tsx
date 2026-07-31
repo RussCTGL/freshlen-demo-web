@@ -314,12 +314,9 @@ export default function View() {
           </div>
           <div className="border-t border-border bg-background p-6 lg:border-l lg:border-t-0 sm:p-8">
             <p className="font-mono text-xs uppercase tracking-widest text-muted">result + limitation</p>
-            <p className="mt-3 text-2xl font-semibold">Receipt changes are detected; the system is not claimed unforgeable.</p>
+            <p className="mt-3 text-2xl font-semibold">Public verification passed on the exact head.</p>
             <p className="mt-3 text-sm leading-6 text-muted">
-              The tests show that a changed signed receipt is rejected. They do not prove that the entire system cannot be forged. The correct claim is tamper-evident: the verifier can detect changes to signed receipt data.
-            </p>
-            <p className="mt-3 text-sm leading-6 text-muted">
-              Public verification passed on the exact head. This remains offline software evidence from an unmerged stacked PR, not proof of native adoption, durable storage, external trust, or issuance.
+              Limitation: this is offline software evidence from an unmerged stacked PR, not native adoption, durable storage, external trust, or issuance.
             </p>
             <div className="mt-5 rounded-xl border border-warning/30 bg-warning/10 p-4">
               <p className="font-mono text-xs font-semibold text-warning">GATE: RE-SCOPE</p>
