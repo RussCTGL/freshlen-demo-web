@@ -195,6 +195,7 @@ function DeviceSynthesis() {
     HISTORICAL: "info",
     INCOMPLETE: "warning",
     MISSING: "danger",
+    NOT_APPLICABLE: "info",
   };
 
   return (
@@ -207,10 +208,14 @@ function DeviceSynthesis() {
         <StatusBadge label={deviceSynthesis.status} tone="danger" />
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <div className="rounded-xl border border-border bg-surface-raised p-3">
           <p className="text-xs text-faint">Direct rows posted</p>
           <p className="mt-1 text-2xl font-semibold">{deviceSynthesis.directRows}/{deviceSynthesis.assigned}</p>
+        </div>
+        <div className="rounded-xl border border-success/30 bg-success/10 p-3">
+          <p className="text-xs text-success">Complete physical-device rows</p>
+          <p className="mt-1 text-2xl font-semibold text-success">{deviceSynthesis.completeRows}/8</p>
         </div>
         <div className="rounded-xl border border-success/30 bg-success/10 p-3">
           <p className="text-xs text-success">Complete current-build rows</p>
@@ -223,6 +228,10 @@ function DeviceSynthesis() {
         <div className="rounded-xl border border-danger/30 bg-danger/10 p-3">
           <p className="text-xs text-danger">Missing direct rows</p>
           <p className="mt-1 text-2xl font-semibold text-danger">{deviceSynthesis.missingRows}</p>
+        </div>
+        <div className="rounded-xl border border-info/30 bg-info/10 p-3">
+          <p className="text-xs text-info">No physical surface</p>
+          <p className="mt-1 text-2xl font-semibold text-info">{deviceSynthesis.notApplicableRows}</p>
         </div>
       </div>
 

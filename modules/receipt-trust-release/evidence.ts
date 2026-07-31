@@ -132,7 +132,7 @@ export const privacyEvidence = [
 
 export type DeviceEvidenceRow = {
   owner: string;
-  rowStatus: "COMPLETE" | "INCOMPLETE" | "MISSING" | "HISTORICAL";
+  rowStatus: "COMPLETE" | "INCOMPLETE" | "MISSING" | "HISTORICAL" | "NOT_APPLICABLE";
   participation: string;
   build: string;
   sourceLinkage: string;
@@ -144,10 +144,11 @@ export const deviceSynthesis = {
   observedAt: "2026-07-31",
   assigned: 8,
   directRows: 7,
-  completeRows: 6,
+  completeRows: 5,
   currentBuildCompleteRows: 4,
   incompleteRows: 1,
   missingRows: 1,
+  notApplicableRows: 1,
   currentBuild: "Xpired 4.2.0 (2026072807)",
 } as const;
 
@@ -162,7 +163,7 @@ export const deviceEvidenceRows: DeviceEvidenceRow[] = [
   },
   {
     owner: "Lisa",
-    rowStatus: "COMPLETE",
+    rowStatus: "NOT_APPLICABLE",
     participation: "NO_DEVICE / N/A",
     build: "Backend PR #191 / 68250fa",
     sourceLinkage: "MERGED TO MAIN",
