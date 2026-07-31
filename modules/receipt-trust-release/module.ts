@@ -9,6 +9,6 @@ export default defineModule({
   week: 7,
   order: 156,
   summary:
-    "Public-key receipt verification rejects tampering and downgrade attempts while keeping HMAC compatibility—and keeps native, durability, and issuance limits explicit.",
+    "Exact-head evidence: public-only Ed25519 verification, tamper and downgrade rejection, HMAC compatibility, rotation semantics, and explicit native/durability/issuance limits.",
   View,
 });
