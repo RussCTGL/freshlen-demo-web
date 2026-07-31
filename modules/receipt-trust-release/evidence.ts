@@ -129,3 +129,91 @@ export const privacyEvidence = [
   { label: "Environment values emitted", value: "false" },
   { label: "Public endpoint schema test", value: "passed" },
 ] as const;
+
+export type DeviceEvidenceRow = {
+  owner: string;
+  rowStatus: "COMPLETE" | "INCOMPLETE" | "MISSING" | "HISTORICAL";
+  participation: string;
+  build: string;
+  sourceLinkage: string;
+  result: string;
+};
+
+export const deviceSynthesis = {
+  status: "BLOCKED",
+  observedAt: "2026-07-31",
+  assigned: 8,
+  directRows: 7,
+  completeRows: 6,
+  currentBuildCompleteRows: 4,
+  incompleteRows: 1,
+  missingRows: 1,
+  currentBuild: "Xpired 4.2.0 (2026072807)",
+} as const;
+
+export const deviceEvidenceRows: DeviceEvidenceRow[] = [
+  {
+    owner: "Lezhi",
+    rowStatus: "COMPLETE",
+    participation: "DEVICE_AVAILABLE",
+    build: "4.2.0 / 2026072807",
+    sourceLinkage: "INCONCLUSIVE",
+    result: "Scanner unavailable after Wi-Fi and LTE retry; claim journey unreachable.",
+  },
+  {
+    owner: "Lisa",
+    rowStatus: "COMPLETE",
+    participation: "NO_DEVICE / N/A",
+    build: "Backend PR #191 / 68250fa",
+    sourceLinkage: "MERGED TO MAIN",
+    result: "Backend-only registry accessor has no native capture surface; device test is not applicable.",
+  },
+  {
+    owner: "Jinming",
+    rowStatus: "COMPLETE",
+    participation: "DEVICE_AVAILABLE",
+    build: "4.2.0 / 2026072807",
+    sourceLinkage: "NONE",
+    result: "Inventory/Profile reachable; camera blocked; no claim entry point.",
+  },
+  {
+    owner: "Ziyun",
+    rowStatus: "COMPLETE",
+    participation: "DEVICE_AVAILABLE",
+    build: "4.2.0 / 2026072807",
+    sourceLinkage: "INCONCLUSIVE",
+    result: "Fail-closed scanner-unavailable state reproduced; capture blocked.",
+  },
+  {
+    owner: "Tony",
+    rowStatus: "MISSING",
+    participation: "No direct row",
+    build: "Not reported",
+    sourceLinkage: "Not reported",
+    result: "Required privacy-safe device record has not been posted.",
+  },
+  {
+    owner: "Bill",
+    rowStatus: "COMPLETE",
+    participation: "DEVICE_AVAILABLE",
+    build: "4.2.0 / 2026072807",
+    sourceLinkage: "INCONCLUSIVE",
+    result: "Cross-build scanner blocker reproduced on 4.1.0 and 4.2.0.",
+  },
+  {
+    owner: "Yizhou",
+    rowStatus: "HISTORICAL",
+    participation: "DEVICE_AVAILABLE",
+    build: "3.4.5 / 2026072201",
+    sourceLinkage: "INCONCLUSIVE",
+    result: "Background/resume observed; claim/return was not present; current retest needed.",
+  },
+  {
+    owner: "Mohan",
+    rowStatus: "INCOMPLETE",
+    participation: "DEVICE_AVAILABLE",
+    build: "4.2.0 / build placeholder",
+    sourceLinkage: "INCONCLUSIVE",
+    result: "Scanner blocked, but exact build, timestamp, and retry fields remain placeholders.",
+  },
+];

@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 
 import {
+  deviceEvidenceRows,
+  deviceSynthesis,
   evidenceIdentity,
   observedReceipt,
   privacyEvidence,
@@ -187,6 +189,93 @@ function PublicMaterialCard() {
   );
 }
 
+function DeviceSynthesis() {
+  const rowTone: Record<(typeof deviceEvidenceRows)[number]["rowStatus"], EvidenceTone> = {
+    COMPLETE: "success",
+    HISTORICAL: "info",
+    INCOMPLETE: "warning",
+    MISSING: "danger",
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">all-eight physical-device synthesis</p>
+          <h3 className="mt-2 text-xl font-semibold">The device matrix is not yet complete.</h3>
+        </div>
+        <StatusBadge label={deviceSynthesis.status} tone="danger" />
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-surface-raised p-3">
+          <p className="text-xs text-faint">Direct rows posted</p>
+          <p className="mt-1 text-2xl font-semibold">{deviceSynthesis.directRows}/{deviceSynthesis.assigned}</p>
+        </div>
+        <div className="rounded-xl border border-success/30 bg-success/10 p-3">
+          <p className="text-xs text-success">Complete current-build rows</p>
+          <p className="mt-1 text-2xl font-semibold text-success">{deviceSynthesis.currentBuildCompleteRows}/8</p>
+        </div>
+        <div className="rounded-xl border border-warning/30 bg-warning/10 p-3">
+          <p className="text-xs text-warning">Incomplete rows</p>
+          <p className="mt-1 text-2xl font-semibold text-warning">{deviceSynthesis.incompleteRows}</p>
+        </div>
+        <div className="rounded-xl border border-danger/30 bg-danger/10 p-3">
+          <p className="text-xs text-danger">Missing direct rows</p>
+          <p className="mt-1 text-2xl font-semibold text-danger">{deviceSynthesis.missingRows}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+        <table className="min-w-[900px] w-full text-left text-xs">
+          <thead className="bg-background font-mono uppercase tracking-wider text-faint">
+            <tr>
+              <th className="px-3 py-3">Owner</th>
+              <th className="px-3 py-3">Evidence</th>
+              <th className="px-3 py-3">Participation</th>
+              <th className="px-3 py-3">Build / source</th>
+              <th className="px-3 py-3">Observed result or gap</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {deviceEvidenceRows.map((row) => (
+              <tr key={row.owner} className="align-top">
+                <td className="px-3 py-3 font-semibold text-foreground">{row.owner}</td>
+                <td className="px-3 py-3"><StatusBadge label={row.rowStatus} tone={rowTone[row.rowStatus]} /></td>
+                <td className="px-3 py-3 font-mono text-muted">{row.participation}</td>
+                <td className="px-3 py-3 text-muted">
+                  <span className="font-mono">{row.build}</span>
+                  <span className="mt-1 block text-faint">source: {row.sourceLinkage}</span>
+                </td>
+                <td className="px-3 py-3 leading-5 text-muted">{row.result}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        <div className="rounded-xl border border-danger/30 bg-danger/5 p-4">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-danger">Observed shopper problem</p>
+          <p className="mt-2 text-sm leading-6 text-muted">Four complete rows on the exact 4.2 build independently reproduce a scanner-unavailable state, so capture and the downstream claim journey cannot begin.</p>
+        </div>
+        <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-warning">Operational signal</p>
+          <p className="mt-2 text-sm leading-6 text-muted">Track privacy-safe model-package install outcome, bounded error category, retry count, app build, network class, and source-to-archive linkage.</p>
+        </div>
+        <div className="rounded-xl border border-info/30 bg-info/5 p-4">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-info">Next retest</p>
+          <p className="mt-2 text-sm leading-6 text-muted">Native release owner supplies a source-linked repair build; Tony posts a direct row; Mohan replaces placeholders; device-capable owners then rerun scanner recovery and one staged claim path.</p>
+        </div>
+      </div>
+
+      <p className="mt-5 border-t border-border pt-4 text-sm leading-6 text-muted">
+        No current row proves source linkage or the complete physical receipt-capture to human-review to decision-receipt journey. Green software checks do not close this native boundary.
+      </p>
+    </div>
+  );
+}
+
 export default function View() {
   const [activeId, setActiveId] = useState<ScenarioId>("public");
   const active = useMemo(
@@ -310,6 +399,8 @@ export default function View() {
           Durable multi-worker storage and issuance are also BLOCKED. An approved amount is not a refund, credit, payment, payout, settlement, or completed return.
         </p>
       </div>
+
+      <DeviceSynthesis />
 
     </section>
   );
