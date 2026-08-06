@@ -1,121 +1,101 @@
-import { stats, divergence, lies, refusal, deviceRows, deviceNote, limits } from "./data";
+import { lead, board, findings, numbers, claimLimit, type Verdict } from "./data";
 
-const toneClass: Record<string, string> = {
-  good: "border-l-brand",
-  bad: "border-l-danger",
-  neutral: "border-l-faint",
+const chip: Record<Verdict, string> = {
+  works: "border-brand/40 bg-brand-tint text-brand-strong",
+  fails: "border-danger/40 bg-danger/5 text-danger",
+  "by-design": "border-border bg-surface-raised text-muted",
+  mismatch: "border-warning/40 bg-warning/5 text-warning",
+};
+
+const accent: Record<string, string> = {
+  danger: "border-l-danger",
+  warning: "border-l-warning",
 };
 
 export default function View() {
   return (
-    <section className="space-y-8">
-      <p className="text-muted">
-        Freeze week, so nothing new ships. The work is proving what is true — and being precise
-        about the three places where the honest answer is <em>not yet</em>.
-      </p>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-lg border border-border bg-surface p-4">
-            <div className="font-mono text-xs uppercase tracking-widest text-faint">
-              {s.label}
-            </div>
-            <div className="mt-1.5 font-mono text-2xl font-semibold tabular-nums">{s.value}</div>
-          </div>
-        ))}
+    <section className="space-y-10">
+      {/* Lead */}
+      <div>
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          Freeze week · one job
+        </p>
+        <p className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{lead}</p>
       </div>
 
-      {/* Divergence */}
+      {/* Verdict board */}
       <div>
         <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          #177 — same bytes, opposite outcomes, both already on main
+          Where we actually stand
         </h3>
-        <pre className="mt-3 overflow-x-auto rounded-lg border border-border bg-surface p-3 font-mono text-xs text-muted">
-          {divergence.payload}
-        </pre>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {divergence.paths.map((p) => (
-            <div
-              key={p.path}
-              className={`rounded-lg border border-border border-l-4 bg-surface p-3 text-sm ${
-                p.bad ? "border-l-danger" : "border-l-brand"
-              }`}
-            >
-              <div className="font-mono text-xs font-semibold">{p.path}</div>
-              <div className="mt-1 font-mono text-xs text-muted">{p.result}</div>
-              <div className="mt-1.5 font-semibold">{p.outcome}</div>
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 rounded-lg border border-danger/30 border-l-4 border-l-danger bg-danger/5 p-3 text-sm text-muted">
-          {divergence.cost}
-        </p>
-        <p className="mt-2 rounded border border-border px-4 py-3 text-sm text-muted">
-          {divergence.proposal}
-        </p>
-      </div>
-
-      {/* The checker */}
-      <div>
-        <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          #164 — three ways my manual check printed a clean diff while broken
-        </h3>
-        <ul className="mt-3 space-y-2">
-          {lies.map((l, i) => (
+        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+          {board.map((b) => (
             <li
-              key={l.failure}
-              className="flex items-baseline gap-3 rounded-lg border border-border bg-surface p-3 text-sm"
+              key={b.item}
+              className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3"
             >
-              <span className="w-4 shrink-0 font-mono text-xs text-faint">{i + 1}</span>
-              <span>
-                <span className="font-semibold">{l.failure}</span>
-                <span className="mt-1 block text-muted">{l.why}</span>
+              <span className="text-sm">{b.item}</span>
+              <span
+                className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-xs ${
+                  chip[b.verdict]
+                }`}
+              >
+                {b.label}
               </span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 rounded border border-border px-4 py-3 text-sm text-muted">
-          {refusal}
-        </p>
       </div>
 
-      {/* Device */}
+      {/* Numbers */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        {numbers.map((n) => (
+          <div key={n.label} className="rounded-lg border border-border bg-surface p-4">
+            <div className="font-mono text-3xl font-semibold tabular-nums">{n.value}</div>
+            <div className="mt-1 text-sm text-muted">{n.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Findings */}
       <div>
         <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          Device truth — what the app actually did, on the build actually installed
+          Three things worth someone else&apos;s attention
         </h3>
-        <ul className="mt-3 space-y-1.5">
-          {deviceRows.map((d) => (
-            <li
-              key={d.claim}
-              className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg border border-border border-l-4 bg-surface px-3 py-2 text-sm ${
-                toneClass[d.tone]
+        <div className="mt-3 space-y-3">
+          {findings.map((f) => (
+            <div
+              key={f.n}
+              className={`rounded-lg border border-border border-l-4 bg-surface p-4 ${
+                accent[f.tone]
               }`}
             >
-              <span className="font-medium">{d.claim}</span>
-              <span className="font-mono text-xs text-muted">{d.status}</span>
-            </li>
+              <div className="flex items-baseline gap-3">
+                <span className="font-mono text-xs text-faint">{f.n}</span>
+                <h4 className="text-base font-semibold leading-snug">{f.title}</h4>
+              </div>
+
+              <p className="mt-2 text-sm text-muted">{f.matters}</p>
+
+              <p className="mt-3 border-l-2 border-border pl-3 text-sm">{f.cost}</p>
+
+              <p className="mt-3 font-mono text-xs uppercase tracking-widest text-faint">
+                Next
+              </p>
+              <p className="text-sm text-muted">{f.next}</p>
+            </div>
           ))}
-        </ul>
-        <p className="mt-3 rounded-lg border border-warning/30 border-l-4 border-l-warning bg-warning/5 p-3 text-sm text-muted">
-          {deviceNote}
-        </p>
+        </div>
       </div>
 
-      <div className="rounded-lg border border-warning/30 border-l-4 border-l-warning bg-warning/5 p-4 text-sm">
-        <p className="font-mono text-xs font-semibold uppercase tracking-widest text-warning">
-          What may not be claimed from any of this
-        </p>
-        <ul className="mt-2 space-y-1.5">
-          {limits.map((l) => (
-            <li key={l} className="text-muted">
-              {l}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* The boundary */}
+      <p className="rounded-lg border border-border bg-surface-raised p-4 text-sm text-muted">
+        {claimLimit}
+      </p>
 
-      <p className="text-sm font-semibold">PR #210 and PR #212 — both merged to main.</p>
+      <p className="font-mono text-xs text-faint">
+        Detail: issues #164, #177, #226 · PRs #210, #212.
+      </p>
     </section>
   );
 }
