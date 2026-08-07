@@ -13,9 +13,13 @@ import {
   recoveryTable,
   stats,
   timeline,
+  doorsStats,
+  beforeError,
+  afterError,
   type ClaimTag,
 } from "./data";
 import { TraceDiagram, FlowDiagram } from "./Diagrams";
+import { DoorsDiagram } from "./DoorsDiagram";
 
 const claimTags: ClaimTag[] = ["A", "B", "C"];
 
@@ -26,6 +30,7 @@ export default function View() {
   const pulledEvents = pulledClaim
     ? mixedStream.filter((e) => e.claim === pulledClaim)
     : [];
+  const [doorsAfter, setDoorsAfter] = useState(false);
 
   return (
     <section className="space-y-8">
@@ -190,6 +195,75 @@ export default function View() {
       <div className="rounded-lg border border-border bg-surface p-4 text-center text-sm text-muted">
         <span className="font-semibold text-foreground">{stats.totalTests} tests</span> confirm
         this — happy path, failures, and privacy alike. Commit <code className="text-xs">{stats.commit}</code>.
+      </div>
+
+      <hr className="border-border" />
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-faint">
+          Also this week — #196: the safe door, by default
+        </p>
+        <p className="mt-2 text-muted">
+          Connecting to the freshness model has two doors. The system used to try the wrong one first.
+        </p>
+      </div>
+
+      <div className="rounded-lg border border-border bg-surface p-5">
+        <div className="flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => setDoorsAfter(false)}
+            aria-pressed={!doorsAfter}
+            className={`rounded-full border px-3 py-1.5 text-sm transition ${
+              !doorsAfter
+                ? "border-warning bg-warning/10 font-medium text-warning"
+                : "border-border bg-background text-muted hover:border-warning hover:text-foreground"
+            }`}
+          >
+            Before
+          </button>
+          <button
+            type="button"
+            onClick={() => setDoorsAfter(true)}
+            aria-pressed={doorsAfter}
+            className={`rounded-full border px-3 py-1.5 text-sm transition ${
+              doorsAfter
+                ? "border-brand bg-brand-tint font-medium text-brand"
+                : "border-border bg-background text-muted hover:border-brand hover:text-foreground"
+            }`}
+          >
+            After
+          </button>
+        </div>
+
+        <DoorsDiagram after={doorsAfter} />
+
+        <p className="mt-1 text-center text-xs text-faint">
+          {doorsAfter
+            ? "Official door first, by default. The raw-host door needs a manual switch — off by default, and safely falls back rather than attempting it."
+            : "The unadvertised raw-host door was tried first — ahead of the recommended, advertised door."}
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-lg border border-danger/30 border-l-4 border-l-danger bg-danger/5 p-4 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-danger">Before</p>
+          <p className="mt-2 text-xs text-muted">{beforeError.heading}</p>
+          <p className="mt-1 text-lg font-semibold text-foreground">{beforeError.message}</p>
+          <p className="mt-2 text-xs text-faint">same message, whatever actually went wrong</p>
+        </div>
+        <div className="rounded-lg border border-success/30 border-l-4 border-l-success bg-success/5 p-4 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-success">After</p>
+          <p className="mt-2 text-xs text-muted">{afterError.heading}</p>
+          <p className="mt-1 text-lg font-semibold text-foreground">{afterError.message}</p>
+          <p className="mt-2 text-xs text-faint">caught in review, fixed same PR</p>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-surface p-4 text-center text-sm text-muted">
+        <span className="font-semibold text-foreground">{doorsStats.totalTests} tests</span>{" "}
+        confirm the default, the switch, and the honest error. Commit{" "}
+        <code className="text-xs">{doorsStats.commit}</code>.
       </div>
     </section>
   );

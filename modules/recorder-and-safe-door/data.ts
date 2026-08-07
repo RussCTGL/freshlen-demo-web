@@ -1,5 +1,6 @@
 // Module-private data. Sourced from src/observability.py, docs/OBSERVABILITY-RUNBOOK.md,
-// and tests/test_observability.py on es-intern-freshlens (#161).
+// and tests/test_observability.py on es-intern-freshlens (#161). The #196 section below is
+// sourced from src/freshness_backend.py and tests/test_freshness_backend.py, commit 6a436a3.
 
 export type ClaimTag = "A" | "B" | "C";
 
@@ -122,3 +123,24 @@ export const timeline = [
     detail: "Two fake secrets, never once in a logged event.",
   },
 ];
+
+// #196 — which door the freshness model connects through by default.
+export const doorsStats = {
+  totalTests: 59,
+  commit: "6a436a3",
+};
+
+export type ErrorCard = {
+  heading: string;
+  message: string;
+};
+
+export const beforeError: ErrorCard = {
+  heading: "Login fails, any reason",
+  message: "“needs a credential”",
+};
+
+export const afterError: ErrorCard = {
+  heading: "Login fails, any reason",
+  message: "the real reason, named",
+};
