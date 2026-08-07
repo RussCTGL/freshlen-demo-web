@@ -9,6 +9,6 @@ export default defineModule({
   week: 8,
   order: 162,
   summary:
-    "Four checkable claims: release truth stopped being prose (two runs, one hash, 96b8868); other lanes plug into its frozen contract (#237); an honest 'no' shipped (3 V / 5 B / 11 I); reviews now reproduce numbers. Handoff owners named.",
+    "Four checkable claims: release truth stopped being prose (two runs, one hash, 96b8868); other lanes plug into its frozen contract (#237); an honest 'no' shipped (3 V / 5 B / 11 I); reviews now reproduce numbers. All of it landed this week, Aug 3–7 — 2 commits on main, freeze artifacts in #237 review. Handoff owners named.",
   View,
 });
