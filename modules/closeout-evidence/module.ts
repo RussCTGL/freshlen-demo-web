@@ -9,6 +9,6 @@ export default defineModule({
   week: 8,
   order: 164,
   summary:
-    "Freeze week. Where the product actually stands, and the three things that need an owner after I leave.",
+    "Freeze week. Where the product actually stands, and the two findings that still need an owner after I leave.",
   View,
 });
