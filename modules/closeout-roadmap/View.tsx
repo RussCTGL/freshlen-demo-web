@@ -1,5 +1,5 @@
 import { Roadmap } from "./Roadmap";
-import { story, chainCaption, claims, handoff, limitations } from "./data";
+import { story, chainCaption, thisWeek, claims, handoff, limitations } from "./data";
 
 const CARD = "rounded border border-border p-4";
 const LABEL =
@@ -13,6 +13,32 @@ export default function View() {
       {/* ─── The impact chain — the page ─────────────────────────────── */}
       <div className={CARD}>
         <Roadmap />
+        {/* This week in commits — merged vs still in freeze review; the
+            group labels carry the meaning, the border tone only echoes it. */}
+        <div className="mt-4 space-y-2 border-t border-border pt-3">
+          {thisWeek.map((g) => (
+            <div
+              key={g.label}
+              className="flex flex-wrap items-baseline gap-x-3 gap-y-1"
+            >
+              <span className="w-44 shrink-0 font-mono text-[10px] uppercase tracking-widest text-faint">
+                {g.label}
+              </span>
+              <ul className="flex flex-wrap gap-2">
+                {g.commits.map((c) => (
+                  <li
+                    key={c.hash}
+                    className="rounded border border-border bg-surface px-2 py-1 font-mono text-xs"
+                  >
+                    <span className="text-faint">{c.date}</span>{" "}
+                    <span className="font-medium text-foreground">{c.hash}</span>{" "}
+                    <span className="text-muted">{c.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
         <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
           {chainCaption}
         </p>

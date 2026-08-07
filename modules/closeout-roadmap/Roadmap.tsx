@@ -1,6 +1,6 @@
-// The impact chain, drawn as three lanes top-down: the prose-verified world
-// this lane replaced → the machinery that replaced it → what the project can
-// now do. Built from the site's border/surface tokens (like the Journey/BPMN
+// The week-over-week delta, drawn as three lanes top-down: where the lane
+// stood on Aug 2 → what this week (Aug 3–7) added → what the project can now
+// do. Built from the site's border/surface tokens (like the Journey/BPMN
 // modules) but as reflowing HTML rather than a fixed-viewBox SVG, so every
 // node stays readable on a phone. Each node is a title plus one line; the
 // argument lives in the four claims below the visual. Meaning never rides on
@@ -91,7 +91,7 @@ export function Roadmap() {
   return (
     <div>
       <Lane lane={lanes[0]} />
-      <Connector label="replaced by" />
+      <Connector label="this week added" />
       <Lane lane={lanes[1]} />
       <Connector label="which means" />
       <Lane lane={lanes[2]} />
