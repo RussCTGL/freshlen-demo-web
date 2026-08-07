@@ -1,74 +1,71 @@
 // #157 — signed decision binding, replay resistance, anchor reconciliation.
-// Evidence below reflects PR #191 (merged), based on PR #188 (merged).
+// Told through one concrete grocery claim, audience-facing (no crypto, no PR/CI detail).
 
-export const evidenceLabels = ["Tamper rejected", "Replay rejected", "Anchor reconciled"];
-
-export type Tone = "success" | "danger" | "warning";
-
-export const resultCards: {
-  title: string;
-  status: string;
-  tone: Tone;
-  caption: string;
-}[] = [
-  {
-    title: "Immutable binding",
-    status: "VERIFIED",
-    tone: "success",
-    caption: "Modified decision content fails verification.",
-  },
-  {
-    title: "Replay defense",
-    status: "REJECTED",
-    tone: "danger",
-    caption: "A previously valid signed request cannot be reused.",
-  },
-  {
-    title: "Anchor reconciliation",
-    status: "MATCHED",
-    tone: "success",
-    caption: "The decision is accepted only for the expected anchor.",
-  },
-];
-
-export const flowSteps = [
-  "Decision payload",
-  "Canonical bytes",
-  "Signature verification",
-  "Replay check",
-  "Anchor reconciliation",
-  "Accepted / rejected",
-];
-
-export const caseRows: {
-  label: string;
-  input: string;
-  result: "REJECTED" | "ACCEPTED";
-}[] = [
-  {
-    label: "Tamper case",
-    input: "Signed payload modified after signing",
-    result: "REJECTED",
-  },
-  {
-    label: "Replay case",
-    input: "Previously accepted signed request reused",
-    result: "REJECTED",
-  },
-  {
-    label: "Valid case",
-    input: "Original payload + valid signature + expected anchor",
-    result: "ACCEPTED",
-  },
-];
-
-export const evidenceRows: { label: string; value: string; tone: Tone }[] = [
-  { label: "PR #188 dependency", value: "MERGED", tone: "success" },
-  { label: "PR #191", value: "APPROVED", tone: "success" },
-  { label: "Required CI checks", value: "5 / 5 PASS", tone: "success" },
-  { label: "CI result", value: "2180 passed, 23 skipped, 0 failed", tone: "success" },
-  { label: "Merged/base validation", value: "COMPLETE", tone: "success" },
-];
+export type Tone = "success" | "danger" | "warning" | "neutral";
 
 export const takeaway =
-  "Accepted decisions are authentic, untampered, non-replayed, and bound to the correct anchor.";
+  "One purchase → one receipt → one decision. Once bound, they cannot be silently swapped or reused.";
+
+export const scenario = {
+  product: "Strawberries",
+  store: "Fresh Market",
+  purchaseAmount: "$5.99",
+  claimAmount: "$5.99",
+};
+
+export const bindingBadges = ["Receipt matched", "Decision bound", "Approved"];
+
+export type DemoAction = {
+  id: string;
+  label: string; // card heading, e.g. "Replay attempt"
+  setup: string; // one short line of context
+  buttonLabel: string;
+  workingLabel: string; // shown briefly after click, before the result
+  resultTitle: string; // e.g. "Blocked"
+  resultBody: string; // e.g. "This receipt was already used."
+  tone: Tone; // tone of the result badge
+};
+
+export const demoActions: DemoAction[] = [
+  {
+    id: "replay",
+    label: "Replay attempt",
+    setup: "Try to submit the same receipt a second time.",
+    buttonLabel: "Use this receipt again",
+    workingLabel: "Checking receipt…",
+    resultTitle: "Blocked",
+    resultBody: "This receipt was already used.",
+    tone: "danger",
+  },
+  {
+    id: "duplicate",
+    label: "Duplicate claim",
+    setup: "A second claim tries to use the same purchase.",
+    buttonLabel: "Submit duplicate claim",
+    workingLabel: "Checking purchase…",
+    resultTitle: "Duplicate detected",
+    resultBody: "This purchase already has a claim.",
+    tone: "danger",
+  },
+  {
+    id: "swap",
+    label: "Changed receipt",
+    setup: "Try to attach the decision to a different receipt.",
+    buttonLabel: "Swap receipt",
+    workingLabel: "Comparing receipts…",
+    resultTitle: "Rejected",
+    resultBody: "Receipt does not match the original claim.",
+    tone: "danger",
+  },
+];
+
+export const reconciliationRecords = {
+  claim: [
+    { label: "Product", value: scenario.product },
+    { label: "Amount", value: scenario.claimAmount },
+  ],
+  receipt: [
+    { label: "Store", value: scenario.store },
+    { label: "Amount", value: scenario.purchaseAmount },
+  ],
+};
