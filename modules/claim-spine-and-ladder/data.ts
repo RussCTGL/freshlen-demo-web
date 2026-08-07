@@ -4,18 +4,18 @@
 export const lead =
   "Get one claim all the way through, and make auto-approval impossible to switch on by accident.";
 
-export type Verdict = "works" | "fails" | "by-design" | "mismatch";
+export type Verdict = "works" | "fails" | "pending" | "by-design" | "mismatch";
 
 export const board: { item: string; verdict: Verdict; label: string }[] = [
   { item: "A shopper can file a claim and get a decision", verdict: "works", label: "Works" },
   { item: "A claim can be auto-approved", verdict: "by-design", label: "Off, unreachably" },
   { item: "Two requests at once can overspend one cap", verdict: "works", label: "Closed before merge" },
-  { item: "The shopper is told what is left of their cap", verdict: "fails", label: "Not yet" },
+  { item: "The shopper is told what is left of their cap", verdict: "pending", label: "Not yet" },
 ];
 
 export const numbers = [
   { value: "4", label: "routes, filing to decision" },
-  { value: "2", label: "money bugs caught in my own diff" },
+  { value: "2", label: "concurrency bugs found in my own diff" },
   { value: "552", label: "tests passing offline" },
 ];
 
