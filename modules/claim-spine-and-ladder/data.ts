@@ -62,9 +62,9 @@ export const decisions = [
     icon: "off",
     title: "Auto-approval is switched off by arithmetic, not by a flag",
     lines: [
-      { k: "The mechanism", v: "The threshold ships at 2.0 on a scale that only reaches 1.0. No value satisfies it." },
-      { k: "Why not a flag", v: "A flag gets flipped by whoever is in a hurry. A number that cannot be reached does not." },
-      { k: "Turning it on later", v: "Means changing that number, which has to pass its own review with calibration behind it." },
+      { k: "The mechanism", v: "Threshold ships at 2.0 on a scale that stops at 1.0." },
+      { k: "Why not a flag", v: "A flag gets flipped in a hurry. A number does not." },
+      { k: "Turning it on later", v: "Change the number — and pass review with calibration behind it." },
     ],
     tail: "Still the state today, five weeks later.",
     tone: "brand",
@@ -74,11 +74,11 @@ export const decisions = [
     icon: "cross",
     title: "Two shoppers spending at the same moment could both pass the cap",
     lines: [
-      { k: "The bug", v: "Both requests read the remaining balance before either had written a decision, so both saw room." },
-      { k: "What it costs", v: "Real money, and only under load, which is to say only in production." },
-      { k: "How it was found", v: "Running the guardrail checklist over my own diff before opening the pull request. No existing test caught it." },
+      { k: "The bug", v: "Both read the balance before either wrote a decision." },
+      { k: "What it costs", v: "Real money, and only under load — so only in production." },
+      { k: "How it was found", v: "My own guardrail checklist, over my own diff. No test caught it." },
     ],
-    tail: "Fixed in the same PR and proved with a multi-threaded test.",
+    tail: "Fixed in the same PR, proved with a multi-threaded test.",
     tone: "danger",
   },
   {
@@ -86,14 +86,14 @@ export const decisions = [
     icon: "check",
     title: "Everything cheap decides before anything expensive runs",
     lines: [
-      { k: "The rule", v: "Cap, duplicate photo, duplicate purchase and capture checks all resolve before the model is called." },
-      { k: "What it buys", v: "The model only ever sees requests that survived the deterministic checks, and a model outage cannot open the gate." },
+      { k: "The rule", v: "Cap, duplicates and capture checks all resolve before the model runs." },
+      { k: "What it buys", v: "A model outage cannot open the gate." },
       { k: "Where it went", v: "Became the ordering every later week was built on." },
     ],
-    tail: "Written down as a rule, not left as an accident of the code.",
+    tail: "Written down as a rule, not left as an accident.",
     tone: "brand",
   },
 ];
 
 export const claimLimit =
-  "What this version did not do: decide anything on its own. Every claim routes to a person, on purpose, because the calibration that would justify anything else did not exist yet.";
+  "What it did not do: decide anything on its own. Every claim goes to a person — the calibration that would justify anything else did not exist yet.";

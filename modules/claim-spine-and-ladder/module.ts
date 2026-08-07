@@ -9,6 +9,6 @@ export default defineModule({
   week: 3,
   order: 35,
   summary:
-    "The first claim that goes all the way through, with auto-approval switched off by arithmetic rather than a flag, the model call forced to run fifth, and two money bugs closed before merge.",
+    "The first claim that goes all the way through, with auto-approval switched off by arithmetic rather than by a flag.",
   View,
 });
