@@ -9,6 +9,6 @@ export default defineModule({
   week: 8,
   order: 162,
   summary:
-    "Four checkable impact claims, each before → after: release truth stopped being prose (one deterministic orchestrator, byte-identical runs at 96b8868); other lanes plugged into its frozen contract (the first candidate-mode-VALID manifest, #237); an honest 'no' became shippable (3 V / 5 B / 11 I, every gap owned); and default-REFUTED review propagated across the team. Plus the handoff, owner by owner.",
+    "Four checkable claims: release truth stopped being prose (two runs, one hash, 96b8868); other lanes plug into its frozen contract (#237); an honest 'no' shipped (3 V / 5 B / 11 I); reviews now reproduce numbers. Handoff owners named.",
   View,
 });
