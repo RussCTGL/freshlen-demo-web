@@ -1,62 +1,55 @@
-// All figures are from the two merged PRs this card covers:
-// PR #46 (issue #30, adjudication ladder) and PR #50 (issue #35, walking skeleton).
+// First working version of the claim loop.
+// Detail behind every line here lives on issues #30, #35 and PRs #46, #50.
 
-export const stats = [
-  { label: "Routes shipped", value: "4" },
-  { label: "Ladder tests", value: "29" },
-  { label: "Suite after merge", value: "552 passed" },
+export const lead = "Get one claim all the way through, and make auto-approval impossible to switch on by accident.";
+
+export type Verdict = "works" | "fails" | "by-design" | "mismatch";
+
+export const board: { item: string; verdict: Verdict; label: string }[] = [
+  { item: "A shopper can file a claim and get a decision", verdict: "works", label: "Works" },
+  { item: "A claim can be auto-approved", verdict: "by-design", label: "Off, unreachably" },
+  { item: "Two requests at once can overspend one cap", verdict: "works", label: "Closed before merge" },
+  { item: "The shopper is told what is left of their cap", verdict: "fails", label: "Not yet" },
 ];
 
-/** AGENTS.md non-negotiable #4: the model call is step 5, never step 1. */
-export const order = [
-  { step: "Atomic cap", note: "re-read under a lock at the moment of approval" },
-  { step: "Duplicate photo hash", note: "" },
-  { step: "Duplicate purchase key", note: "" },
-  { step: "Capture metadata", note: "server-side validation" },
-  { step: "Model call", note: "LAST — everything cheap and deterministic runs first" },
-  { step: "adjudicate()", note: "pure function, no IO" },
+export const numbers = [
+  { value: "4", label: "routes, create to decision" },
+  { value: "2", label: "money bugs caught reviewing my own diff" },
+  { value: "552", label: "tests passing offline" },
 ];
 
-export const bands = [
+export const decisions = [
   {
-    band: "1",
-    condition: "confidence is None",
-    outcome: "human_review",
-    code: "low_confidence_escalate",
+    n: "01",
+    title: "Auto-approval is switched off by arithmetic, not by a flag",
+    matters:
+      "The threshold ships at 2.0 on a scale that only goes to 1.0. There is no value that satisfies it.",
+    cost:
+      "A flag gets flipped by whoever is in a hurry. This cannot be, and turning it on later means changing a number that has to pass its own review. The safety property survives people who have never read this code.",
+    tail: "Still the state today, five weeks later.",
+    tone: "brand",
   },
   {
-    band: "2",
-    condition: "min_confidence_for_auto > 1.0",
-    outcome: "human_review",
-    code: "calibration_disabled",
+    n: "02",
+    title: "Two shoppers spending at the same moment could both pass the cap",
+    matters:
+      "Both requests read the remaining balance before either had written a decision, so both saw room.",
+    cost:
+      "Real money, and the kind of bug that only appears under load, which is to say in production. Found by running the guardrail checklist over my own diff before opening the pull request, not by a test that already existed.",
+    tail: "Fixed in the same PR, proved with a multi-threaded test.",
+    tone: "danger",
   },
   {
-    band: "3",
-    condition: "score >= 70 AND confidence >= floor AND amount <= $5.00 AND within cap",
-    outcome: "auto_approve",
-    code: "obvious_defect_under_cap",
-  },
-  {
-    band: "4",
-    condition: "fallback",
-    outcome: "human_review",
-    code: "gray_zone_escalate",
-  },
-];
-
-/** Both found by running the guardrail checklists against the final diff, before the PR. */
-export const races = [
-  {
-    title: "The cap check was not atomic",
-    detail:
-      "Two concurrent requests on one account could each read a stale remaining cap and jointly overspend it. The cap is now re-read and the decision saved under one lock. Proved with a multi-threaded test.",
-  },
-  {
-    title: "evaluate_claim was not idempotent under concurrency",
-    detail:
-      "Two concurrent calls on one claim could both pass the submitted guard and both run the pipeline. Now locked; the loser gets 409 instead of a null decision or a double charge.",
+    n: "03",
+    title: "The model is the fifth thing that runs, never the first",
+    matters:
+      "Cap, duplicate photo, duplicate purchase, and capture checks all decide before the expensive call happens.",
+    cost:
+      "The cheap deterministic checks reject what they can, so the model only ever sees requests that survived them. It also means an outage of the model cannot open the gate, because the gate was never the model.",
+    tail: "This ordering became the rule the later weeks were built on.",
+    tone: "brand",
   },
 ];
 
-export const deferred =
-  "remaining_cap_cents is computed but not surfaced in any HTTP response yet (SPEC §6 disclosure). Named as deferred rather than quietly dropped — it lands in week 6.";
+export const claimLimit =
+  "What this did not do: decide anything. Every claim in this version routes to a human, on purpose, because the calibration to justify anything else did not exist yet.";
