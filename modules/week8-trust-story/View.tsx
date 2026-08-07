@@ -1,132 +1,206 @@
-const deliverables = [
-  {
-    number: "01",
-    title: "Create keys safely",
-    built: "FreshLens can create the private signing key and the public checking key it needs.",
-    meaning: "The private key stays protected, while the public key can be shared for checking records.",
+import type { ReactNode } from "react";
+
+type Accent = "green" | "amber" | "red";
+
+const accentStyles: Record<Accent, { border: string; text: string; soft: string }> = {
+  green: {
+    border: "border-l-success",
+    text: "text-success",
+    soft: "border-success/30 bg-success/10",
   },
-  {
-    number: "02",
-    title: "Seal every decision",
-    built: "Each decision receives a unique digital signature tied to its exact original details.",
-    meaning: "The seal belongs to that record only; it cannot simply be copied onto a different decision.",
+  amber: {
+    border: "border-l-warning",
+    text: "text-warning",
+    soft: "border-warning/30 bg-warning/10",
   },
-  {
-    number: "03",
-    title: "Check it later",
-    built: "The public checking key can confirm whether a record and its seal still match.",
-    meaning: "A shopper, support person, or another system can check the record without receiving the private key.",
+  red: {
+    border: "border-l-danger",
+    text: "text-danger",
+    soft: "border-danger/30 bg-danger/10",
   },
-  {
-    number: "04",
-    title: "Change keys responsibly",
-    built: "Every signature carries a key identifier, and new signing keys can replace older ones.",
-    meaning: "FreshLens knows which public key should check each record, so older records remain understandable after an update.",
-  },
-  {
-    number: "05",
-    title: "Keep secrets out of sight",
-    built: "Private signing material is supplied through a protected setup instead of being placed inside the product.",
-    meaning: "People using or reviewing FreshLens do not need to see, copy, or share the private secret.",
-  },
-] as const;
+};
+
+function Panel({
+  index,
+  title,
+  accent,
+  children,
+  leftLabel,
+  leftText,
+  rightLabel,
+  rightText,
+}: {
+  index: string;
+  title: string;
+  accent: Accent;
+  children: ReactNode;
+  leftLabel: string;
+  leftText: string;
+  rightLabel: string;
+  rightText: string;
+}) {
+  const styles = accentStyles[accent];
+
+  return (
+    <article className={`overflow-hidden rounded-md border border-border border-l-[3px] ${styles.border} bg-surface`}>
+      <header className="flex items-start justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
+        <div className="flex items-start gap-3">
+          <span className={`font-mono text-sm font-semibold ${styles.text}`}>+</span>
+          <h3 className="text-sm font-semibold leading-6 text-foreground sm:text-base">{title}</h3>
+        </div>
+        <span className="font-mono text-[10px] text-faint">{index}</span>
+      </header>
+
+      <div className="px-4 py-6 sm:px-6 sm:py-7">{children}</div>
+
+      <footer className="grid border-t border-border sm:grid-cols-2">
+        <div className="px-4 py-4 sm:px-5">
+          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-faint">{leftLabel}</p>
+          <p className="mt-2 text-xs leading-5 text-muted sm:text-sm">{leftText}</p>
+        </div>
+        <div className="border-t border-border px-4 py-4 sm:border-l sm:border-t-0 sm:px-5">
+          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-faint">{rightLabel}</p>
+          <p className="mt-2 text-xs leading-5 text-muted sm:text-sm">{rightText}</p>
+        </div>
+      </footer>
+    </article>
+  );
+}
+
+function FlowNode({
+  label,
+  detail,
+  accent = "green",
+  dashed = false,
+}: {
+  label: string;
+  detail: string;
+  accent?: Accent;
+  dashed?: boolean;
+}) {
+  const styles = accentStyles[accent];
+
+  return (
+    <div className={`min-w-0 rounded-md border p-4 ${dashed ? "border-dashed" : ""} ${styles.soft}`}>
+      <p className={`font-mono text-[9px] uppercase tracking-[0.16em] ${styles.text}`}>{label}</p>
+      <p className="mt-2 text-xs font-medium leading-5 text-foreground">{detail}</p>
+    </div>
+  );
+}
+
+function Arrow({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-center gap-2 py-1 text-center font-mono text-[9px] text-success sm:flex-col sm:gap-1 sm:py-0">
+      <span className="whitespace-nowrap">{label}</span>
+      <span aria-hidden="true">-&gt;</span>
+    </div>
+  );
+}
 
 export default function View() {
   return (
-    <section className="space-y-12">
-      <header className="overflow-hidden rounded-3xl border border-border bg-surface">
-        <div className="grid gap-8 p-6 sm:p-9 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
-          <div>
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-success">
-              Week 8 / Lezhi / #156
-            </p>
-            <h2 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
-              I gave every FreshLens decision a trustworthy seal.
-            </h2>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-muted sm:text-lg">
-              This week I built the part that shows where a decision came from, keeps its private
-              proof safe, and makes later changes easy to spot.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-success/30 bg-success/10 p-5">
-            <p className="font-mono text-xs uppercase tracking-widest text-success">The simple promise</p>
-            <p className="mt-3 text-2xl font-semibold leading-snug">
-              Genuine records pass. Changed records do not.
-            </p>
-          </div>
-        </div>
-      </header>
-
-      <div className="grid gap-3 rounded-2xl border border-border bg-surface p-5 sm:grid-cols-3 sm:p-6">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-faint">Assigned segment</p>
-          <p className="mt-2 font-semibold">Decision signing</p>
-        </div>
-        <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-faint">Foundation</p>
-          <p className="mt-2 font-semibold">Ed25519 digital signatures</p>
-        </div>
-        <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-faint">Primary deliverable</p>
-          <p className="mt-2 font-semibold">Create, sign, check, update, reject changes</p>
-        </div>
+    <section className="space-y-5">
+      <div className="flex items-center justify-between gap-4 border-b border-border pb-4 font-mono text-[9px] uppercase tracking-[0.22em] text-faint">
+        <span>Four parts - one trust layer</span>
+        <span>04 is complete</span>
       </div>
 
-      <div>
-        <p className="font-mono text-xs uppercase tracking-widest text-faint">What I delivered</p>
-        <h3 className="mt-2 text-2xl font-semibold">The full signing path, explained simply</h3>
-
-        <div className="mt-5 grid gap-3 md:grid-cols-2">
-          {deliverables.map((item) => (
-            <article key={item.number} className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
-              <span className="font-mono text-xs text-faint">{item.number}</span>
-              <h4 className="mt-6 text-xl font-semibold">{item.title}</h4>
-              <div className="mt-4 space-y-4 text-sm leading-6 text-muted">
-                <div>
-                  <p className="font-mono text-xs font-semibold uppercase tracking-widest text-foreground">What I built</p>
-                  <p className="mt-1">{item.built}</p>
-                </div>
-                <div>
-                  <p className="font-mono text-xs font-semibold uppercase tracking-widest text-foreground">Why it matters</p>
-                  <p className="mt-1">{item.meaning}</p>
-                </div>
-              </div>
-            </article>
-          ))}
+      <div className="grid gap-5 border-b border-border py-7 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-success">Week 8 / Lezhi / #156</p>
+          <h2 className="mt-4 max-w-3xl text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+            A trustworthy seal for every FreshLens decision.
+          </h2>
         </div>
-      </div>
-
-      <div className="rounded-3xl border border-border bg-surface p-6 sm:p-8">
-        <p className="font-mono text-xs uppercase tracking-widest text-faint">How it protects people</p>
-        <h3 className="mt-2 text-2xl font-semibold">A silent edit can no longer look genuine.</h3>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
-          If someone changes an important detail after a decision is issued, the seal no longer
-          matches. FreshLens rejects that changed copy instead of treating it as the original.
+        <p className="max-w-xl text-sm leading-6 text-muted">
+          The signing layer shows where a decision came from, protects the private secret, keeps
+          older records checkable, and rejects silent changes.
         </p>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <article className="rounded-2xl border border-success/30 bg-success/10 p-5 sm:p-6">
-            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-success">Original record</p>
-            <p className="mt-4 text-xl font-semibold">Seal matches</p>
-            <p className="mt-2 text-sm leading-6 text-muted">The record is accepted as the decision FreshLens issued.</p>
-          </article>
-
-          <article className="rounded-2xl border border-danger/30 bg-danger/10 p-5 sm:p-6">
-            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-danger">Changed record</p>
-            <p className="mt-4 text-xl font-semibold">Seal does not match</p>
-            <p className="mt-2 text-sm leading-6 text-muted">The changed copy is rejected instead of being trusted.</p>
-          </article>
-        </div>
       </div>
 
-      <footer className="rounded-3xl border border-info/30 bg-info/5 p-6 text-center sm:p-8">
-        <p className="font-mono text-xs uppercase tracking-widest text-info">My Week 8 result</p>
-        <p className="mx-auto mt-3 max-w-3xl text-xl font-semibold leading-relaxed sm:text-2xl">
-          FreshLens decisions can now be issued safely, checked by others, updated responsibly,
-          and rejected when someone changes the record.
-        </p>
-      </footer>
+      <div className="space-y-3">
+        <Panel
+          index="01"
+          title="One decision receives one exact digital seal"
+          accent="green"
+          leftLabel="What I delivered"
+          leftText="Safe key creation and a signature tied to the exact decision details."
+          rightLabel="Why it matters"
+          rightText="The seal belongs to that record only; it cannot simply be reused somewhere else."
+        >
+          <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
+            <FlowNode label="Decision record" detail="Store, amount, outcome, and identity" />
+            <Arrow label="exact details" />
+            <FlowNode label="Private signing key" detail="Creates the seal without being exposed" accent="amber" />
+            <Arrow label="signs" />
+            <FlowNode label="Digital seal" detail="Attached to this decision only" />
+          </div>
+        </Panel>
+
+        <Panel
+          index="02"
+          title="Checking a record never requires the private secret"
+          accent="green"
+          leftLabel="Safe separation"
+          leftText="The public part checks; the private part signs. Their jobs stay separate."
+          rightLabel="Who can check"
+          rightText="A shopper, support person, or another system can confirm the record safely."
+        >
+          <div className="mx-auto max-w-xl">
+            <div className="mx-auto w-fit rounded-md border border-border bg-surface-raised px-4 py-2 text-center font-mono text-[10px] text-muted">
+              one record, with its digital seal attached
+            </div>
+            <div className="mx-auto h-5 w-px bg-border" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FlowNode label="Public checking key" detail="Safe to share - confirms that the seal matches" />
+              <FlowNode label="Private signing key" detail="Stays protected - never needed for checking" accent="amber" />
+            </div>
+          </div>
+        </Panel>
+
+        <Panel
+          index="03"
+          title="New keys can take over without losing the history"
+          accent="amber"
+          leftLabel="What changes over time"
+          leftText="New decisions use the current key while older records keep their original key identity."
+          rightLabel="The rule"
+          rightText="Current signs and checks; previous checks history; unknown is rejected."
+        >
+          <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
+            <FlowNode label="Current key" detail="Creates new seals and checks current records" />
+            <Arrow label="later becomes" />
+            <FlowNode label="Previous key" detail="Checks the older records that used it" accent="amber" />
+            <div className="flex items-center justify-center gap-2 py-1 font-mono text-[9px] text-warning sm:flex-col sm:py-0">
+              <span>no match</span>
+              <span aria-hidden="true">-x</span>
+            </div>
+            <FlowNode label="Unknown key" detail="Rejected instead of trusted by mistake" accent="red" dashed />
+          </div>
+        </Panel>
+
+        <Panel
+          index="04"
+          title="A silent edit can no longer look genuine"
+          accent="red"
+          leftLabel="Protected details"
+          leftText="Amount, store, decision, identity, and every other signed field."
+          rightLabel="Final result"
+          rightText="Genuine records stay checkable; changed copies cannot pass as the original."
+        >
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+            <div className="space-y-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-faint">Original record</p>
+              <FlowNode label="Seal matches" detail="Accepted as the decision FreshLens issued" />
+            </div>
+            <div className="hidden h-20 w-px bg-border sm:block" />
+            <div className="space-y-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-faint">Changed copy</p>
+              <FlowNode label="Seal fails" detail="Rejected after any protected detail changes" accent="red" />
+            </div>
+          </div>
+        </Panel>
+      </div>
     </section>
   );
 }
