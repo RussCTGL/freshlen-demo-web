@@ -9,6 +9,6 @@ export default defineModule({
   week: 8,
   order: 20,
   summary:
-    "An interactive iPhone-scale walkthrough of capture, receipt evidence, claim creation, and the accessible pending/fail-closed boundary on exact TestFlight build 4.3.1.",
+    "An interactive iPhone-scale walkthrough of capture, receipt evidence, claim creation, and the accessible pending/fail-closed boundary on exact TestFlight build 4.3.3.",
   View,
 });

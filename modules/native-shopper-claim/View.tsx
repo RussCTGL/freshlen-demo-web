@@ -38,8 +38,9 @@ const steps = [
 ];
 
 const statusRows = [
-  ["Receipt → Inventory", "VERIFIED", "4.3.1 persists one banana as Unverified."],
+  ["Receipt → Inventory", "VERIFIED", "4.3.3 retains Inventory records after a cold relaunch."],
   ["Native claim entry", "VERIFIED", "The three-step form is reachable from Inventory."],
+  ["Receipt deduplication", "INCONCLUSIVE", "Two bananas are visible; an identical receipt-derived key was not established."],
   ["Pending-state design", "CODE-SHIPPED-NOT-VERIFIED", "Feature-flagged UX; live service did not return it."],
   ["End-to-end submission", "BLOCKED", "Exact build returned Claim not submitted."],
 ];
@@ -68,13 +69,13 @@ export default function View() {
             <p className="mt-4 max-w-3xl text-base leading-7 text-muted">
               Capture the item and receipt, review the claim, then land in an accessible
               human-review state. The walkthrough shows the feature-flagged native UX; the
-              evidence below separately records what exact TestFlight build 4.3.1 actually did.
+              evidence below separately records what exact TestFlight build 4.3.3 actually did.
             </p>
           </div>
           <div className="rounded-2xl border border-border bg-background px-4 py-3 text-sm">
             <p className="font-mono text-[11px] uppercase tracking-widest text-faint">Exact build</p>
-            <p className="mt-1 font-mono font-semibold text-foreground">4.3.1 (2026080601)</p>
-            <p className="mt-1 font-mono text-xs text-muted">source bce80116</p>
+            <p className="mt-1 font-mono font-semibold text-foreground">4.3.3 (2026080702)</p>
+            <p className="mt-1 font-mono text-xs text-muted">source linkage INCONCLUSIVE</p>
           </div>
         </div>
       </header>
@@ -170,10 +171,10 @@ export default function View() {
         <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-brand">
           Physical-device proof
         </p>
-        <h2 className="mt-2 text-3xl font-semibold text-foreground">What 4.3.1 actually returned</h2>
+        <h2 className="mt-2 text-3xl font-semibold text-foreground">What 4.3.3 actually returned</h2>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {[
-            ["1", "Receipt persistence fixed", "Inventory shows one retained banana, explicitly marked Unverified."],
+            ["2", "Persistence survives relaunch", "After a cold kill and relaunch, two Inventory records remain present and explicitly marked Unverified."],
             ["!", "Submission fails closed", "The live build says Claim not submitted because the review service is disabled."],
           ].map(([mark, title, caption]) => (
             <article key={title} className="rounded-3xl border border-border bg-surface p-6">
@@ -183,7 +184,7 @@ export default function View() {
               <h3 className="mt-5 text-xl font-semibold text-foreground">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-muted">{caption}</p>
               <p className="mt-4 font-mono text-xs font-semibold text-brand">
-                Physical-device observation · 4.3.1 (2026080601)
+                Physical-device observation · 4.3.3 (2026080702)
               </p>
             </article>
           ))}
@@ -197,9 +198,11 @@ export default function View() {
         <h2 className="mt-2 text-2xl font-semibold text-foreground">The UX is ready to explain; the service is not live</h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-muted">
           The feature-flagged native surface defines capture, receipt, review, and pending states.
-          Exact-build evidence verifies persistence and entry, but not queue arrival or reviewer
-          resolution. Scanner, review-service, idempotency, and server-derived amount remain with
-          their backend/model owners; no screenshot here claims a refund, payout, or completed claim.
+          Exact-build evidence verifies persistence after relaunch and the claim entry, but not
+          receipt deduplication, queue arrival, or reviewer resolution. Source linkage for build
+          2026080702 remains inconclusive. Scanner, review-service, idempotency, and server-derived
+          amount remain with their backend/model owners; no screenshot here claims a refund,
+          payout, or completed claim.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <a href="https://github.com/LawrenceHua/es-intern-freshlens/issues/159" target="_blank" rel="noreferrer" className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">Issue #159</a>
