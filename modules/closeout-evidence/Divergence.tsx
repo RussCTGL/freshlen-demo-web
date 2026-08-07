@@ -1,6 +1,7 @@
 // One payload in, two answers out. Both sides already shipped.
 
 import { divergence } from "./data";
+import { Pair, toneEdge, toneText } from "./ui";
 
 export function Divergence() {
   return (
@@ -30,28 +31,20 @@ export function Divergence() {
         />
       </svg>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {divergence.paths.map((p) => (
-          <div
-            key={p.side}
-            className={`rounded-lg border p-3 ${
-              p.bad ? "border-danger/40 bg-danger/5" : "border-brand/40 bg-brand-tint"
-            }`}
-          >
-            <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
-              {p.side}
+      <Pair>
+        {divergence.paths.map((p) => {
+          const tone = p.bad ? "bad" : "good";
+          return (
+            <div key={p.side} className={`rounded-lg border p-3 ${toneEdge[tone]}`}>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
+                {p.side}
+              </div>
+              <div className={`mt-1 text-base font-semibold ${toneText[tone]}`}>{p.outcome}</div>
+              <div className="mt-1.5 text-sm text-muted">{p.how}</div>
             </div>
-            <div
-              className={`mt-1 text-base font-semibold ${
-                p.bad ? "text-danger" : "text-brand-strong"
-              }`}
-            >
-              {p.outcome}
-            </div>
-            <div className="mt-1.5 text-sm text-muted">{p.how}</div>
-          </div>
-        ))}
-      </div>
+          );
+        })}
+      </Pair>
     </div>
   );
 }

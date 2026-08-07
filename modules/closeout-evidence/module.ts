@@ -9,6 +9,6 @@ export default defineModule({
   week: 8,
   order: 164,
   summary:
-    "Freeze week, nothing new ships. Where the product actually stands, and the three things that need someone else: two of our own components disagree about the same photo, the check behind every no-regressions claim could pass while broken, and the build we verified is not the build testers installed.",
+    "Freeze week. Where the product actually stands, and the three things that need an owner after I leave.",
   View,
 });

@@ -1,66 +1,75 @@
-// What shipped, and what was handed to someone else. The completeness half of the card.
+// What shipped, and what was handed to someone else. The completeness half of the card,
+// held to the same row grammar as the verdict board so it reads at the same speed.
 
 import { shipped, filed, discipline } from "./data";
 import { IconCheck, IconWarn, IconOff } from "./icons";
+import { Rows, Row, RailDown } from "./ui";
 
 export function Shipped() {
   return (
-    <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+    <Rows>
       {shipped.map((s) => (
-        <li key={s.what} className="flex gap-3 px-4 py-3">
-          <IconCheck className="mt-0.5 text-brand-strong" />
-          <div>
-            <div className="text-sm font-medium">{s.what}</div>
-            <div className="mt-0.5 text-sm text-muted">{s.why}</div>
-          </div>
-        </li>
+        <Row key={s.what} tone="good" icon={<IconCheck />} chip={s.tag}>
+          {s.what}
+        </Row>
       ))}
-    </ul>
+    </Rows>
   );
 }
 
 export function Filed() {
   return (
-    <ul className="space-y-2">
-      {filed.map((f) => (
-        <li
-          key={f.what}
-          className={`flex flex-wrap items-start gap-x-3 gap-y-1.5 rounded-lg border border-l-4 p-3 ${
-            f.state === "closed"
-              ? "border-border border-l-brand bg-surface"
-              : "border-warning/40 border-l-warning bg-warning/5"
-          }`}
-        >
-          <span className="mt-0.5">
-            {f.state === "closed" ? (
-              <IconCheck className="text-brand-strong" />
-            ) : (
-              <IconWarn className="text-warning" />
-            )}
-          </span>
-          <span className="min-w-52 flex-1 text-sm font-medium">{f.what}</span>
-          <span
-            className={`font-mono text-xs ${
-              f.state === "closed" ? "text-muted" : "text-warning"
-            }`}
+    <Rows>
+      {filed.map((f) => {
+        const closed = f.state === "closed";
+        return (
+          <Row
+            key={f.what}
+            edge
+            tone={closed ? "good" : "warn"}
+            icon={closed ? <IconCheck /> : <IconWarn />}
+            chip={f.landed}
           >
-            {f.landed}
-          </span>
-        </li>
-      ))}
-    </ul>
+            {f.what}
+          </Row>
+        );
+      })}
+    </Rows>
   );
 }
 
 export function Discipline() {
   return (
-    <div className="flex gap-3 rounded-lg border border-border bg-surface-raised p-4">
-      <span className="mt-0.5">
+    <div className="rounded-lg border border-border bg-surface-raised p-4">
+      <div className="flex items-center gap-2.5">
         <IconOff className="text-faint" />
-      </span>
-      <div>
-        <div className="text-sm font-semibold">{discipline.title}</div>
-        <p className="mt-1 text-sm text-muted">{discipline.body}</p>
+        <span className="text-sm font-semibold">{discipline.title}</span>
+      </div>
+
+      <div className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+        <RailDown
+          items={discipline.steps.map((s) => ({
+            key: s.k,
+            tone: "off" as const,
+            head: (
+              <div className="flex flex-wrap items-baseline gap-x-3">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-faint">
+                  {s.k}
+                </span>
+                <span className="text-sm">{s.v}</span>
+              </div>
+            ),
+          }))}
+        />
+
+        <div className="rounded-lg border border-border bg-surface px-4 py-3 text-center">
+          <div className="font-mono text-2xl font-semibold tabular-nums">
+            {discipline.stat.value}
+          </div>
+          <div className="mt-0.5 max-w-40 text-xs leading-snug text-muted">
+            {discipline.stat.label}
+          </div>
+        </div>
       </div>
     </div>
   );

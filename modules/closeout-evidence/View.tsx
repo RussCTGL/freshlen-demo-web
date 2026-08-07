@@ -5,46 +5,35 @@ import { Divergence } from "./Divergence";
 import { FalseGreen } from "./FalseGreen";
 import { BuildTrail } from "./BuildTrail";
 import { Shipped, Filed, Discipline } from "./Ledger";
-import {
-  IconCheck,
-  IconCross,
-  IconOff,
-  IconWarn,
-  IconSplit,
-  IconGauge,
-  IconTags,
-} from "./icons";
+import { IconCheck, IconCross, IconOff, IconWarn, IconSplit, IconGauge, IconTags } from "./icons";
+import { Section, Rows, Row, Note, type Tone } from "./ui";
 
 // Shared palette across every week card: green works, red is broken, amber is a
 // known gap, neutral is deliberately switched off. Same colour, same meaning.
-const verdictStyle: Record<Verdict, { chip: string; Icon: typeof IconCheck }> = {
-  works: { chip: "border-brand/40 bg-brand-tint text-brand-strong", Icon: IconCheck },
-  fails: { chip: "border-danger/40 bg-danger/5 text-danger", Icon: IconCross },
-  "by-design": { chip: "border-border bg-surface-raised text-muted", Icon: IconOff },
-  mismatch: { chip: "border-warning/40 bg-warning/5 text-warning", Icon: IconWarn },
+const verdictTone: Record<Verdict, Tone> = {
+  works: "good",
+  fails: "bad",
+  "by-design": "off",
+  mismatch: "warn",
+};
+const verdictIcon: Record<Verdict, typeof IconCheck> = {
+  works: IconCheck,
+  fails: IconCross,
+  "by-design": IconOff,
+  mismatch: IconWarn,
 };
 
 const findingIcon = { split: IconSplit, gauge: IconGauge, tags: IconTags };
 const findingArt = { "01": Divergence, "02": FalseGreen, "03": BuildTrail };
-const accent: Record<string, string> = {
-  danger: "border-l-danger text-danger",
-  warning: "border-l-warning text-warning",
+const findingTone: Record<string, Tone> = { danger: "bad", warning: "warn" };
+const findingEdge: Record<string, string> = {
+  danger: "border-l-danger",
+  warning: "border-l-warning",
 };
-
-function SectionTitle({ children, count }: { children: React.ReactNode; count?: string }) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-      <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-        {children}
-      </h3>
-      {count && <span className="font-mono text-xs text-faint">{count}</span>}
-    </div>
-  );
-}
 
 export default function View() {
   return (
-    <section className="space-y-10">
+    <div className="space-y-12">
       {/* Lead */}
       <div>
         <p className="font-mono text-xs uppercase tracking-widest text-faint">
@@ -53,136 +42,102 @@ export default function View() {
         <p className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{lead}</p>
       </div>
 
-      {/* Verdict board */}
-      <div>
-        <SectionTitle>Where we actually stand</SectionTitle>
-        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+      <Section title="Where we actually stand" count="6 capabilities">
+        <Rows>
           {board.map((b) => {
-            const { chip, Icon } = verdictStyle[b.verdict];
+            const Icon = verdictIcon[b.verdict];
             return (
-              <li
-                key={b.item}
-                className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3"
-              >
-                <span className="text-sm">{b.item}</span>
-                <span
-                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-xs ${chip}`}
-                >
-                  <Icon />
-                  {b.label}
-                </span>
-              </li>
+              <Row key={b.item} tone={verdictTone[b.verdict]} icon={<Icon />} chip={b.label}>
+                {b.item}
+              </Row>
             );
           })}
-        </ul>
-      </div>
+        </Rows>
+      </Section>
 
-      {/* Numbers */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {numbers.map((n) => (
-          <div key={n.label} className="rounded-lg border border-border bg-surface p-4">
-            <div className="font-mono text-3xl font-semibold tabular-nums">{n.value}</div>
-            <div className="mt-1 text-sm leading-snug text-muted">{n.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* How far a shopper gets */}
-      <div>
-        <SectionTitle>How far a shopper gets on a phone today</SectionTitle>
-        <div className="mt-3">
-          <Journey />
+      <Section title="The week in four numbers">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {numbers.map((n) => (
+            <div key={n.label} className="rounded-lg border border-border bg-surface p-4">
+              <div className="font-mono text-3xl font-semibold tabular-nums">{n.value}</div>
+              <div className="mt-1 text-sm leading-snug text-muted">{n.label}</div>
+            </div>
+          ))}
         </div>
-      </div>
+      </Section>
 
-      {/* What changed */}
-      <div>
-        <SectionTitle>What changed for a shopper between two nights</SectionTitle>
-        <div className="mt-3">
-          <BeforeAfter />
-        </div>
-      </div>
+      <Section title="How far a shopper gets on a phone today">
+        <Journey />
+      </Section>
 
-      {/* What shipped */}
-      <div>
-        <SectionTitle count="5 pull requests">What shipped this week</SectionTitle>
-        <div className="mt-3">
-          <Shipped />
-        </div>
-      </div>
+      <Section title="What changed for a shopper between two nights" count="one build apart">
+        <BeforeAfter />
+      </Section>
 
-      {/* What was handed over */}
-      <div>
-        <SectionTitle count="2 of 3 already closed">
-          Defects I filed instead of fixing
-        </SectionTitle>
-        <div className="mt-3">
+      <Section title="What shipped this week" count="5 pull requests">
+        <Shipped />
+      </Section>
+
+      <Section title="Defects I filed instead of fixing" count="2 of 3 already closed">
+        <div className="space-y-3">
           <Filed />
-        </div>
-        <div className="mt-3">
           <Discipline />
         </div>
-      </div>
+      </Section>
 
-      {/* Findings */}
-      <div>
-        <SectionTitle count="all still open">Three things that need someone other than me</SectionTitle>
-        <div className="mt-3 space-y-3">
+      <Section title="Three things that need someone other than me" count="2 still open">
+        <div className="space-y-3">
           {findings.map((f) => {
             const Icon = findingIcon[f.icon as keyof typeof findingIcon];
             const Art = findingArt[f.n as keyof typeof findingArt];
+            const tone = findingTone[f.tone];
             return (
-              <div
+              <article
                 key={f.n}
                 className={`rounded-lg border border-border border-l-4 bg-surface p-4 ${
-                  accent[f.tone]
+                  findingEdge[f.tone]
                 }`}
               >
+                {/* header: same three slots on every finding */}
                 <div className="flex items-start gap-3">
-                  <span className="mt-0.5">
+                  <span className={`mt-0.5 ${tone === "bad" ? "text-danger" : "text-warning"}`}>
                     <Icon />
                   </span>
-                  <h4 className="text-base font-semibold leading-snug text-foreground">
-                    {f.title}
-                  </h4>
+                  <h4 className="text-base font-semibold leading-snug">{f.title}</h4>
                   <span className="ml-auto font-mono text-xs text-faint">{f.n}</span>
                 </div>
 
-                <dl className="mt-3 space-y-2">
-                  {f.lines.map((l) => (
-                    <div key={l.k} className="sm:flex sm:gap-4">
-                      <dt className="font-mono text-[11px] uppercase tracking-wide text-faint sm:w-44 sm:shrink-0 sm:pt-0.5">
-                        {l.k}
-                      </dt>
-                      <dd className="text-sm text-foreground">{l.v}</dd>
-                    </div>
-                  ))}
-                </dl>
-
+                {/* the picture does the explaining */}
                 <div className="mt-4">
                   <Art />
                 </div>
 
-                <p className="mt-4 flex flex-wrap items-baseline gap-2 border-t border-border pt-3">
-                  <span className="font-mono text-[11px] uppercase tracking-widest text-faint">
-                    Next
-                  </span>
-                  <span className="text-sm text-muted">{f.next}</span>
-                </p>
-              </div>
+                {/* footer: two cells, identical on every finding */}
+                <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-border pt-3 sm:grid-cols-2">
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-faint">
+                      Who it hits
+                    </dt>
+                    <dd className="mt-1 text-sm">{f.impact}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-faint">
+                      {f.open ? "Next owner" : "Closed"}
+                    </dt>
+                    <dd className={`mt-1 text-sm ${f.open ? "" : "text-muted"}`}>{f.next}</dd>
+                  </div>
+                </dl>
+              </article>
             );
           })}
         </div>
-      </div>
+      </Section>
 
-      {/* The boundary */}
-      <p className="rounded-lg border border-border bg-surface-raised p-4 text-sm text-muted">
-        {claimLimit}
-      </p>
+      <Note icon={<IconOff />} title="What none of this lets us claim" body={claimLimit} />
 
       <p className="font-mono text-xs text-faint">
         Detail: issues #164, #177, #226 · PRs #210, #212.
       </p>
-    </section>
+    </div>
   );
 }

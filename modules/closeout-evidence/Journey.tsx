@@ -3,74 +3,31 @@
 
 import { journey } from "./data";
 import { IconCheck, IconOff, IconLock } from "./icons";
+import { Pair, Note, RailAcross, toneEdge, toneText } from "./ui";
 
 export function Journey() {
   return (
-    <div className="space-y-4">
-      {/* two doors */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {journey.doors.map((d) => (
-          <div
-            key={d.name}
-            className={`rounded-lg border p-4 ${
-              d.open ? "border-brand/50 bg-brand-tint" : "border-border bg-surface-raised"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {d.open ? (
-                <IconCheck className="text-brand-strong" />
-              ) : (
-                <IconOff className="text-faint" />
-              )}
-              <span className="text-sm font-semibold">{d.name}</span>
-              <span
-                className={`ml-auto font-mono text-xs ${
-                  d.open ? "text-brand-strong" : "text-faint"
-                }`}
-              >
-                {d.state}
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-muted">{d.note}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* the gate between the doors and the spine */}
-      <div className="flex items-stretch gap-3 rounded-lg border border-warning/40 bg-warning/5 p-4">
-        <span className="mt-0.5">
-          <IconLock className="text-warning" />
-        </span>
-        <div>
-          <div className="text-sm font-semibold">{journey.gate.title}</div>
-          <p className="mt-1 text-sm text-muted">{journey.gate.note}</p>
-        </div>
-      </div>
-
-      {/* the spine, twice */}
-      <div className="rounded-lg border border-border bg-surface p-4">
-        <div className="flex gap-1 overflow-x-auto pb-1">
-          {journey.spine.map((s, i) => (
-            <div key={s} className="flex min-w-0 flex-1 items-center">
-              <div className="min-w-20 flex-1 rounded-md border border-border bg-surface-raised px-2 py-1.5 text-center text-xs leading-tight">
-                {s}
+    <div className="space-y-3">
+      <Pair>
+        {journey.doors.map((d) => {
+          const tone = d.open ? "good" : "off";
+          return (
+            <div key={d.name} className={`rounded-lg border p-4 ${toneEdge[tone]}`}>
+              <div className="flex items-center gap-2">
+                <span className={toneText[tone]}>{d.open ? <IconCheck /> : <IconOff />}</span>
+                <span className="text-sm font-semibold">{d.name}</span>
+                <span className={`ml-auto font-mono text-xs ${toneText[tone]}`}>{d.state}</span>
               </div>
-              {i < journey.spine.length - 1 && (
-                <span className="px-0.5 text-faint" aria-hidden>
-                  <svg viewBox="0 0 8 12" className="h-3 w-2" fill="none">
-                    <path
-                      d="m2 2 4 4-4 4"
-                      stroke="currentColor"
-                      strokeWidth="1.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-              )}
+              <p className="mt-2 text-sm text-muted">{d.note}</p>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </Pair>
+
+      <Note icon={<IconLock />} title={journey.gate.title} body={journey.gate.note} tone="warn" />
+
+      <div className="rounded-lg border border-border bg-surface p-4">
+        <RailAcross steps={journey.spine} />
 
         <div className="mt-4 space-y-2">
           {journey.lanes.map((l) => (
@@ -81,9 +38,7 @@ export function Journey() {
               }`}
             >
               <span className="text-sm">{l.label}</span>
-              <span
-                className={`font-mono text-xs ${l.ok ? "text-brand-strong" : "text-faint"}`}
-              >
+              <span className={`font-mono text-xs ${l.ok ? "text-brand-strong" : "text-faint"}`}>
                 {l.verdict}
               </span>
             </div>
