@@ -1,5 +1,6 @@
 // Module-private data. Sourced from src/observability.py, docs/OBSERVABILITY-RUNBOOK.md,
-// and tests/test_observability.py on es-intern-freshlens (#161).
+// and tests/test_observability.py on es-intern-freshlens (#161). The #196 section below is
+// sourced from src/freshness_backend.py and tests/test_freshness_backend.py, commit 6a436a3.
 
 export type ClaimTag = "A" | "B" | "C";
 
@@ -45,31 +46,19 @@ export type FlowStep = {
 // "Do not roll back. The anchor already accepted the digest. Retry the exact same request;
 // review_claim reconciles idempotently to the same decision/anchor."
 export const confirmedFlow: FlowStep[] = [
-  { actor: "system", label: "Send decision-record request (id: r_8f21)", tag: "normal" },
-  { actor: "service", label: "Confirmed — recorded", tag: "normal" },
+  { actor: "system", label: "Send decision\n(id r_8f21)", tag: "normal" },
+  { actor: "service", label: "Confirmed", tag: "recovered" },
 ];
 
 export const missingConfirmationFlow: FlowStep[] = [
-  { actor: "system", label: "Send decision-record request (id: r_9a44)", tag: "normal" },
-  {
-    actor: "service",
-    label: "No confirmation comes back — e.g. a network hiccup",
-    tag: "problem",
-  },
-  {
-    actor: "system",
-    label: "Retry — the exact same request, same id: r_9a44",
-    tag: "normal",
-  },
-  {
-    actor: "service",
-    label: "Recognizes id r_9a44 as already seen — returns the same result, does not record it twice",
-    tag: "recovered",
-  },
+  { actor: "system", label: "Send decision\n(id r_9a44)", tag: "normal" },
+  { actor: "service", label: "No response", tag: "problem" },
+  { actor: "system", label: "Retry\nsame id", tag: "normal" },
+  { actor: "service", label: "Same result\nno duplicate", tag: "recovered" },
 ];
 
 export const escalationNote =
-  "And if the retry itself doesn't confirm either? The system doesn't just keep silently retrying forever — repeated failures get flagged to a human as a possible problem with the recording service itself, not papered over. Either way, the claim is never left in a broken state.";
+  "If the retry doesn't confirm either, it isn't retried forever — a human gets flagged instead of the claim being left in limbo.";
 
 export const recordedFields = [
   "which claim this event belongs to (a random ID, not a name)",
@@ -94,20 +83,20 @@ export type RecoveryRow = {
 
 export const recoveryTable: RecoveryRow[] = [
   {
-    ifThis: "The AI scoring service is down or disabled",
-    thenThis: "No action needed — the claim still reaches a human reviewer, honestly labeled as such.",
+    ifThis: "AI scoring is down",
+    thenThis: "No action — still reaches a human reviewer, honestly labeled.",
   },
   {
-    ifThis: "The tamper-evident record-keeping step doesn't confirm in time",
-    thenThis: "Don't undo anything. Retry the exact same request — it lands on the same decision, never a duplicate.",
+    ifThis: "Anchoring doesn't confirm",
+    thenThis: "Don't undo. Retry the same request — same decision, never a duplicate.",
   },
   {
-    ifThis: "Exporting a report fails",
-    thenThis: "Safe to just try again — exporting never changes any data, it only reads it.",
+    ifThis: "Report export fails",
+    thenThis: "Just retry — exporting only reads data, it never changes any.",
   },
   {
-    ifThis: "The server itself crashes or runs out of memory",
-    thenThis: "Restart it. Any claim that was only in memory at that moment is honestly lost, not silently recovered — this is a known, named limit of today's prototype, not something we paper over.",
+    ifThis: "Server crashes / OOM",
+    thenThis: "Restart. In-memory claims are honestly lost — a known limit, not hidden.",
   },
 ];
 
@@ -120,20 +109,38 @@ export const stats = {
 export const timeline = [
   {
     date: "2026-07-28",
-    label: "First slice — the recorder exists",
-    detail:
-      "src/observability.py can log an event for a claim, and refuses to log anything that isn't on an explicit allowed list of safe fields.",
+    label: "Recorder built",
+    detail: "Logs safe fields only, by an explicit allow-list.",
   },
   {
     date: "2026-07-29",
-    label: "Wired into the real claim flow",
-    detail:
-      "Every claim now gets logged at submit, scoring, decision, and — critically — both of the two ways the tamper-evident record-keeping step can go wrong.",
+    label: "Wired into claims",
+    detail: "Every submit, score, decide, and anchor-failure logged.",
   },
   {
     date: "2026-07-30",
-    label: "Proved it can't leak, and wrote the recovery guide",
-    detail:
-      "A test plants two fake secrets and proves neither ever shows up in a logged event, twice, byte-for-byte identically. The recovery guide above shipped alongside it.",
+    label: "Proved leak-free",
+    detail: "Two fake secrets, never once in a logged event.",
   },
 ];
+
+// #196 — which door the freshness model connects through by default.
+export const doorsStats = {
+  totalTests: 59,
+  commit: "6a436a3",
+};
+
+export type ErrorCard = {
+  heading: string;
+  message: string;
+};
+
+export const beforeError: ErrorCard = {
+  heading: "Login fails, any reason",
+  message: "“needs a credential”",
+};
+
+export const afterError: ErrorCard = {
+  heading: "Login fails, any reason",
+  message: "the real reason, named",
+};
