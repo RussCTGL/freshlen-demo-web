@@ -14,6 +14,8 @@ import {
   IconTags,
 } from "./icons";
 
+// Shared palette across every week card: green works, red is broken, amber is a
+// known gap, neutral is deliberately switched off. Same colour, same meaning.
 const verdictStyle: Record<Verdict, { chip: string; Icon: typeof IconCheck }> = {
   works: { chip: "border-brand/40 bg-brand-tint text-brand-strong", Icon: IconCheck },
   fails: { chip: "border-danger/40 bg-danger/5 text-danger", Icon: IconCross },

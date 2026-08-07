@@ -37,7 +37,7 @@ export const journey = {
   },
   spine: ["Scored item", "Claim", "Review", "Bounded decision", "Signed record"],
   lanes: [
-    { label: "In our offline harness", verdict: "16 of 16 steps", ok: true },
+    { label: "In our offline harness", verdict: "runs end to end, 16 of 16 checks", ok: true },
     { label: "On a phone in the field today", verdict: "not reached", ok: false },
   ],
 };
@@ -68,7 +68,7 @@ export const numbers = [
   { value: "2", label: "of our own components disagree" },
   { value: "3", label: "ways the old check reported clean" },
   { value: "5", label: "builds, scanner off on all of them" },
-  { value: "0", label: "scores produced on a phone this week" },
+  { value: "0", label: "scores the shipped app produced on any phone" },
 ];
 
 /** Finding 01, drawn rather than described. */
