@@ -9,6 +9,6 @@ export default defineModule({
   week: 7,
   order: 161,
   summary:
-    "Every step a refund claim takes — submitted, scored, decided — is now logged and traceable end to end by one ID, with sensitive fields (tokens, photos, account info) impossible to log by construction, plus a plain-English recovery guide (#161). Also covers this week's fix to which door the freshness model connects through by default (#196).",
+    "Every step a refund claim takes — submitted, scored, decided — is now logged and traceable end to end by one ID, with sensitive fields (tokens, photos, account info) impossible to log by construction. Plus a plain-English recovery guide for when something breaks.",
   View,
 });
