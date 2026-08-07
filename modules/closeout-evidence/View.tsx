@@ -64,7 +64,7 @@ export default function View() {
         </div>
       </Section>
 
-      <Section title="Three things that need someone other than me" count="2 still open">
+      <Section title="Three findings — two still need an owner" count="02 is closed">
         <div className="space-y-3">
           {findings.map((f) => {
             const Icon = findingIcon[f.icon as keyof typeof findingIcon];
