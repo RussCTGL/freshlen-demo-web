@@ -105,6 +105,7 @@ export const filed = [
   { what: "A dev key could forge a repudiation of a signed record", landed: "Owning lane fixed it, I re-verified", state: "closed" as const },
   { what: "A size-limit safety test had never run on Windows", landed: "Owning lane fixed it next day", state: "closed" as const },
   { what: "Line endings fake a gate failure on a Windows clone", landed: "Partly fixed · nobody owns it after the internship", state: "open" as const },
+  { what: "A test asserted the photo campaign had not happened, so no capture could land", landed: "Owning lane opened the fix the same night", state: "closed" as const },
 ];
 
 /** The one PR I opened and closed myself, as three steps rather than a paragraph. */
@@ -115,7 +116,7 @@ export const discipline = {
     { k: "Chose", v: "Closed it, refiled with the measurement" },
     { k: "Result", v: "Their lane shipped it next day" },
   ],
-  stat: { value: "6", label: "reviews given — the same trade, reversed" },
+  stat: { value: "10", label: "reviews given — the same trade, reversed" },
 };
 
 /** Finding 01, drawn rather than described. */

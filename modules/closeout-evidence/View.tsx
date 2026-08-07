@@ -57,7 +57,7 @@ export default function View() {
         <Shipped />
       </Section>
 
-      <Section title="Defects I filed instead of fixing" count="2 of 3 already closed">
+      <Section title="Defects I raised instead of fixing" count="3 of 4 have a fix">
         <div className="space-y-3">
           <Filed />
           <Discipline />
