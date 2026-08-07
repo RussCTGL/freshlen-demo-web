@@ -36,7 +36,7 @@ export const cases = {
   valid: 4,
   invalid: 20,
   note:
-    "Five in six cases describe something that must be turned away. That ratio is the point: a contract is mostly a list of refusals, and the refusals are what an outside team gets wrong.",
+    "Five in six cases are refusals. That is the point — refusals are what an outside team gets wrong.",
 };
 
 export const points = [
@@ -45,9 +45,9 @@ export const points = [
     icon: "warn",
     title: "I attacked my own contract engine before anyone else could",
     lines: [
-      { k: "What was in there", v: "An authentication bypass, an approval ceiling that was never enforced, three inputs that crashed the engine outright, and four more." },
-      { k: "Why the tests missed it", v: "Tests and code came from the same understanding, so they agreed with each other. Agreement is not correctness." },
-      { k: "What changed", v: "All nine closed, two new error codes added, and the case set grew specifically to cover the blind spot that had hidden them." },
+      { k: "What was in there", v: "An auth bypass, an unenforced approval ceiling, three crashing inputs, and four more." },
+      { k: "Why the tests missed it", v: "Tests and code came from the same understanding. Agreement is not correctness." },
+      { k: "What changed", v: "All nine closed, two new error codes, and the case set grew to cover the blind spot." },
     ],
     tail: "Nine found before review, zero found during it.",
     tone: "danger",
@@ -57,9 +57,9 @@ export const points = [
     icon: "check",
     title: "The validator does not read the answer written on the test case",
     lines: [
-      { k: "How it works", v: "It works out what should happen from the contract rules, then compares. A case that lies about itself fails." },
-      { k: "The alternative", v: "Comfortable and worthless: a wrong case and a wrong engine agree, everything is green, and nobody finds out until a partner integrates." },
-      { k: "Stability", v: "Two runs across every case produce identical bytes, so a difference means a real change." },
+      { k: "How it works", v: "It derives the expected answer from the rules. A case that lies about itself fails." },
+      { k: "The alternative", v: "A wrong case and a wrong engine agree — green until a partner integrates." },
+      { k: "Stability", v: "Two runs, identical bytes. A difference means a real change." },
     ],
     tail: "Same discipline reused in every later week.",
     tone: "brand",
@@ -69,9 +69,9 @@ export const points = [
     icon: "off",
     title: "The contract says out loud what it has not built",
     lines: [
-      { k: "What it admits", v: "A dedicated section lists the parts that are specified but unimplemented, including the entire finalisation boundary." },
-      { k: "Why write it down", v: "An outside team learns the limits from the document instead of from an outage." },
-      { k: "When", v: "At freeze time, not after somebody asked an awkward question." },
+      { k: "What it admits", v: "A section listing what is specified but unbuilt, including the finalisation boundary." },
+      { k: "Why write it down", v: "An outside team learns the limits from the document, not from an outage." },
+      { k: "When", v: "At freeze time, not after an awkward question." },
     ],
     tail: "Costs a paragraph now instead of a support thread later.",
     tone: "brand",
@@ -79,4 +79,4 @@ export const points = [
 ];
 
 export const claimLimit =
-  "What this is not: a running integration. It is the description an outside system has to satisfy, plus the queue our own reviewers use. Nobody has connected to it from outside yet.";
+  "What this is not: a running integration. Nobody has connected from outside yet.";

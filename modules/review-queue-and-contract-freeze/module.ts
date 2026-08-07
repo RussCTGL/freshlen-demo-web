@@ -9,6 +9,6 @@ export default defineModule({
   week: 6,
   order: 105,
   summary:
-    "A reviewer can finally see what is waiting, an account can move its own caps but never the calibration threshold, and the contract an outside system must honour was frozen with nine self-found holes closed first.",
+    "A reviewer can finally see what is waiting, and the contract an outside system must honour was frozen with nine self-found holes closed first.",
   View,
 });
