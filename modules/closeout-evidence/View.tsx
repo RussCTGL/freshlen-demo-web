@@ -1,6 +1,9 @@
 import { lead, board, numbers, findings, claimLimit, type Verdict } from "./data";
 import { Journey } from "./Journey";
+import { BeforeAfter } from "./BeforeAfter";
 import { Divergence } from "./Divergence";
+import { FalseGreen } from "./FalseGreen";
+import { BuildTrail } from "./BuildTrail";
 import {
   IconCheck,
   IconCross,
@@ -19,6 +22,7 @@ const verdictStyle: Record<Verdict, { chip: string; Icon: typeof IconCheck }> = 
 };
 
 const findingIcon = { split: IconSplit, gauge: IconGauge, tags: IconTags };
+const findingArt = { "01": Divergence, "02": FalseGreen, "03": BuildTrail };
 const accent: Record<string, string> = {
   danger: "border-l-danger text-danger",
   warning: "border-l-warning text-warning",
@@ -77,11 +81,19 @@ export default function View() {
         ))}
       </div>
 
-      {/* The journey picture */}
+      {/* How far a shopper gets */}
       <div>
-        <SectionTitle>How far the shopper journey actually gets</SectionTitle>
+        <SectionTitle>How far a shopper gets on a phone today</SectionTitle>
         <div className="mt-3">
           <Journey />
+        </div>
+      </div>
+
+      {/* What changed */}
+      <div>
+        <SectionTitle>What changed for a shopper between two nights</SectionTitle>
+        <div className="mt-3">
+          <BeforeAfter />
         </div>
       </div>
 
@@ -91,6 +103,7 @@ export default function View() {
         <div className="mt-3 space-y-3">
           {findings.map((f) => {
             const Icon = findingIcon[f.icon as keyof typeof findingIcon];
+            const Art = findingArt[f.n as keyof typeof findingArt];
             return (
               <div
                 key={f.n}
@@ -119,11 +132,9 @@ export default function View() {
                   ))}
                 </dl>
 
-                {f.n === "01" && (
-                  <div className="mt-4">
-                    <Divergence />
-                  </div>
-                )}
+                <div className="mt-4">
+                  <Art />
+                </div>
 
                 <p className="mt-4 flex flex-wrap items-baseline gap-2 border-t border-border pt-3">
                   <span className="font-mono text-[11px] uppercase tracking-widest text-faint">

@@ -43,6 +43,16 @@ export function IconWarn({ className = "" }: P) {
   );
 }
 
+/** The condition nothing on a phone can currently satisfy. */
+export function IconLock({ className = "" }: P) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden className={`${base} ${className}`}>
+      <rect x="3" y="7" width="10" height="7" rx="1.6" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.8 0V7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** One input, two outcomes. Used for the divergence finding. */
 export function IconSplit({ className = "" }: P) {
   return (

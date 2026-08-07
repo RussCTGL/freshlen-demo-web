@@ -7,38 +7,62 @@ export type Verdict = "works" | "fails" | "by-design" | "mismatch";
 
 /** The board a reader should be able to take in without reading a sentence. */
 export const board: { item: string; verdict: Verdict; label: string }[] = [
-  { item: "A shopper can save a receipt item and find it again", verdict: "works", label: "Works" },
+  { item: "A shopper can add items from a receipt and find them again", verdict: "works", label: "Fixed this week" },
   { item: "Submitting the same receipt twice gets merged", verdict: "fails", label: "Announced, does not" },
   { item: "Produce scanning on a phone", verdict: "by-design", label: "Withheld on purpose" },
+  { item: "A claim can be filed from a phone", verdict: "by-design", label: "Nothing to file yet" },
   { item: "The build we verified is the build testers installed", verdict: "mismatch", label: "No" },
   { item: "The full claim journey, offline", verdict: "works", label: "All 16 steps" },
 ];
 
-/** The picture: same journey, two surfaces. */
+/** Two ways in. One is open, one is off, and the spine behind them needs something neither gives. */
 export const journey = {
-  steps: ["Capture", "Receipt", "Claim", "Review", "Decision", "Signed record"],
+  doors: [
+    {
+      name: "Scan produce",
+      state: "off",
+      open: false,
+      note: "Withheld deliberately on every build in the field. The app says so plainly rather than failing oddly.",
+    },
+    {
+      name: "Add items from a receipt",
+      state: "open",
+      open: true,
+      note: "Works, and since this week it keeps what you put through it. Items land in the inventory marked unverified.",
+    },
+  ],
+  gate: {
+    title: "The claim spine needs a scored item, and neither door produces one",
+    note: "A receipt item is typed by a person, so it carries no score. Only the scanner makes one, and the scanner is off. That is why everything below is unreached on a phone rather than broken.",
+  },
+  spine: ["Scored item", "Claim", "Review", "Bounded decision", "Signed record"],
   lanes: [
-    {
-      label: "In our offline harness",
-      verdict: "16 of 16 steps",
-      states: ["ok", "ok", "ok", "ok", "ok", "ok"],
-      tone: "brand",
-    },
-    {
-      label: "On a phone in the field today",
-      verdict: "stops at step one",
-      states: ["stop", "unreached", "unreached", "unreached", "unreached", "unreached"],
-      tone: "danger",
-    },
-  ] as {
-    label: string;
-    verdict: string;
-    states: ("ok" | "stop" | "unreached")[];
-    tone: "brand" | "danger";
-  }[],
-  note:
-    "The scanner is switched off on every build in the field, so nothing downstream of it has been exercised on real hardware. The offline row is real and it is proof of design, not proof of a shipping product.",
+    { label: "In our offline harness", verdict: "16 of 16 steps", ok: true },
+    { label: "On a phone in the field today", verdict: "not reached", ok: false },
+  ],
 };
+
+/** What measurably changed for a shopper between two nights. */
+export const beforeAfter = [
+  {
+    when: "Last night, build 2026080405",
+    good: false,
+    rows: [
+      { ok: true, text: "Receipt flow accepts the item" },
+      { ok: true, text: "Says Receipt items saved successfully" },
+      { ok: false, text: "Inventory shows Total 0. The item is gone." },
+    ],
+  },
+  {
+    when: "Tonight, build 2026080601",
+    good: true,
+    rows: [
+      { ok: true, text: "Item is present in the inventory" },
+      { ok: true, text: "Marked unverified, which is honest for a typed value" },
+      { ok: false, text: "The same receipt sent twice makes two rows" },
+    ],
+  },
+];
 
 export const numbers = [
   { value: "2", label: "of our own components disagree" },
@@ -66,6 +90,38 @@ export const divergence = {
   ],
 };
 
+/** Finding 02, drawn. Reality on the left, what the check reported on the right. */
+export const falseGreens = [
+  { reality: "The baseline was from an unnamed commit", reading: "clean" },
+  { reality: "The inputs were unsorted, so the comparison was undefined", reading: "clean" },
+  { reality: "The two runs came from different environments", reading: "clean" },
+];
+
+/** Finding 03, drawn. Three artifacts, one day. */
+export const buildTrail = [
+  {
+    build: "4.3.0 (2026080406)",
+    time: "midday",
+    role: "Announced in the release note",
+    origin: "origin published",
+    linked: true,
+  },
+  {
+    build: "4.3.0 (2026080406)",
+    time: "afternoon",
+    role: "Verified end to end on rented hardware",
+    origin: "same artifact as above",
+    linked: true,
+  },
+  {
+    build: "4.3.1 (2026080601)",
+    time: "evening",
+    role: "What my phone actually installed",
+    origin: "no published origin, named nowhere",
+    linked: false,
+  },
+];
+
 export const findings = [
   {
     n: "01",
@@ -84,7 +140,6 @@ export const findings = [
     icon: "gauge",
     title: "The check behind every no regressions claim could pass while broken",
     lines: [
-      { k: "How it failed", v: "Three separate conditions made it report clean when it had compared nothing meaningful." },
       { k: "Why that is worse than no check", v: "A green light nobody looks at twice. It was the evidence under my reviews all week." },
       { k: "What replaced it", v: "A version that starts at refused and has to prove it looked at the right commit, in the right environment." },
     ],
@@ -96,8 +151,7 @@ export const findings = [
     icon: "tags",
     title: "The build we verified on hardware is not the build testers installed",
     lines: [
-      { k: "What was in play", v: "Three artifacts on one day: the one announced, the one verified on rented hardware, the one testers actually received." },
-      { k: "Why it matters", v: "Only one of them has a published origin, so the hardware result cannot be cited for the tester reports, or the other way round." },
+      { k: "Why it matters", v: "The hardware result cannot be cited for the tester reports, or the other way round. They describe different things." },
       { k: "How it surfaced", v: "Checking my own device row against the release note before filing it." },
     ],
     next: "Release owner. Raised before the release record is validated, not after.",
