@@ -11,7 +11,9 @@ export type Verdict = "works" | "fails" | "by-design" | "mismatch";
 /** The board a reader should be able to take in without reading a sentence. */
 export const board: { item: string; verdict: Verdict; label: string }[] = [
   { item: "Add items from a receipt, find them later", verdict: "works", label: "Fixed this week" },
-  { item: "Same receipt twice gets merged", verdict: "fails", label: "Announced, does not" },
+  // Measured, not quoted: nothing published promises a merge, so this row states what the
+  // build did — recognised the duplicate, labelled it, and counted it anyway.
+  { item: "Same receipt twice", verdict: "fails", label: "Flagged duplicate, still counted" },
   { item: "Produce scanning on a phone", verdict: "by-design", label: "Off on purpose" },
   { item: "File a claim from a phone", verdict: "by-design", label: "Nothing to file yet" },
   { item: "Verified build is the installed build", verdict: "mismatch", label: "No" },
@@ -79,7 +81,7 @@ export const beforeAfter = [
     rows: [
       { ok: true, text: "Item is there in the inventory" },
       { ok: true, text: "Marked unverified — honest for typed input" },
-      { ok: false, text: "Same receipt twice still makes two rows" },
+      { ok: false, text: "Second row is labelled duplicate — and still counted" },
     ],
   },
 ];
@@ -87,7 +89,10 @@ export const beforeAfter = [
 /** The verdict board as a three-column dot plot: every capability sits in exactly one column. */
 export const boardColumns = [
   { key: "works", label: "Works", tone: "good" as const },
-  { key: "announced", label: "Not as announced", tone: "bad" as const },
+  // "Does not hold up" rather than "not as announced": one of these two rows contradicts a
+  // published build note, the other contradicts the app's own duplicate label. Only the first
+  // is an announcement, so the column must not claim one for both.
+  { key: "announced", label: "Does not hold up", tone: "bad" as const },
   { key: "off", label: "Off on purpose", tone: "off" as const },
 ];
 
