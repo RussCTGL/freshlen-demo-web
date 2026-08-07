@@ -4,6 +4,7 @@ import { BeforeAfter } from "./BeforeAfter";
 import { Divergence } from "./Divergence";
 import { FalseGreen } from "./FalseGreen";
 import { BuildTrail } from "./BuildTrail";
+import { Shipped, Filed, Discipline } from "./Ledger";
 import {
   IconCheck,
   IconCross,
@@ -30,11 +31,14 @@ const accent: Record<string, string> = {
   warning: "border-l-warning text-warning",
 };
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children, count }: { children: React.ReactNode; count?: string }) {
   return (
-    <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-      {children}
-    </h3>
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
+        {children}
+      </h3>
+      {count && <span className="font-mono text-xs text-faint">{count}</span>}
+    </div>
   );
 }
 
@@ -99,9 +103,30 @@ export default function View() {
         </div>
       </div>
 
+      {/* What shipped */}
+      <div>
+        <SectionTitle count="5 pull requests">What shipped this week</SectionTitle>
+        <div className="mt-3">
+          <Shipped />
+        </div>
+      </div>
+
+      {/* What was handed over */}
+      <div>
+        <SectionTitle count="2 of 3 already closed">
+          Defects I filed instead of fixing
+        </SectionTitle>
+        <div className="mt-3">
+          <Filed />
+        </div>
+        <div className="mt-3">
+          <Discipline />
+        </div>
+      </div>
+
       {/* Findings */}
       <div>
-        <SectionTitle>Three things that need someone other than me</SectionTitle>
+        <SectionTitle count="all still open">Three things that need someone other than me</SectionTitle>
         <div className="mt-3 space-y-3">
           {findings.map((f) => {
             const Icon = findingIcon[f.icon as keyof typeof findingIcon];

@@ -122,6 +122,40 @@ export const buildTrail = [
   },
 ];
 
+/** Everything that landed on main this week. One line each, no exceptions. */
+export const shipped = [
+  { what: "A standalone contract validator", why: "Byte-stable and non-vacuous: it is tested against deliberately poisoned inputs, so a validator that stopped checking would fail." },
+  { what: "The adapter handoff pack", why: "The four artifacts the lane owes whoever picks it up, including an honest record of what stays blocked." },
+  { what: "Dependency failures mapped to the states the contract names", why: "Two failure modes were reporting the wrong state. A host reading our contract would have handled them wrongly." },
+  { what: "A design note on where a photo-quality check belongs", why: "Documentation only, during freeze. It is also what surfaced finding 01 below." },
+  { what: "A suite-delta checker that refuses by default", why: "Replaces the manual check in finding 02." },
+];
+
+/** Filed as issues rather than fixed by me, because they were not my lane. */
+export const filed = [
+  {
+    what: "A development key could forge a repudiation of a real signed record",
+    landed: "Fixed by the owning lane, re-verified by me",
+    state: "closed" as const,
+  },
+  {
+    what: "A size-limit safety test had never once run on Windows",
+    landed: "Fixed by the owning lane the next day",
+    state: "closed" as const,
+  },
+  {
+    what: "Line endings make the evidence gate report a false failure on a Windows clone",
+    landed: "Partly fixed. Still open, still nobody named to own it after the internship",
+    state: "open" as const,
+  },
+];
+
+export const discipline = {
+  title: "One pull request I opened and then closed myself",
+  body:
+    "The fix was a single line, and it was in someone else's lane. Finding a defect in another person's file does not make it mine to repair. I closed it, refiled it as an issue with the measurement and a suggested repair, and their lane shipped it the next day. Six reviews given this week were the same trade in the other direction.",
+};
+
 export const findings = [
   {
     n: "01",
