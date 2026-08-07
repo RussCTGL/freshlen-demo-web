@@ -1,5 +1,5 @@
 import { Roadmap } from "./Roadmap";
-import { story, chainCaption, thisWeek, claims, handoff, limitations } from "./data";
+import { story, chainCaption, thisWeek, claims, packet, handoff, limitations } from "./data";
 
 const CARD = "rounded border border-border p-4";
 const LABEL =
@@ -63,6 +63,34 @@ export default function View() {
             </p>
           </div>
         ))}
+      </div>
+
+      {/* ─── The final packet, gate by gate: 10 VERIFIED · 1 BLOCKED ────── */}
+      <div className={CARD}>
+        <h3 className={LABEL}>{packet.title}</h3>
+        <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          {packet.verified.map((g) => (
+            <div key={g.name} className="flex items-baseline gap-2 text-sm">
+              <span className="shrink-0 font-mono text-[10px] font-medium uppercase tracking-widest text-brand-strong">
+                Verified
+              </span>
+              <span className="font-mono text-xs text-foreground">{g.name}</span>
+              <span className="text-xs text-muted">— {g.line}</span>
+            </div>
+          ))}
+          {packet.blocked.map((g) => (
+            <div key={g.name} className="flex items-baseline gap-2 text-sm">
+              <span className="shrink-0 font-mono text-[10px] font-medium uppercase tracking-widest text-warning">
+                Blocked
+              </span>
+              <span className="font-mono text-xs text-foreground">{g.name}</span>
+              <span className="text-xs text-muted">— {g.line}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
+          {packet.blockedNote}
+        </p>
       </div>
 
       {/* ─── Handoff: owner → noun phrase ────────────────────────────── */}
