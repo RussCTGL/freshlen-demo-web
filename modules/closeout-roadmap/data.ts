@@ -11,6 +11,9 @@
 // week (Aug 3–7) delivered is now dated — lane 1 shows where last week ended
 // (Aug 2), commit hashes sit on the chain nodes, and a merged-vs-in-review
 // commit strip lives inside the hero card.
+//
+// 2026-08-07 rework 4: spell out the packet — the 10 VERIFIED gates named in
+// plain English, and the 1 BLOCKED gate explained as by-design.
 
 export const story = {
   lede: "Last week this lane had a contract and a draft. This week, Aug 3–7, it became the release's evidence backbone — four things changed for the whole project.",
@@ -177,6 +180,39 @@ export const claims: ImpactClaim[] = [
       "review threads #202 · #231 · #233 · caught: a false 17/18 · a stale-zeros deadlock · #221 → #229 (Windows clones)",
   },
 ];
+
+// ─── The final packet, gate by gate ──────────────────────────────────────────
+// Gate names + statuses verified against
+// artifacts/releases/2026-08-07/rc-main/aggregate.normalized.json (10 V / 1 B).
+
+export type PacketGate = {
+  name: string;
+  line: string;
+};
+
+export const packet = {
+  title: "The final packet, gate by gate",
+  verified: [
+    { name: "deterministic_core_loop", line: "the local core loop actually runs" },
+    { name: "joined_demo", line: "end-to-end demo passes all 16 steps" },
+    { name: "full_offline_suite", line: "2,633 tests, 0 failed" },
+    { name: "gate_result_contract", line: "the rules for one gate result, locked by tests" },
+    { name: "host_contract", line: "frozen host-contract suite passes" },
+    { name: "ui_api_scorecard", line: "offline UI/API completeness check" },
+    { name: "release_manifest_contract", line: "the manifest validator itself works" },
+    { name: "work_sync", line: "eight lanes' ledger matches git" },
+    { name: "lint", line: "lint passes" },
+    { name: "diff_check", line: "no smuggled changes" },
+  ] as PacketGate[],
+  blocked: [
+    {
+      name: "recipe_serving",
+      line: "blocked on purpose — the corpus isn't approved, so it correctly refuses to serve",
+    },
+  ] as PacketGate[],
+  blockedNote:
+    "A gate doing its job, not a bug — the invented-quantity gap is recorded in #235. Last week three gates were blocked; the two stuck on the Windows env-var limit are green now.",
+};
 
 // ─── Handoff — owner → noun phrase ───────────────────────────────────────────
 
