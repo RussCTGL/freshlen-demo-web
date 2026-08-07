@@ -1,7 +1,8 @@
 // First working version of the claim loop.
 // Detail behind every line here lives on issues #30, #35 and PRs #46, #50.
 
-export const lead = "Get one claim all the way through, and make auto-approval impossible to switch on by accident.";
+export const lead =
+  "Get one claim all the way through, and make auto-approval impossible to switch on by accident.";
 
 export type Verdict = "works" | "fails" | "by-design" | "mismatch";
 
@@ -13,43 +14,86 @@ export const board: { item: string; verdict: Verdict; label: string }[] = [
 ];
 
 export const numbers = [
-  { value: "4", label: "routes, create to decision" },
-  { value: "2", label: "money bugs caught reviewing my own diff" },
+  { value: "4", label: "routes, filing to decision" },
+  { value: "2", label: "money bugs caught in my own diff" },
   { value: "552", label: "tests passing offline" },
+];
+
+/** The model is step five. That ordering is the whole safety argument. */
+export const pipeline = [
+  { name: "Spending cap", model: false },
+  { name: "Duplicate photo", model: false },
+  { name: "Duplicate purchase", model: false },
+  { name: "Capture checks", model: false },
+  { name: "Model call", model: true },
+  { name: "Decision", model: false },
+];
+
+export const ladder = [
+  {
+    band: "01",
+    condition: "No confidence score available",
+    outcome: "human review",
+    state: "plain" as const,
+  },
+  {
+    band: "02",
+    condition: "Calibration not signed off",
+    outcome: "fires on every claim",
+    state: "fires" as const,
+  },
+  {
+    band: "03",
+    condition: "Clear defect, small amount, within cap",
+    outcome: "auto approve",
+    state: "dead" as const,
+  },
+  {
+    band: "04",
+    condition: "Anything else",
+    outcome: "human review",
+    state: "plain" as const,
+  },
 ];
 
 export const decisions = [
   {
     n: "01",
+    icon: "off",
     title: "Auto-approval is switched off by arithmetic, not by a flag",
-    matters:
-      "The threshold ships at 2.0 on a scale that only goes to 1.0. There is no value that satisfies it.",
-    cost:
-      "A flag gets flipped by whoever is in a hurry. This cannot be, and turning it on later means changing a number that has to pass its own review. The safety property survives people who have never read this code.",
+    lines: [
+      { k: "The mechanism", v: "The threshold ships at 2.0 on a scale that only reaches 1.0. No value satisfies it." },
+      { k: "Why not a flag", v: "A flag gets flipped by whoever is in a hurry. A number that cannot be reached does not." },
+      { k: "Turning it on later", v: "Means changing that number, which has to pass its own review with calibration behind it." },
+    ],
     tail: "Still the state today, five weeks later.",
     tone: "brand",
   },
   {
     n: "02",
+    icon: "cross",
     title: "Two shoppers spending at the same moment could both pass the cap",
-    matters:
-      "Both requests read the remaining balance before either had written a decision, so both saw room.",
-    cost:
-      "Real money, and the kind of bug that only appears under load, which is to say in production. Found by running the guardrail checklist over my own diff before opening the pull request, not by a test that already existed.",
-    tail: "Fixed in the same PR, proved with a multi-threaded test.",
+    lines: [
+      { k: "The bug", v: "Both requests read the remaining balance before either had written a decision, so both saw room." },
+      { k: "What it costs", v: "Real money, and only under load, which is to say only in production." },
+      { k: "How it was found", v: "Running the guardrail checklist over my own diff before opening the pull request. No existing test caught it." },
+    ],
+    tail: "Fixed in the same PR and proved with a multi-threaded test.",
     tone: "danger",
   },
   {
     n: "03",
-    title: "The model is the fifth thing that runs, never the first",
-    matters:
-      "Cap, duplicate photo, duplicate purchase, and capture checks all decide before the expensive call happens.",
-    cost:
-      "The cheap deterministic checks reject what they can, so the model only ever sees requests that survived them. It also means an outage of the model cannot open the gate, because the gate was never the model.",
-    tail: "This ordering became the rule the later weeks were built on.",
+    icon: "check",
+    title: "Everything cheap decides before anything expensive runs",
+    lines: [
+      { k: "The rule", v: "Cap, duplicate photo, duplicate purchase and capture checks all resolve before the model is called." },
+      { k: "What it buys", v: "The model only ever sees requests that survived the deterministic checks, and a model outage cannot open the gate." },
+      { k: "Where it went", v: "Became the ordering every later week was built on." },
+    ],
+    tail: "Written down as a rule, not left as an accident of the code.",
     tone: "brand",
   },
 ];
 
 export const claimLimit =
-  "What this did not do: decide anything. Every claim in this version routes to a human, on purpose, because the calibration to justify anything else did not exist yet.";
+  "What this version did not do: decide anything on its own. Every claim routes to a person, on purpose, because the calibration that would justify anything else did not exist yet.";
