@@ -4,14 +4,14 @@
 export const lead =
   "Give a reviewer something to look at, and freeze what an outside system has to honour.";
 
-export type Verdict = "works" | "fails" | "by-design" | "mismatch";
+export type Verdict = "works" | "fails" | "pending" | "by-design" | "mismatch";
 
 export const board: { item: string; verdict: Verdict; label: string }[] = [
   { item: "A reviewer sees the queue for their own store", verdict: "works", label: "Works" },
   { item: "An account can adjust its own spending caps", verdict: "works", label: "Within limits" },
   { item: "The shopper is told what is left of their cap", verdict: "works", label: "Closed from week 3" },
   { item: "Anyone can move the calibration threshold", verdict: "by-design", label: "Refused, always" },
-  { item: "An outside system has actually integrated", verdict: "fails", label: "Not yet" },
+  { item: "An outside system has actually integrated", verdict: "pending", label: "Not yet" },
 ];
 
 export const numbers = [
@@ -24,7 +24,6 @@ export const numbers = [
 export const matrix = {
   roles: ["Shopper", "Store reviewer", "Policy admin"],
   rows: [
-    { action: "See their own claim", cells: ["yes", "no", "no"] },
     { action: "See their store's review queue", cells: ["no", "yes", "no"] },
     { action: "Record approve or decline", cells: ["no", "yes", "no"] },
     { action: "Read and change spending caps", cells: ["no", "no", "yes"] },

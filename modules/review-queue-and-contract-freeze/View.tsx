@@ -3,11 +3,14 @@ import { Matrix } from "./Matrix";
 import { Cases } from "./Cases";
 import { IconCheck, IconCross, IconOff, IconWarn } from "./icons";
 
+// Shared palette across every week card: green works, red is broken, amber is a
+// known gap, neutral is deliberately switched off. Same colour, same meaning.
 const verdictStyle: Record<Verdict, { chip: string; Icon: typeof IconCheck }> = {
   works: { chip: "border-brand/40 bg-brand-tint text-brand-strong", Icon: IconCheck },
-  fails: { chip: "border-warning/40 bg-warning/5 text-warning", Icon: IconWarn },
+  fails: { chip: "border-danger/40 bg-danger/5 text-danger", Icon: IconCross },
+  pending: { chip: "border-warning/40 bg-warning/5 text-warning", Icon: IconWarn },
   "by-design": { chip: "border-border bg-surface-raised text-muted", Icon: IconOff },
-  mismatch: { chip: "border-danger/40 bg-danger/5 text-danger", Icon: IconCross },
+  mismatch: { chip: "border-warning/40 bg-warning/5 text-warning", Icon: IconWarn },
 };
 
 const cardIcon = { check: IconCheck, warn: IconWarn, off: IconOff };
