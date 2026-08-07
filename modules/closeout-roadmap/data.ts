@@ -1,218 +1,177 @@
 // Frozen snapshot compiled 2026-08-07 from es-intern-freshlens:
 // merged PR #202 (squash 96b8868, Aug 7), merged PR #229, PR #237 (in freeze
-// review), and the #162 closeout lane's posted records. Numbers come from the
-// recorded evidence — nothing here is projected.
+// review), docs/RELEASE-SCORECARD-2026-08-07.md, and the review threads on
+// #202/#231/#233. Numbers come from the recorded evidence — nothing projected.
+//
+// Framing (2026-08-07 rework): not a chronology of the lane's activity, but
+// what changed for the whole project because the lane existed — four impact
+// claims, each with a before, an after, and one checkable fact.
 
 export const story = {
   lede:
-    "The final closeout week, mapped honestly: what shipped and merged this week (Aug 3–7), the one artifact still sitting in freeze review, and everything that is deliberately NOT done — recorded with a named owner instead of quietly dropped. The roadmap below is the summary; every node is expanded, with its evidence, in the sections underneath.",
+    "This is not a list of what the closeout lane did in its final week. It is what changed for the whole project because the lane existed — four claims, each with a before, an after, and one fact an engineer can go check.",
 };
 
-// ─── The roadmap lanes ────────────────────────────────────────────────────────
+// ─── The impact chain (the visual) ───────────────────────────────────────────
 
-export type RoadmapTone = "shipped" | "review" | "handoff";
+export type ChainTone = "before" | "machinery" | "now";
 
-export type RoadmapNode = {
+export type ChainNode = {
   title: string;
   line: string;
-  /** Optional mono tag rendered top-right of the node (a PR number or an owner). */
+  /** Optional mono tag rendered top-right of the node (a PR / commit ref). */
   tag?: string;
 };
 
-export type RoadmapLane = {
+export type ChainLane = {
   label: string;
   sub: string;
-  tone: RoadmapTone;
-  nodes: RoadmapNode[];
+  tone: ChainTone;
+  nodes: ChainNode[];
 };
 
-export const lanes: RoadmapLane[] = [
+export const lanes: ChainLane[] = [
   {
-    label: "Shipped this week",
-    sub: "Aug 3–7 · merged or recorded, own implementation",
-    tone: "shipped",
+    label: "Before — release truth was prose",
+    sub: "how closeout worked without this lane",
+    tone: "before",
     nodes: [
       {
-        title: "Gate orchestrator merged",
-        line: "11 frozen gates, ~2k lines + 45 adversarial tests, determinism proven",
+        title: "Eleven commands, run by hand",
+        line: "statuses typed into markdown; numbers copied forward from stale runs",
+      },
+      {
+        title: "Every lane its own format",
+        line: "release claims meant trusting each PR body separately",
+      },
+      {
+        title: "Pressure to call it green",
+        line: "a demo-week closeout defaults to declaring things done",
+      },
+      {
+        title: "Reviews read, not reran",
+        line: "a number in a PR body was taken at its word",
+      },
+    ],
+  },
+  {
+    label: "The machinery",
+    sub: "what this lane shipped into main",
+    tone: "machinery",
+    nodes: [
+      {
+        title: "Deterministic gate orchestrator",
+        line: "exact commands, real exit codes, byte-addressed artifacts",
         tag: "PR #202",
       },
       {
-        title: "Six adversarial findings fixed",
-        line: "two review rounds; every fix carries a regression test that failed first",
+        title: "Frozen gate-result contract",
+        line: "one record format any lane can emit into",
       },
       {
-        title: "Line-ending forensics",
-        line: "3 digest-bound files pinned to LF; evidence packets pre-empted too",
-        tag: "PR #229",
-      },
-      {
-        title: "Final evidence packet",
-        line: "10 VERIFIED / 1 BLOCKED at main 96b8868 · 2633 offline tests passed",
-      },
-      {
-        title: "Ledger + handoff artifacts",
-        line: "all-eight contribution ledger (alias bug fixed) · 4 handoff artifacts",
-      },
-      {
-        title: "Verification, both directions",
-        line: "reproduced MohanLi's evidence; LezhiFu reran this lane from a clean clone",
-      },
-      {
-        title: "Device testing + reviews",
-        line: "corroborated #226, filed #230 and #232 · 7 substantive PR reviews",
-      },
-    ],
-  },
-  {
-    label: "In review at freeze",
-    sub: "submitted before the Aug 7 freeze · awaiting review, not merged",
-    tone: "review",
-    nodes: [
-      {
-        title: "Release manifest + scorecard",
-        line: "first candidate-mode-VALID manifest of the program · 3 VERIFIED / 5 BLOCKED / 11 INCONCLUSIVE",
+        title: "Packet → manifest → validator",
+        line: "one bound chain, zero validator violations",
         tag: "PR #237",
       },
+      {
+        title: "Default-REFUTED review",
+        line: "six false-green findings, six fail-first regression tests",
+      },
     ],
   },
   {
-    label: "Handed off — next week and beyond",
-    sub: "not this lane's to do · each item recorded with its owner",
-    tone: "handoff",
+    label: "What the project can now do",
+    sub: "the after — each node expands into a claim below",
+    tone: "now",
     nodes: [
       {
-        title: "OOD approval block signature",
-        line: "release-authority sign-off, blocked on it by design",
-        tag: "LawrenceHua",
+        title: "VERIFIED is earned, not typed",
+        line: "two runs must hash identically or the evidence is rejected",
+        tag: "96b8868",
       },
       {
-        title: "#232 ruling",
-        line: "claim-submission refusal: by-design fail-closed, or defect",
-        tag: "LawrenceHua",
+        title: "Lanes plug in, no integration",
+        line: "the model-evidence gate emits the contract directly",
       },
       {
-        title: "#226 persistence P1 ruling",
-        line: "device-dependent: fails on some phones, not others",
-        tag: "LawrenceHua",
+        title: "Ship an honest no",
+        line: "3 VERIFIED / 5 BLOCKED / 11 INCONCLUSIVE, every gap owned and dated",
       },
       {
-        title: "TestFlight / ASC readback",
-        line: "exact build readback before anything is submitted",
-        tag: "LawrenceHua",
-      },
-      {
-        title: "App Review window Aug 7–10",
-        line: "named primary and backup incident owners",
-        tag: "LawrenceHua",
-      },
-      {
-        title: "#231 admission-record fix",
-        line: "merge post-freeze, then regenerate the records",
-        tag: "MohanLi",
-      },
-      {
-        title: "Capture-campaign appends",
-        line: "#233/#234/#238 fill five zero-support OOD categories",
-        tag: "MohanLi",
-      },
-      {
-        title: "#221 line-ending normalization",
-        line: "repo-wide fix stays open; needs a post-internship owner",
-        tag: "unowned",
-      },
-      {
-        title: "Durable state · anchoring · issuance",
-        line: "deliberately out of scope — fail-closed by design, not forgotten",
-        tag: "by design",
+        title: "Reviews reproduce numbers",
+        line: "a false 17/18, a stale-zeros deadlock, and #221 all caught this week",
       },
     ],
   },
 ];
 
-export const roadmapCaption =
-  "Three lanes, top to bottom: green shipped and merged this week; amber is submitted and waiting at the freeze; the last lane is next week and beyond — every item there has a name on it, because a handoff without an owner is just a dropped ball with paperwork.";
+export const chainCaption =
+  "Read top to bottom: the prose-verified world this lane replaced, the machinery that replaced it, and what the project can now do because of it. Each node in the bottom lane expands into one of the four numbered claims below.";
 
-// ─── Lane 1 expanded: shipped this week ──────────────────────────────────────
+// ─── The four impact claims ──────────────────────────────────────────────────
 
-export const shipped = {
-  title: "Shipped this week (Aug 3–7) — the detail behind the green lane",
-  items: [
-    {
-      head: "The deterministic closeout gate orchestrator, merged",
-      body: "PR #202 (~2k lines plus 45 adversarial tests) merged to main as squash commit 96b8868 on Aug 7. It runs a frozen 11-gate registry, records the exact command, exit code, duration, and artifact hashes for every gate, and refuses to record a VERIFIED status it did not earn. Determinism is proven, not assumed: two fixed-input runs produce byte-identical normalized aggregates.",
-    },
-    {
-      head: "Two adversarial review rounds, six findings, six fail-first fixes",
-      body: "LezhiFu reviewed twice, corroborated by Bill: six reproduced false-green or secret-exposure findings, every one fixed with a regression test that failed before the fix. The fixed classes: a registry pin that covered only the executable name; a secret denylist replaced with an environment allowlist; a stale evidence packet surviving a failed rerun (marker file plus lexists symlink handling); a vacuous git diff --check on a clean tree replaced with an explicit merge-base-bound candidate diff checker; and pytest temp-path non-determinism in failing gates.",
-    },
-    {
-      head: "Windows line-ending forensics",
-      body: "Found 3 digest-bound files missing from the LF pin list. PR #229 (the src/*.py pin) merged after MohanLi's verified approval, and the same failure class was pre-empted on evidence packets with -text and -whitespace attributes before it could bite.",
-    },
-    {
-      head: "The evidence chain at the freeze",
-      body: "Final packet at main 96b8868: 10 VERIFIED / 1 BLOCKED. The one BLOCKED is the recipe evaluator's EXPECTED fail-closed exit — the orchestrator exits 1 by design, refusing to promote it. Full offline suite: 2633 passed, 0 failed.",
-    },
-    {
-      head: "Verification ran in both directions",
-      body: "This lane reproduced MohanLi's model/OOD/recipe evidence on a different platform — which is how the CRLF false-BLOCKED was found, leading to #221 and #229. In the other direction, LezhiFu independently ran the outside-lane clean clone against this candidate: 116.7 seconds clone-to-demo, 16/16 demo hops.",
-    },
-    {
-      head: "Device testing and reviews",
-      body: "On a personal iPhone 17 Pro Max: corroborated #226 (receipt→inventory false-success, reproduced across TWO builds), filed #230 (password-reset hit-target, P1) and #232 (claim-submission refusal — flagged as possibly correct fail-closed behavior rather than a bug). Plus 7 substantive PR reviews (4 approvals, 3 changes-requested), every number in them independently reproduced. The all-eight work-sync contribution ledger also landed, after finding and fixing an author-alias bug that undercounted, alongside 4 handoff artifacts: demo segment, device row, clean-clone record, cross-review.",
-    },
-  ],
-  aggregateNote:
-    "Normalized aggregate SHA-256 of the final packet — the one number an engineer can re-derive:",
-  aggregateSha:
-    "7599b67b4f867af126e6ea7631229e658eae76a1d5fad4b42ba6a7aa4996eea7",
+export type ImpactClaim = {
+  title: string;
+  before: string;
+  after: string;
+  check: string;
 };
 
-// ─── Lane 2 expanded: in review at freeze ────────────────────────────────────
+export const claims: ImpactClaim[] = [
+  {
+    title: "The project's release truth stopped being prose.",
+    before:
+      "Closeout meant eleven commands run by hand, statuses typed into markdown, and numbers copied forward from stale runs. The program's own docs warned that no status is promoted by prose alone — and prose was exactly how statuses were being promoted.",
+    after:
+      "One deterministic orchestrator decides what VERIFIED means: the exact command, its real exit code, byte-addressed artifacts, and two fixed-input runs that must hash identically — or the evidence is rejected outright.",
+    check:
+      "The final packet at main 96b8868. Normalized aggregate SHA-256 7599b67b4f867af126e6ea7631229e658eae76a1d5fad4b42ba6a7aa4996eea7, reproduced byte-identically across two runs.",
+  },
+  {
+    title:
+      "Other lanes plugged into it — it became the program's evidence backbone, not one intern's tool.",
+    before:
+      "Each lane reported status in its own shape, so a release claim meant separately trusting every lane's write-up; nothing structural forced the pieces to agree.",
+    after:
+      "MohanLi's model-evidence gate emits records in this lane's frozen gate-result contract — “so his orchestrator ingests them with no new integration”, in Mohan's own demo-segment words. The release manifest binds to this lane's packet, and Lawrence merged the candidate against this lane's evidence. The first candidate-mode-VALID release manifest in program history — zero validator violations — exists because packet, manifest, and validator form one chain.",
+    check: "PR #237: the candidate-mode-VALID release manifest, bound to 96b8868.",
+  },
+  {
+    title: "It made “no” shippable — which is the product's legal posture.",
+    before:
+      "FreshLens's core rule is advisory-only, human-review-only, fail-closed. A closeout that pressure-cooked everything green would have contradicted the product's own safety story on its way out the door.",
+    after:
+      "The final scorecard ships 3 VERIFIED / 5 BLOCKED / 11 INCONCLUSIVE with a named owner and date on every unfinished thing — and the orchestrator exits 1 on its own final run BY DESIGN, because one gate is honestly blocked. The company gets a release record it can defend, not a demo it has to walk back.",
+    check: "docs/RELEASE-SCORECARD-2026-08-07.md in es-intern-freshlens.",
+  },
+  {
+    title: "It changed how the team reviews.",
+    before:
+      "A review meant reading the diff and taking the PR body's numbers at their word.",
+    after:
+      "The lane itself was reviewed adversarially — six reproduced false-green findings across two rounds, every one fixed with a regression test that failed first — and the same default-REFUTED discipline propagated. Reviews across lanes this week reproduced each other's numbers instead of trusting PR bodies: they caught a false 17/18 claim, a stale-zeros deadlock that cost a teammate a day, and a cross-platform line-ending defect (#221 → #229) that was silently breaking every Windows clone in the cohort. The discipline cut both ways: several of this lane's own claims — a file count, a gate metric, a vacuous check in its own earlier evidence — were publicly corrected the same week.",
+    check: "The review threads on #202, #231, and #233.",
+  },
+];
 
-export const inReview = {
-  title: "In review at the freeze",
-  body: "PR #237: the first candidate-mode-VALID release manifest of the program — zero validator violations, bound to commit 96b8868 — plus a one-page release scorecard reading 3 VERIFIED / 5 BLOCKED / 11 INCONCLUSIVE. Submitted before the freeze; it is review evidence, not a merged result, and it is listed here as exactly that.",
-};
-
-// ─── Lane 3 expanded: the handoff, with owners ───────────────────────────────
+// ─── Handoff — who owns what next (compact) ──────────────────────────────────
 
 export const handoff = {
-  title: "Handed off — who owns what, next week and beyond",
+  title: "Handoff — who owns what next",
   groups: [
     {
       owner: "LawrenceHua — release authority",
-      items: [
-        "The OOD approval block signature — blocked on release authority by design.",
-        "The #232 ruling: is the claim-submission refusal by-design fail-closed behavior, or a defect?",
-        "The #226 persistence-fix P1 ruling — it is device-dependent: it fails on some phones and not others.",
-        "The exact TestFlight / App Store Connect build readback.",
-        "The App Review window, Aug 7–10, with named primary and backup incident owners.",
-      ],
+      line: "OOD approval block signature · #232 ruling (by-design fail-closed, or defect) · #226 persistence P1 ruling (device-dependent: fails on some phones, not others) · exact TestFlight/ASC build readback · App Review window Aug 7–10 with named primary and backup incident owners.",
     },
     {
       owner: "MohanLi — model / data lane",
-      items: [
-        "Merge #231 (the admission-record ID fix) after the freeze, then regenerate the records.",
-        "The capture-campaign appends (#233/#234/#238, in sequence) to fill the five zero-support OOD categories.",
-      ],
+      line: "Merge #231 (admission-record ID fix) post-freeze and regenerate the records · capture-campaign appends #233/#234/#238 to fill the five zero-support OOD categories.",
     },
     {
       owner: "Repo-level — needs a post-internship owner",
-      items: [
-        "The general line-ending normalization (#221) stays open.",
-        "Durable multi-worker state, external anchoring, and issuance remain deliberately out of scope — the system fails closed on all three by design.",
-      ],
+      line: "The general line-ending normalization (#221) stays open · durable multi-worker state, external anchoring, and issuance remain deliberately out of scope — fail-closed by design.",
     },
   ],
-};
-
-// ─── The honesty ledger ──────────────────────────────────────────────────────
-
-export const honesty = {
-  title: "The honesty ledger — part of the story, not hidden",
-  body: "Several of this lane's own claims were publicly corrected during the week: a file count, a gate metric, and a vacuous check in its own earlier evidence. That is the point of the tooling — the machinery catches what people miss, including its author. A closeout that only ever corrected other people's numbers would be suspicious.",
 };
 
 // ─── What this does not claim ────────────────────────────────────────────────
@@ -221,5 +180,5 @@ export const limitations = [
   "The shopper-facing native pipeline (scan → inventory → claim) is NOT live, and was never claimed to be. What ships is a verified local loop plus an evidence system that makes every unfinished thing visible with an owner and a date.",
   "PR #237 is in freeze review, not merged; its scorecard numbers are submitted evidence, not an accepted result.",
   "The freshness model remains advisory and the calibration gate remains RE-SCOPE (human-review-only): no automatic approval, no automatic model-based denial.",
-  "Nothing in the handoff lane is a promise by this lane — each item is recorded with the person or role that actually owns it.",
+  "Nothing in the handoff section is a promise by this lane — each item is recorded with the person or role that actually owns it.",
 ];

@@ -1,37 +1,38 @@
-// The roadmap, drawn as three lanes top-down: shipped → in review → handed off.
-// Built from the site's border/surface tokens (like the Journey/BPMN modules)
-// but as reflowing HTML rather than a fixed-viewBox SVG, because the node count
-// is high and every node must stay readable on a phone. Each node is a title
-// plus one line; the detail lives in the prose sections below the visual.
-// Meaning never rides on color alone — every lane carries its label in text.
+// The impact chain, drawn as three lanes top-down: the prose-verified world
+// this lane replaced → the machinery that replaced it → what the project can
+// now do. Built from the site's border/surface tokens (like the Journey/BPMN
+// modules) but as reflowing HTML rather than a fixed-viewBox SVG, so every
+// node stays readable on a phone. Each node is a title plus one line; the
+// argument lives in the four claims below the visual. Meaning never rides on
+// color alone — every lane carries its label in text.
 
-import { lanes, type RoadmapLane, type RoadmapTone } from "./data";
+import { lanes, type ChainLane, type ChainTone } from "./data";
 
 const TONE_STYLES: Record<
-  RoadmapTone,
+  ChainTone,
   { lane: string; label: string; node: string; tag: string }
 > = {
-  shipped: {
+  before: {
+    lane: "border-dashed border-border bg-surface-raised/50",
+    label: "text-muted",
+    node: "border-dashed border-border bg-surface",
+    tag: "text-faint",
+  },
+  machinery: {
+    lane: "border-info/40 bg-info/5",
+    label: "text-info",
+    node: "border-info/30 bg-surface",
+    tag: "text-info",
+  },
+  now: {
     lane: "border-brand/40 bg-brand-tint",
     label: "text-brand-strong",
     node: "border-brand/30 bg-surface",
     tag: "text-brand-strong",
   },
-  review: {
-    lane: "border-warning/40 bg-warning/5",
-    label: "text-warning",
-    node: "border-warning/30 bg-surface",
-    tag: "text-warning",
-  },
-  handoff: {
-    lane: "border-border bg-surface-raised/50",
-    label: "text-muted",
-    node: "border-border bg-surface",
-    tag: "text-faint",
-  },
 };
 
-function Lane({ lane }: { lane: RoadmapLane }) {
+function Lane({ lane }: { lane: ChainLane }) {
   const tone = TONE_STYLES[lane.tone];
   return (
     <div className={`rounded-lg border p-4 ${tone.lane}`}>
@@ -43,7 +44,7 @@ function Lane({ lane }: { lane: RoadmapLane }) {
         </h4>
         <span className="text-xs text-faint">{lane.sub}</span>
       </div>
-      <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {lane.nodes.map((n) => (
           <li
             key={n.title}
@@ -90,9 +91,9 @@ export function Roadmap() {
   return (
     <div>
       <Lane lane={lanes[0]} />
-      <Connector label="freeze · Aug 7" />
+      <Connector label="replaced by" />
       <Lane lane={lanes[1]} />
-      <Connector label="handoff · owners named" />
+      <Connector label="which means" />
       <Lane lane={lanes[2]} />
     </div>
   );

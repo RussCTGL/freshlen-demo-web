@@ -1,11 +1,9 @@
 import { Roadmap } from "./Roadmap";
 import {
   story,
-  roadmapCaption,
-  shipped,
-  inReview,
+  chainCaption,
+  claims,
   handoff,
-  honesty,
   limitations,
 } from "./data";
 
@@ -18,70 +16,63 @@ export default function View() {
     <section className="space-y-10">
       <p className="text-muted">{story.lede}</p>
 
-      {/* ─── 1. The roadmap ──────────────────────────────────────────── */}
+      {/* ─── 1. The impact chain ─────────────────────────────────────── */}
       <div className={CARD}>
-        <h3 className={LABEL}>The roadmap — this week, at freeze, and after</h3>
+        <h3 className={LABEL}>Before → the machinery → what the project can now do</h3>
         <div className="mt-4">
           <Roadmap />
         </div>
         <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
-          {roadmapCaption}
+          {chainCaption}
         </p>
       </div>
 
-      {/* ─── 2. Shipped this week, expanded ──────────────────────────── */}
-      <div className={CARD}>
-        <h3 className={LABEL}>{shipped.title}</h3>
-        <ul className="mt-4 space-y-4">
-          {shipped.items.map((it) => (
-            <li key={it.head} className="text-sm">
-              <span className="font-medium text-foreground">{it.head}.</span>{" "}
-              <span className="text-muted">{it.body}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-4 border-t border-border pt-3">
-          <p className="text-sm text-muted">{shipped.aggregateNote}</p>
-          <p className="mt-1 break-all font-mono text-xs text-faint">
-            {shipped.aggregateSha}
-          </p>
+      {/* ─── 2. The four claims ──────────────────────────────────────── */}
+      {claims.map((c, i) => (
+        <div key={c.title} className={CARD}>
+          <h3 className="text-sm font-semibold text-foreground">
+            <span className="font-mono text-xs text-faint">{i + 1}.</span>{" "}
+            {c.title}
+          </h3>
+          <dl className="mt-3 space-y-3">
+            <div className="flex gap-3">
+              <dt className="w-14 shrink-0 pt-0.5 font-mono text-[10px] font-medium uppercase tracking-widest text-faint">
+                Before
+              </dt>
+              <dd className="text-sm text-muted">{c.before}</dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="w-14 shrink-0 pt-0.5 font-mono text-[10px] font-medium uppercase tracking-widest text-brand-strong">
+                After
+              </dt>
+              <dd className="text-sm text-muted">{c.after}</dd>
+            </div>
+          </dl>
+          <div className="mt-3 flex gap-3 border-t border-border pt-3">
+            <span className="w-14 shrink-0 pt-0.5 font-mono text-[10px] font-medium uppercase tracking-widest text-info">
+              Check
+            </span>
+            <p className="break-words font-mono text-xs leading-relaxed text-muted">
+              {c.check}
+            </p>
+          </div>
         </div>
-      </div>
+      ))}
 
-      {/* ─── 3. In review at the freeze ──────────────────────────────── */}
-      <div className={CARD}>
-        <h3 className={LABEL}>{inReview.title}</h3>
-        <p className="mt-3 text-sm text-muted">{inReview.body}</p>
-      </div>
-
-      {/* ─── 4. The handoff, with owners ─────────────────────────────── */}
+      {/* ─── 3. Handoff, compact ─────────────────────────────────────── */}
       <div className={CARD}>
         <h3 className={LABEL}>{handoff.title}</h3>
-        <div className="mt-4 space-y-5">
+        <div className="mt-4 space-y-4">
           {handoff.groups.map((g) => (
             <div key={g.owner}>
-              <h4 className="text-sm font-medium text-foreground">
-                {g.owner}
-              </h4>
-              <ul className="mt-2 space-y-1.5 pl-4">
-                {g.items.map((item) => (
-                  <li key={item.slice(0, 40)} className="list-disc text-sm text-muted">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <h4 className="text-sm font-medium text-foreground">{g.owner}</h4>
+              <p className="mt-1 text-sm text-muted">{g.line}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ─── 5. The honesty ledger ───────────────────────────────────── */}
-      <div className={CARD}>
-        <h3 className={LABEL}>{honesty.title}</h3>
-        <p className="mt-3 text-sm text-muted">{honesty.body}</p>
-      </div>
-
-      {/* ─── 6. What this does NOT claim ─────────────────────────────── */}
+      {/* ─── 4. What this does NOT claim ─────────────────────────────── */}
       <div className={CARD}>
         <h3 className={LABEL}>What this does not claim</h3>
         <ul className="mt-3 space-y-2">

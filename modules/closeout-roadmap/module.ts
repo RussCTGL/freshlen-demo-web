@@ -3,12 +3,12 @@ import View from "./View";
 
 export default defineModule({
   slug: "closeout-roadmap",
-  title: "Closeout Roadmap — Shipped, In Freeze Review, Handed Off",
+  title: "Closeout Roadmap — What Changed Because This Lane Existed",
   owner: "Yizhou",
   issue: 162,
   week: 8,
   order: 162,
   summary:
-    "The final week (Aug 3–7) as a three-lane roadmap: the merged gate orchestrator (#202 → 96b8868) and its 10 VERIFIED / 1 BLOCKED evidence packet; the first candidate-mode-VALID release manifest waiting in freeze review (#237); and every remaining item handed off with a named owner — including what stays deliberately not-live.",
+    "Four checkable impact claims, each before → after: release truth stopped being prose (one deterministic orchestrator, byte-identical runs at 96b8868); other lanes plugged into its frozen contract (the first candidate-mode-VALID manifest, #237); an honest 'no' became shippable (3 V / 5 B / 11 I, every gap owned); and default-REFUTED review propagated across the team. Plus the handoff, owner by owner.",
   View,
 });
