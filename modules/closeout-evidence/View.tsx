@@ -1,28 +1,16 @@
-import { lead, board, numbers, findings, claimLimit, type Verdict } from "./data";
+import { lead, numbers, findings, claimLimit } from "./data";
+import { Board } from "./Board";
 import { Journey } from "./Journey";
 import { BeforeAfter } from "./BeforeAfter";
 import { Divergence } from "./Divergence";
 import { FalseGreen } from "./FalseGreen";
 import { BuildTrail } from "./BuildTrail";
 import { Shipped, Filed, Discipline } from "./Ledger";
-import { IconCheck, IconCross, IconOff, IconWarn, IconSplit, IconGauge, IconTags } from "./icons";
-import { Section, Rows, Row, Note, type Tone } from "./ui";
+import { IconOff, IconSplit, IconGauge, IconTags } from "./icons";
+import { Section, Note, type Tone } from "./ui";
 
 // Shared palette across every week card: green works, red is broken, amber is a
 // known gap, neutral is deliberately switched off. Same colour, same meaning.
-const verdictTone: Record<Verdict, Tone> = {
-  works: "good",
-  fails: "bad",
-  "by-design": "off",
-  mismatch: "warn",
-};
-const verdictIcon: Record<Verdict, typeof IconCheck> = {
-  works: IconCheck,
-  fails: IconCross,
-  "by-design": IconOff,
-  mismatch: IconWarn,
-};
-
 const findingIcon = { split: IconSplit, gauge: IconGauge, tags: IconTags };
 const findingArt = { "01": Divergence, "02": FalseGreen, "03": BuildTrail };
 const findingTone: Record<string, Tone> = { danger: "bad", warning: "warn" };
@@ -43,16 +31,7 @@ export default function View() {
       </div>
 
       <Section title="Where we actually stand" count="6 capabilities">
-        <Rows>
-          {board.map((b) => {
-            const Icon = verdictIcon[b.verdict];
-            return (
-              <Row key={b.item} tone={verdictTone[b.verdict]} icon={<Icon />} chip={b.label}>
-                {b.item}
-              </Row>
-            );
-          })}
-        </Rows>
+        <Board />
       </Section>
 
       <Section title="The week in four numbers">

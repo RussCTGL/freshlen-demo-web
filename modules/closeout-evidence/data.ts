@@ -28,14 +28,24 @@ export const numbers = [
 /** Two ways in. One is open, one is off, and the spine behind them needs something neither gives. */
 export const journey = {
   doors: [
-    { name: "Scan produce", state: "off", open: false, note: "Off on every field build. The app says so plainly." },
-    { name: "Add from a receipt", state: "open", open: true, note: "Works, and since this week it keeps what you enter." },
+    {
+      name: "Scan produce",
+      state: "off",
+      open: false,
+      note: ["Off on every field build.", "The app says so plainly."],
+    },
+    {
+      name: "Add from a receipt",
+      state: "open",
+      open: true,
+      note: ["Works — and since this week", "it keeps what you enter."],
+    },
   ],
   gate: {
     title: "The spine needs a scored item. Neither door makes one.",
     note: "A typed item carries no score; only the scanner makes one, and it is off.",
   },
-  spine: ["Scored item", "Claim", "Review", "Bounded decision", "Signed record"],
+  spine: ["Scored item", "Claim", "Review", "Decision", "Signed record"],
   lanes: [
     { label: "In our offline harness", verdict: "16 of 16 steps", ok: true },
     { label: "On a phone in the field", verdict: "not reached", ok: false },
@@ -47,6 +57,8 @@ export const beforeAfter = [
   {
     when: "Last night · build 2026080405",
     good: false,
+    /** What the inventory screen showed after submitting one receipt. */
+    screen: { total: "Total 0", items: [] as { name: string; tag: string; dup?: boolean }[] },
     rows: [
       { ok: true, text: "Receipt flow accepts the item" },
       { ok: true, text: "Says saved successfully" },
@@ -56,12 +68,27 @@ export const beforeAfter = [
   {
     when: "Tonight · build 2026080601",
     good: true,
+    /** Same flow, plus one resubmission of the same receipt. */
+    screen: {
+      total: "Total 2",
+      items: [
+        { name: "Banana", tag: "unverified" },
+        { name: "Banana", tag: "unverified", dup: true },
+      ],
+    },
     rows: [
       { ok: true, text: "Item is there in the inventory" },
       { ok: true, text: "Marked unverified — honest for typed input" },
       { ok: false, text: "Same receipt twice still makes two rows" },
     ],
   },
+];
+
+/** The verdict board as a three-column dot plot: every capability sits in exactly one column. */
+export const boardColumns = [
+  { key: "works", label: "Works", tone: "good" as const },
+  { key: "announced", label: "Not as announced", tone: "bad" as const },
+  { key: "off", label: "Off on purpose", tone: "off" as const },
 ];
 
 /** Everything that landed on main this week. One line each, no exceptions. */
@@ -85,8 +112,8 @@ export const discipline = {
   title: "One pull request I opened and then closed myself",
   steps: [
     { k: "Found", v: "A one-line fix — in someone else's lane" },
-    { k: "Chose", v: "Closed my PR, refiled with the measurement and a repair" },
-    { k: "Result", v: "Their lane shipped it the next day" },
+    { k: "Chose", v: "Closed it, refiled with the measurement" },
+    { k: "Result", v: "Their lane shipped it next day" },
   ],
   stat: { value: "6", label: "reviews given — the same trade, reversed" },
 };
