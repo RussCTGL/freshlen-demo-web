@@ -1,95 +1,123 @@
 import { Roadmap } from "./Roadmap";
-import { story, chainCaption, thisWeek, claims, packet, handoff, limitations } from "./data";
+import { story, delta, thisWeek, gates, gatesNote, handoff, limitations } from "./data";
 
 const CARD = "rounded border border-border p-4";
 const LABEL =
   "font-mono text-xs font-medium uppercase tracking-widest text-muted";
+
+const WEEK_DAYS = ["Mon 3", "Tue 4", "Wed 5", "Thu 6", "Fri 7"];
+
+/** One big-number half of the scoreboard. Text labels carry the meaning. */
+function PacketCount({ v, b, label }: { v: number; b: number; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="font-mono text-4xl font-semibold tracking-tight">
+        <span className="text-brand-strong">{v} V</span>{" "}
+        <span className="text-warning">/ {b} B</span>
+      </div>
+      <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-faint">
+        {label}
+      </div>
+    </div>
+  );
+}
 
 export default function View() {
   return (
     <section className="space-y-8">
       <p className="text-muted">{story.lede}</p>
 
-      {/* ─── The impact chain — the page ─────────────────────────────── */}
+      {/* ─── The scoreboard: the week in two numbers ───────────────────── */}
       <div className={CARD}>
-        <Roadmap />
-        {/* This week in commits — merged vs still in freeze review; the
-            group labels carry the meaning, the border tone only echoes it. */}
-        <div className="mt-4 space-y-2 border-t border-border pt-3">
-          {thisWeek.map((g) => (
-            <div
-              key={g.label}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1"
-            >
-              <span className="w-44 shrink-0 font-mono text-[10px] uppercase tracking-widest text-faint">
-                {g.label}
-              </span>
-              <ul className="flex flex-wrap gap-2">
-                {g.commits.map((c) => (
-                  <li
-                    key={c.hash}
-                    className="rounded border border-border bg-surface px-2 py-1 font-mono text-xs"
-                  >
-                    <span className="text-faint">{c.date}</span>{" "}
-                    <span className="font-medium text-foreground">{c.hash}</span>{" "}
-                    <span className="text-muted">{c.label}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 py-2">
+          <PacketCount {...delta.before} />
+          <span className="text-2xl text-faint" aria-hidden="true">
+            →
+          </span>
+          <PacketCount {...delta.after} />
         </div>
-        <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
-          {chainCaption}
+        <p className="mt-3 border-t border-border pt-3 text-center text-sm text-muted">
+          {delta.footnote}
         </p>
       </div>
 
-      {/* ─── Four claims: title · one sentence · check ───────────────── */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {claims.map((c, i) => (
-          <div key={c.title} className={CARD}>
-            <h3 className="text-sm font-semibold text-foreground">
-              <span className="font-mono text-xs text-faint">{i + 1}.</span>{" "}
-              {c.title}
-            </h3>
-            <p className="mt-2 text-sm text-muted">{c.line}</p>
-            <p className="mt-3 flex gap-2 border-t border-border pt-2">
-              <span className="shrink-0 pt-0.5 font-mono text-[10px] font-medium uppercase tracking-widest text-info">
-                Check
-              </span>
-              <span className="break-all font-mono text-xs leading-relaxed text-muted">
-                {c.check}
-              </span>
-            </p>
-          </div>
-        ))}
+      {/* ─── The week-over-week chain ──────────────────────────────────── */}
+      <div className={CARD}>
+        <Roadmap />
       </div>
 
-      {/* ─── The final packet, gate by gate: 10 VERIFIED · 1 BLOCKED ────── */}
+      {/* ─── This week in commits: a Mon–Fri timeline ──────────────────── */}
       <div className={CARD}>
-        <h3 className={LABEL}>{packet.title}</h3>
-        <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-          {packet.verified.map((g) => (
-            <div key={g.name} className="flex items-baseline gap-2 text-sm">
-              <span className="shrink-0 font-mono text-[10px] font-medium uppercase tracking-widest text-brand-strong">
-                Verified
-              </span>
-              <span className="font-mono text-xs text-foreground">{g.name}</span>
-              <span className="text-xs text-muted">— {g.line}</span>
+        <h3 className={LABEL}>This week in commits · Aug 3–7</h3>
+        <div className="mt-3 space-y-3">
+          {thisWeek.map((g) => (
+            <div key={g.label}>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-faint">
+                {g.label}
+              </div>
+              <div className="mt-1 grid grid-cols-5 gap-2">
+                {WEEK_DAYS.map((d, i) => (
+                  <div key={d} className="flex flex-col items-center gap-1">
+                    <span className="font-mono text-[10px] uppercase text-faint">
+                      {d}
+                    </span>
+                    {g.commits
+                      .filter((c) => c.day === i + 3)
+                      .map((c) => (
+                        <span
+                          key={c.hash}
+                          className="rounded border border-border bg-surface px-2 py-1 text-center font-mono text-xs"
+                        >
+                          <span className="font-medium text-foreground">
+                            {c.hash}
+                          </span>
+                          <br />
+                          <span className="text-[10px] text-muted">
+                            {c.label}
+                          </span>
+                        </span>
+                      ))}
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
-          {packet.blocked.map((g) => (
-            <div key={g.name} className="flex items-baseline gap-2 text-sm">
-              <span className="shrink-0 font-mono text-[10px] font-medium uppercase tracking-widest text-warning">
-                Blocked
+        </div>
+      </div>
+
+      {/* ─── The final packet as a gate wall: 10 VERIFIED · 1 BLOCKED ──── */}
+      <div className={CARD}>
+        <h3 className={LABEL}>The final packet — 10 verified · 1 blocked</h3>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {gates.map((g) => (
+            <div
+              key={g.name}
+              className={`rounded border px-3 py-2 ${
+                g.status === "VERIFIED"
+                  ? "border-brand/40 bg-brand-tint"
+                  : "border-warning/60 bg-warning/10"
+              }`}
+            >
+              <span
+                className={`font-mono text-[10px] font-medium uppercase tracking-widest ${
+                  g.status === "VERIFIED" ? "text-brand-strong" : "text-warning"
+                }`}
+              >
+                {g.status}
               </span>
-              <span className="font-mono text-xs text-foreground">{g.name}</span>
-              <span className="text-xs text-muted">— {g.line}</span>
+              <div className="mt-0.5 break-all font-mono text-xs text-foreground">
+                {g.name}
+              </div>
+              {g.note ? (
+                <p className="mt-1 text-xs leading-relaxed text-muted">
+                  {g.note}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>
         <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
-          {packet.blockedNote}
+          {gatesNote}
         </p>
       </div>
 

@@ -14,9 +14,16 @@
 //
 // 2026-08-07 rework 4: spell out the packet — the 10 VERIFIED gates named in
 // plain English, and the 1 BLOCKED gate explained as by-design.
+//
+// 2026-08-07 rework 5: cut hard for the manager demo. The claims grid said
+// what lane 3 already says — deleted. Caption deleted, glosses ≤4 words.
+//
+// 2026-08-07 rework 6: visual-first, again. Big-number scoreboard (8/3 →
+// 10/1), a week timeline instead of a commit list, and the packet as an
+// 11-tile gate wall instead of 11 text rows.
 
 export const story = {
-  lede: "Last week this lane had a contract and a draft. This week, Aug 3–7, it became the release's evidence backbone — four things changed for the whole project.",
+  lede: "Last week: a contract and a draft. This week (Aug 3–7): the release's evidence backbone.",
 };
 
 // ─── The impact chain (the hero visual) ──────────────────────────────────────
@@ -90,7 +97,7 @@ export const lanes: ChainLane[] = [
   },
   {
     label: "What the project can now do",
-    sub: "each node = one numbered claim below",
+    sub: "the payoff, one line each",
     tone: "now",
     nodes: [
       {
@@ -116,14 +123,21 @@ export const lanes: ChainLane[] = [
   },
 ];
 
-export const chainCaption =
-  "Where last week ended, what this week added, what the project can now do.";
+// ─── The scoreboard delta ────────────────────────────────────────────────────
+// Packet gate counts: draft run Jul 31 vs final merged run Aug 6.
+
+export const delta = {
+  before: { v: 8, b: 3, label: "Last week · draft" },
+  after: { v: 10, b: 1, label: "This week · merged" },
+  footnote: "Plus: the first manifest ever to validate — in freeze review · #237",
+};
 
 // ─── This week in commits (Aug 3–7) — merged vs still in freeze review ──────
 // Hashes verified against LawrenceHua/es-intern-freshlens on 2026-08-07.
 
 export type WeekCommit = {
-  date: string;
+  /** Day of month, 3–7 (Mon–Fri) — drives the timeline column. */
+  day: number;
   hash: string;
   label: string;
 };
@@ -132,87 +146,51 @@ export const thisWeek: { label: string; commits: WeekCommit[] }[] = [
   {
     label: "Merged to main",
     commits: [
-      { date: "Aug 5", hash: "ceca06b", label: "#229 · LF pin — Windows-clone fix" },
-      { date: "Aug 6", hash: "96b8868", label: "#202 · gate orchestrator + handoffs" },
+      { day: 5, hash: "ceca06b", label: "#229 · Windows-clone fix" },
+      { day: 6, hash: "96b8868", label: "#202 · orchestrator" },
     ],
   },
   {
     label: "In freeze review · #237",
     commits: [
-      { date: "Aug 6", hash: "9ae11ff", label: "freeze artifacts: manifest · packet · scorecard" },
-      { date: "Aug 6", hash: "648e30b", label: "review round 1 findings applied" },
-      { date: "Aug 7", hash: "5a54f33", label: "review round 2 · device matrix" },
+      { day: 6, hash: "9ae11ff", label: "freeze artifacts" },
+      { day: 6, hash: "648e30b", label: "review round 1" },
+      { day: 7, hash: "5a54f33", label: "review round 2" },
     ],
   },
 ];
 
-// ─── The four claims (one sentence each) ─────────────────────────────────────
-
-export type ImpactClaim = {
-  title: string;
-  line: string;
-  check: string;
-};
-
-export const claims: ImpactClaim[] = [
-  {
-    title: "Release truth stopped being prose.",
-    line: "One orchestrator decides VERIFIED: real commands, real exit codes, two runs hashing identically.",
-    check:
-      "main 96b8868 · packet 8 V / 3 B draft last week → 10 V / 1 B final · 2633 tests, 0 failed · aggregate sha256 7599b67b4f867af126e6ea7631229e658eae76a1d5fad4b42ba6a7aa4996eea7, byte-identical across two runs",
-  },
-  {
-    title: "It became the program's evidence backbone.",
-    line: "Other lanes emit its frozen contract; the release manifest binds to its packet.",
-    check:
-      "PR #237 · first candidate-mode-VALID manifest in program history · zero validator violations · bound to 96b8868",
-  },
-  {
-    title: "It made “no” shippable.",
-    line: "3 VERIFIED / 5 BLOCKED / 11 INCONCLUSIVE — every gap owned and dated.",
-    check:
-      "docs/RELEASE-SCORECARD-2026-08-07.md · the orchestrator's own final run exits 1, by design",
-  },
-  {
-    title: "It changed how the team reviews.",
-    line: "Reviews now reproduce numbers, not PR bodies — starting inside this lane's own code.",
-    check:
-      "review threads #202 · #231 · #233 · caught: a false 17/18 · a stale-zeros deadlock · #221 → #229 (Windows clones)",
-  },
-];
-
-// ─── The final packet, gate by gate ──────────────────────────────────────────
+// ─── The final packet as a gate wall ─────────────────────────────────────────
 // Gate names + statuses verified against
 // artifacts/releases/2026-08-07/rc-main/aggregate.normalized.json (10 V / 1 B).
 
-export type PacketGate = {
+export type Gate = {
   name: string;
-  line: string;
+  status: "VERIFIED" | "BLOCKED";
+  /** Only the blocked gate carries a note — the reason is the story. */
+  note?: string;
 };
 
-export const packet = {
-  title: "The final packet, gate by gate",
-  verified: [
-    { name: "deterministic_core_loop", line: "the local core loop actually runs" },
-    { name: "joined_demo", line: "end-to-end demo passes all 16 steps" },
-    { name: "full_offline_suite", line: "2,633 tests, 0 failed" },
-    { name: "gate_result_contract", line: "the rules for one gate result, locked by tests" },
-    { name: "host_contract", line: "frozen host-contract suite passes" },
-    { name: "ui_api_scorecard", line: "offline UI/API completeness check" },
-    { name: "release_manifest_contract", line: "the manifest validator itself works" },
-    { name: "work_sync", line: "eight lanes' ledger matches git" },
-    { name: "lint", line: "lint passes" },
-    { name: "diff_check", line: "no smuggled changes" },
-  ] as PacketGate[],
-  blocked: [
-    {
-      name: "recipe_serving",
-      line: "blocked on purpose — the corpus isn't approved, so it correctly refuses to serve",
-    },
-  ] as PacketGate[],
-  blockedNote:
-    "A gate doing its job, not a bug — the invented-quantity gap is recorded in #235. Last week three gates were blocked; the two stuck on the Windows env-var limit are green now.",
-};
+export const gates: Gate[] = [
+  { name: "deterministic_core_loop", status: "VERIFIED" },
+  { name: "joined_demo", status: "VERIFIED" },
+  { name: "full_offline_suite", status: "VERIFIED" },
+  { name: "gate_result_contract", status: "VERIFIED" },
+  { name: "host_contract", status: "VERIFIED" },
+  { name: "ui_api_scorecard", status: "VERIFIED" },
+  { name: "release_manifest_contract", status: "VERIFIED" },
+  { name: "work_sync", status: "VERIFIED" },
+  { name: "lint", status: "VERIFIED" },
+  { name: "diff_check", status: "VERIFIED" },
+  {
+    name: "recipe_serving",
+    status: "BLOCKED",
+    note: "no approved corpus → refuses to serve (by design, #235)",
+  },
+];
+
+export const gatesNote =
+  "Last week: 8 verified / 3 blocked — the two gates stuck on the Windows env-var limit are green now.";
 
 // ─── Handoff — owner → noun phrase ───────────────────────────────────────────
 
