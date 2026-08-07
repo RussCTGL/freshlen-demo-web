@@ -1,131 +1,88 @@
-import {
-  stats,
-  shipped,
-  locked,
-  closedLoop,
-  gaps,
-  antiVacuity,
-  contractParts,
-  knownGaps,
-} from "./data";
+import { lead, board, numbers, points, claimLimit, type Verdict } from "./data";
+
+const chip: Record<Verdict, string> = {
+  works: "border-brand/40 bg-brand-tint text-brand-strong",
+  fails: "border-warning/40 bg-warning/5 text-warning",
+  "by-design": "border-border bg-surface-raised text-muted",
+  mismatch: "border-danger/40 bg-danger/5 text-danger",
+};
+
+const accent: Record<string, string> = {
+  brand: "border-l-brand",
+  danger: "border-l-danger",
+};
 
 export default function View() {
   return (
-    <section className="space-y-8">
-      <p className="text-muted">
-        Week 6 was two jobs: give a reviewer something to look at, and freeze what a host has to
-        honour. One shipped routes; the other shipped a schema plus a validator that does not
-        trust its own fixtures.
-      </p>
+    <section className="space-y-10">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          Queue and contract
+        </p>
+        <p className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{lead}</p>
+      </div>
+
+      <div>
+        <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
+          Who can do what, once this shipped
+        </h3>
+        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+          {board.map((b) => (
+            <li
+              key={b.item}
+              className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3"
+            >
+              <span className="text-sm">{b.item}</span>
+              <span
+                className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-xs ${
+                  chip[b.verdict]
+                }`}
+              >
+                {b.label}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-lg border border-border bg-surface p-4">
-            <div className="font-mono text-xs uppercase tracking-widest text-faint">
-              {s.label}
-            </div>
-            <div className="mt-1.5 font-mono text-2xl font-semibold tabular-nums">{s.value}</div>
+        {numbers.map((n) => (
+          <div key={n.label} className="rounded-lg border border-border bg-surface p-4">
+            <div className="font-mono text-3xl font-semibold tabular-nums">{n.value}</div>
+            <div className="mt-1 text-sm text-muted">{n.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Part 1 */}
       <div>
         <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          #105 — what a reviewer can now do
+          Three things that made it worth trusting
         </h3>
-        <ul className="mt-3 space-y-2">
-          {shipped.map((s) => (
-            <li key={s.route} className="rounded-lg border border-border bg-surface p-3 text-sm">
-              <div className="font-mono text-xs font-semibold">{s.route}</div>
-              <div className="mt-1 text-muted">{s.note}</div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="rounded-lg border border-border border-l-4 border-l-brand bg-surface p-4 text-sm">
-        <div className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          What a policy write may never reach
-        </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {locked.fields.map((f) => (
-            <code
-              key={f}
-              className="rounded border border-border px-2 py-0.5 font-mono text-xs"
+        <div className="mt-3 space-y-3">
+          {points.map((p) => (
+            <div
+              key={p.n}
+              className={`rounded-lg border border-border border-l-4 bg-surface p-4 ${
+                accent[p.tone]
+              }`}
             >
-              {f}
-            </code>
+              <div className="flex items-baseline gap-3">
+                <span className="font-mono text-xs text-faint">{p.n}</span>
+                <h4 className="text-base font-semibold leading-snug">{p.title}</h4>
+              </div>
+              <p className="mt-2 text-sm text-muted">{p.matters}</p>
+              <p className="mt-3 border-l-2 border-border pl-3 text-sm">{p.cost}</p>
+              <p className="mt-3 font-mono text-xs text-faint">{p.tail}</p>
+            </div>
           ))}
         </div>
-        <p className="mt-2 text-muted">{locked.rule}</p>
       </div>
 
-      <div className="rounded border border-border px-4 py-3 text-sm">
-        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
-          A week 3 loose end, closed here
-        </h3>
-        <p className="mt-2 text-muted">{closedLoop}</p>
-      </div>
+      <p className="rounded-lg border border-border bg-surface-raised p-4 text-sm text-muted">
+        {claimLimit}
+      </p>
 
-      {/* Part 2 */}
-      <div>
-        <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          #129 — eight owners&apos; fields, one frozen contract
-        </h3>
-        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-          {contractParts.map((c) => (
-            <li key={c.name} className="rounded-lg border border-border bg-surface p-3 text-sm">
-              <div className="font-mono text-xs font-semibold">{c.name}</div>
-              <div className="mt-1 font-mono text-xs text-muted">{c.note}</div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-faint">
-          Nine gaps the adversarial pass found — in my own rule engine, before review
-        </h3>
-        <ul className="mt-3 flex flex-wrap gap-2">
-          {gaps.map((g) => (
-            <li
-              key={g}
-              className="rounded-full border border-danger/40 bg-danger/5 px-3 py-1 font-mono text-xs text-muted"
-            >
-              {g}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 rounded border border-border px-4 py-3 text-sm text-muted">
-          Two new error codes came out of it (<code>missing_required_field</code>,{" "}
-          <code>invalid_enum_value</code>) and the fixture matrix grew from 3/17 to{" "}
-          <span className="font-semibold text-foreground">4 valid / 20 invalid</span> — the
-          coverage that had let those eight hide.
-        </p>
-      </div>
-
-      <div className="rounded border border-border px-4 py-3 text-sm">
-        <h3 className="font-mono text-xs font-medium uppercase tracking-widest text-muted">
-          Why the validator does not read the fixture&apos;s own answer
-        </h3>
-        <p className="mt-2 text-muted">{antiVacuity}</p>
-      </div>
-
-      <div className="rounded-lg border border-warning/30 border-l-4 border-l-warning bg-warning/5 p-4 text-sm">
-        <p className="font-mono text-xs font-semibold uppercase tracking-widest text-warning">
-          Known gaps — written into §11 of the contract, not left out of it
-        </p>
-        <ul className="mt-2 space-y-1.5">
-          {knownGaps.map((k) => (
-            <li key={k} className="text-muted">
-              {k}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <p className="text-sm font-semibold">PR #131 and PR #148 — both merged to main.</p>
+      <p className="font-mono text-xs text-faint">Detail: issues #105, #129 · PRs #131, #148.</p>
     </section>
   );
 }

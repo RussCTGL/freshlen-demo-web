@@ -1,59 +1,56 @@
-// Figures are from the two merged PRs this card covers:
-// PR #131 (issue #105, review queue + policy config) and PR #148 (issue #129, host contract v1).
+// Two deliveries in one week: the reviewer's queue, and the contract an outside system must honour.
+// Detail behind every line here lives on issues #105, #129 and PRs #131, #148.
 
-export const stats = [
-  { label: "Suite after #105", value: "761 passed" },
-  { label: "Contract fixtures", value: "4 valid / 20 invalid" },
-  { label: "Gaps found reviewing my own work", value: "9" },
+export const lead = "Give a reviewer something to look at, and freeze what an outside system has to honour.";
+
+export type Verdict = "works" | "fails" | "by-design" | "mismatch";
+
+export const board: { item: string; verdict: Verdict; label: string }[] = [
+  { item: "A reviewer sees the queue for their own store", verdict: "works", label: "Works" },
+  { item: "A reviewer sees another store's queue", verdict: "by-design", label: "Refused" },
+  { item: "An account can adjust its own spending caps", verdict: "works", label: "Within limits" },
+  { item: "Anyone can move the calibration threshold", verdict: "by-design", label: "Refused, always" },
+  { item: "The shopper is told what is left of their cap", verdict: "works", label: "Closed from week 3" },
 ];
 
-export const shipped = [
+export const numbers = [
+  { value: "9", label: "real holes found reviewing my own work" },
+  { value: "24", label: "contract cases, 20 of them negative" },
+  { value: "761", label: "tests passing offline" },
+];
+
+export const points = [
   {
-    route: "GET /api/claims?status=human_review",
-    note: "owner-scoped, bounded, redacted queue rows — a reviewer sees their store and no other",
+    n: "01",
+    title: "I attacked my own contract engine before anyone else could",
+    matters:
+      "Nine real holes, including an authentication bypass, an approval ceiling that was never enforced, and three inputs that crashed the engine outright.",
+    cost:
+      "None of them was visible from the tests, because the tests and the code had been written from the same understanding and agreed with each other. Only trying to break it on purpose separated the two.",
+    tail: "All nine closed, and the case set grew to cover the blind spot that hid them.",
+    tone: "danger",
   },
   {
-    route: "GET / POST /api/policy/config",
-    note: "owner-account-scoped; a write now has real effect on a later approval",
+    n: "02",
+    title: "The validator does not read the answer written on the test case",
+    matters:
+      "It works out what should happen from the contract rules, then compares. A test case that lies about itself fails.",
+    cost:
+      "The alternative is comfortable and worthless. A wrong test case and a wrong engine agree with each other, everything is green, and nobody learns anything until a partner integrates.",
+    tail: "Two runs over every case produce identical bytes.",
+    tone: "brand",
   },
   {
-    route: "review_claim clamp",
-    note: "uses the account's effective per_claim_cap_cents, not only the global default",
+    n: "03",
+    title: "The contract says out loud what it has not built",
+    matters:
+      "A section lists the parts that are specified but not implemented, including the whole finalisation boundary.",
+    cost:
+      "An outside team integrating against us learns the limits from the document rather than from an outage. It costs a paragraph now instead of a support thread later.",
+    tail: "Written at freeze time, not added after someone asked.",
+    tone: "brand",
   },
 ];
 
-/** Locked fields are the calibration gate. They are refused whole, never partially. */
-export const locked = {
-  fields: ["auto_approve_min_score", "min_confidence_for_auto"],
-  rule: "400, even when mixed with a valid field in the same POST — no partial write on a locked field.",
-};
-
-export const closedLoop =
-  "Reviewing my own diff surfaced that GET /api/policy/config reported the configured limit but not remaining_cap_cents — a shopper has a right to know what is left, not just what the ceiling is. Fixed here, which also closes the disclosure item I deferred in week 3.";
-
-/** The adversarial pass over my own rule engine, before the PR. */
-export const gaps = [
-  "auth bypass on monitor_event",
-  "per-claim ceiling not enforced on approvals",
-  "decision enum unvalidated",
-  "three KeyError crash paths on missing fields",
-  "asymmetric scope check (store vs account)",
-  "authority-override check scoped too narrowly",
-  "under-specified stacked-attack test",
-  "HTTP-method-blind route classifier",
-];
-
-export const antiVacuity =
-  "The validator re-derives each fixture's expected outcome from the contract's business rules instead of trusting the expected block written into the fixture. A fixture that lies about itself fails; a rule engine that agrees with a wrong fixture cannot hide. Two runs over every fixture are byte-stable.";
-
-export const contractParts = [
-  { name: "es_claim_host_v1.schema.json", note: "draft 2020-12 · 17 error_code values" },
-  { name: "ES-CLAIM-HOST-CONTRACT-V1.md", note: "permission matrix · state machine · error table · compatibility report" },
-  { name: "contract_fixtures/", note: "4 valid + 20 invalid, synthetic and privacy-clean" },
-  { name: "test_es_claim_host_contract.py", note: "offline validator, no jsonschema dependency" },
-];
-
-export const knownGaps = [
-  "Create-idempotency (shopper, operation, key) binding is not implemented in the live code.",
-  "#120 finalization — atomic cap, decision, audit, binding, anchor — is entirely unimplemented. This contract describes that boundary; it does not cross it.",
-];
+export const claimLimit =
+  "What this is not: a running integration. It is the description an outside system has to satisfy, plus the queue our own reviewers use. Nobody has connected to it from outside yet.";
