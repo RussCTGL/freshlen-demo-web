@@ -70,8 +70,10 @@ export default function View() {
   return (
     <section className="space-y-6">
       <p className="max-w-prose text-sm text-muted">
-        Week 3&apos;s job wasn&apos;t the smart part — it was the <span className="text-foreground">safe</span> part.
-        Watch one claim find its safe default. Step through it.
+        My Week-3 task (<span className="text-foreground">#36</span>) was to write the tests that prove
+        the walking skeleton&apos;s <span className="text-foreground">safe default</span> — that before any
+        automation is trusted, every refund claim routes to a human, the engine never declines on its own,
+        and nothing pays out silently. Here is that default as a journey — step through it.
       </p>
 
       <div className="mx-auto max-w-md space-y-1">
